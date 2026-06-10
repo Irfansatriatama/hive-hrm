@@ -50,6 +50,14 @@ const translations = {
     procurement_po: "Purchase Order",
     procurement_report: "Analisis PO",
 
+    // Sidebar sections
+    sidebar_main: "Utama",
+    sidebar_operations: "Operasional",
+    sidebar_resources: "Aset & Layanan",
+    sidebar_reports: "Laporan",
+    sidebar_admin: "Administrasi",
+    collapse_sidebar: "Ciutkan Sidebar",
+
     // Topbar & Common Elements
     search_placeholder: "Cari karyawan, dokumen, aset...",
     notifications: "Notifikasi",
@@ -152,6 +160,14 @@ const translations = {
     procurement: "Procurement",
     procurement_po: "Purchase Orders",
     procurement_report: "Purchase Analytics",
+
+    // Sidebar sections
+    sidebar_main: "Main",
+    sidebar_operations: "Operations",
+    sidebar_resources: "Assets & Services",
+    sidebar_reports: "Reports",
+    sidebar_admin: "Administration",
+    collapse_sidebar: "Collapse Sidebar",
 
     // Topbar & Common Elements
     search_placeholder: "Search employees, documents, assets...",
