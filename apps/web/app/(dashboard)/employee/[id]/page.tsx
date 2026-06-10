@@ -2,14 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import * as Lucide from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
 import { useAuth } from '@/hooks/useAuth';
 import { fetchAPI } from '@/lib/api';
 import Avatar from '@/components/shared/Avatar';
 import Badge from '@/components/shared/Badge';
-import FormField from '@/components/shared/FormField';
+import EmployeeWizardModal from '@/components/employee/EmployeeWizardModal';
 
 interface EmployeeProfile {
   id: string;
@@ -75,7 +75,6 @@ interface EmployeeProfile {
 
 export default function EmployeeProfilePage() {
   const params = useParams();
-  const router = useRouter();
   const { t } = useI18n();
   const { user } = useAuth();
   
@@ -86,20 +85,25 @@ export default function EmployeeProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState('personal');
+  const [showEditWizard, setShowEditWizard] = useState(false);
 
-  // Load employee profile
-  useEffect(() => {
-    async function loadProfile() {
-      try {
-        const data = await fetchAPI<EmployeeProfile>(`/employees/${id}`);
-        setEmp(data);
-      } catch (err: any) {
-        setError(err.message || 'Karyawan tidak ditemukan');
-      } finally {
-        setLoading(false);
-      }
+  const loadProfile = async () => {
+    try {
+      const data = await fetchAPI<EmployeeProfile>(`/employees/${id}`);
+      setEmp(data);
+      setError('');
+    } catch (err: any) {
+      setError(err.message || 'Karyawan tidak ditemukan');
+    } finally {
+      setLoading(false);
     }
-    if (id) loadProfile();
+  };
+
+  useEffect(() => {
+    if (id) {
+      setLoading(true);
+      loadProfile();
+    }
   }, [id]);
 
   if (loading) {
@@ -166,7 +170,7 @@ export default function EmployeeProfilePage() {
         <div className="flex items-center gap-2 text-xs font-bold">
           {(user?.role === 'SUPER_ADMIN' || user?.role === 'HR_ADMIN') && (
             <button
-              onClick={() => router.push(`/employee?edit=${emp.id}`)}
+              onClick={() => setShowEditWizard(true)}
               className="px-3 py-1.5 border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg transition flex items-center gap-1.5 cursor-pointer"
             >
               <Lucide.Edit className="w-3.5 h-3.5" />
@@ -471,6 +475,13 @@ export default function EmployeeProfilePage() {
           </div>
         )}
       </div>
+
+      <EmployeeWizardModal
+        isOpen={showEditWizard}
+        onClose={() => setShowEditWizard(false)}
+        onSaved={loadProfile}
+        employee={emp}
+      />
     </div>
   );
 }
