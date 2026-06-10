@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import * as Lucide from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { fetchAPI } from '@/lib/api';
-import { formatDate } from '@/lib/utils';
+import { formatDate, formatRupiah } from '@/lib/utils';
 import FormField from '@/components/shared/FormField';
 import DataTable from '@/components/shared/DataTable';
 import TableActionMenu from '@/components/shared/TableActionMenu';
@@ -42,8 +42,17 @@ export default function CompanyPage() {
   const [editingBranch, setEditingBranch] = useState<any>(null);
   const [branchForm, setBranchForm] = useState({ name: '', address: '', pic: '', staffCount: '0' });
 
-  const [holidayModal, setHolidayModal] = useState(false);
-  const [holidayForm, setHolidayForm] = useState({ name: '', date: '', type: 'national', description: '' });
+  const [deptModal, setDeptModal] = useState(false);
+  const [editingDept, setEditingDept] = useState<any>(null);
+  const [deptForm, setDeptForm] = useState({ name: '', code: '' });
+
+  const [posModal, setPosModal] = useState(false);
+  const [editingPos, setEditingPos] = useState<any>(null);
+  const [posForm, setPosForm] = useState({
+    name: '', grade: 'S2', departmentId: '', salaryMin: '5000000', salaryMax: '10000000',
+  });
+
+  const [holidayDate, setHolidayDate] = useState('');
 
   const loadData = async () => {
     setLoading(true);
@@ -143,30 +152,132 @@ export default function CompanyPage() {
     }
   };
 
-  const handleSaveHoliday = async () => {
-    if (!holidayForm.name.trim() || !holidayForm.date) {
-      alert('Nama dan tanggal libur wajib diisi');
+  const openDeptModal = (dept?: any) => {
+    setEditingDept(dept || null);
+    setDeptForm(dept ? { name: dept.name, code: dept.code } : { name: '', code: '' });
+    setDeptModal(true);
+  };
+
+  const handleSaveDept = async () => {
+    if (!deptForm.name.trim() || !deptForm.code.trim()) {
+      alert('Nama divisi dan kode singkat wajib diisi!');
+      return;
+    }
+    try {
+      if (editingDept) {
+        await fetchAPI(`/employees/departments/${editingDept.id}`, {
+          method: 'PUT',
+          body: JSON.stringify(deptForm),
+        });
+        alert('Departemen divisi berhasil diperbarui');
+      } else {
+        await fetchAPI('/employees/departments', {
+          method: 'POST',
+          body: JSON.stringify(deptForm),
+        });
+        alert('Departemen divisi baru berhasil ditambahkan');
+      }
+      setDeptModal(false);
+      loadData();
+    } catch (err: any) {
+      alert(err.message || 'Gagal menyimpan departemen');
+    }
+  };
+
+  const handleDeleteDept = async (id: string, name: string) => {
+    if (!confirm(`Apakah Anda yakin ingin menghapus divisi "${name}"? Seluruh data staff yang berasosiasi dengan divisi ini harus dipindahkan.`)) return;
+    try {
+      await fetchAPI(`/employees/departments/${id}/delete`, { method: 'POST' });
+      alert('Departemen divisi berhasil dihapus');
+      loadData();
+    } catch (err: any) {
+      alert(err.message || 'Gagal menghapus departemen');
+    }
+  };
+
+  const openPosModal = (pos?: any) => {
+    setEditingPos(pos || null);
+    setPosForm(pos
+      ? {
+          name: pos.name,
+          grade: pos.grade,
+          departmentId: pos.departmentId || '',
+          salaryMin: String(pos.salaryMin),
+          salaryMax: String(pos.salaryMax),
+        }
+      : { name: '', grade: 'S2', departmentId: '', salaryMin: '5000000', salaryMax: '10000000' });
+    setPosModal(true);
+  };
+
+  const handleSavePos = async () => {
+    const salaryMin = parseInt(posForm.salaryMin) || 0;
+    const salaryMax = parseInt(posForm.salaryMax) || 0;
+    if (!posForm.name.trim() || !posForm.grade.trim() || salaryMin < 0 || salaryMax <= salaryMin) {
+      alert('Mohon lengkapi seluruh field dengan range gaji valid!');
+      return;
+    }
+    try {
+      const payload = {
+        name: posForm.name,
+        grade: posForm.grade,
+        departmentId: posForm.departmentId || null,
+        salaryMin,
+        salaryMax,
+      };
+      if (editingPos) {
+        await fetchAPI(`/employees/positions/${editingPos.id}`, {
+          method: 'PUT',
+          body: JSON.stringify(payload),
+        });
+        alert('Level jabatan berhasil diperbarui');
+      } else {
+        await fetchAPI('/employees/positions', {
+          method: 'POST',
+          body: JSON.stringify(payload),
+        });
+        alert('Level jabatan baru berhasil didaftarkan');
+      }
+      setPosModal(false);
+      loadData();
+    } catch (err: any) {
+      alert(err.message || 'Gagal menyimpan jabatan');
+    }
+  };
+
+  const handleDeletePos = async (id: string, name: string) => {
+    if (!confirm(`Apakah Anda yakin ingin menghapus jabatan "${name}"?`)) return;
+    try {
+      await fetchAPI(`/employees/positions/${id}/delete`, { method: 'POST' });
+      alert('Level jabatan berhasil dihapus');
+      loadData();
+    } catch (err: any) {
+      alert(err.message || 'Gagal menghapus jabatan');
+    }
+  };
+
+  const handleAddHoliday = async () => {
+    if (!holidayDate) {
+      alert('Mohon pilih tanggal libur!');
       return;
     }
     try {
       await fetchAPI('/core/company/holidays', {
         method: 'POST',
-        body: JSON.stringify(holidayForm),
+        body: JSON.stringify({ date: holidayDate }),
       });
-      setHolidayModal(false);
-      setHolidayForm({ name: '', date: '', type: 'national', description: '' });
-      alert('Hari libur berhasil ditambahkan');
+      setHolidayDate('');
+      alert(`Tanggal libur ${holidayDate} berhasil didaftarkan`);
       loadData();
     } catch (err: any) {
       alert(err.message || 'Gagal menambah hari libur');
     }
   };
 
-  const handleDeleteHoliday = async (id: string, name: string) => {
-    if (!confirm(`Hapus hari libur "${name}"?`)) return;
+  const handleDeleteHoliday = async (id: string, dateLabel: string) => {
+    if (!confirm(`Apakah Anda yakin ingin menghapus tanggal libur "${dateLabel}"? Aksi ini akan mempengaruhi perhitungan saldo cuti efektif.`)) return;
     try {
       await fetchAPI(`/core/company/holidays/${id}/delete`, { method: 'POST' });
-      alert('Hari libur berhasil dihapus');
+      alert(`Tanggal libur ${dateLabel} telah dihapus`);
       loadData();
     } catch (err: any) {
       alert(err.message || 'Gagal menghapus hari libur');
@@ -273,56 +384,126 @@ export default function CompanyPage() {
         )}
 
         {activeTab === 'departments' && (
-          <DataTable
-            headers={['Kode Dept', 'Nama Departemen', 'ID Internal']}
-            rows={departments}
-            columns={['code', 'name', (row) => <span className="font-mono text-[10px]">{row.id}</span>]}
-          />
-        )}
-
-        {activeTab === 'positions' && (
-          <DataTable
-            headers={['Nama Jabatan', 'Grade / Level', 'Gaji Min', 'Gaji Max']}
-            rows={positions}
-            columns={[
-              'name',
-              'grade',
-              (row) => `Rp ${row.salaryMin?.toLocaleString('id-ID')}`,
-              (row) => `Rp ${row.salaryMax?.toLocaleString('id-ID')}`,
-            ]}
-          />
-        )}
-
-        {activeTab === 'holidays' && (
           <div className="space-y-4">
             {isAdmin && (
               <div className="flex justify-end">
-                <button onClick={() => setHolidayModal(true)} className="px-3 py-1.5 bg-primary hover:bg-primary-dark text-white rounded-lg text-xs font-bold shadow flex items-center gap-1.5 transition cursor-pointer">
+                <button onClick={() => openDeptModal()} className="px-3 py-1.5 bg-primary hover:bg-primary-dark text-white rounded-lg text-xs font-bold shadow flex items-center gap-1.5 transition cursor-pointer">
                   <Lucide.Plus className="w-3.5 h-3.5" />
-                  <span>Tambah Hari Libur</span>
+                  <span>Tambah Departemen</span>
                 </button>
               </div>
             )}
             <DataTable
-              headers={['Nama Libur', 'Tanggal', 'Tipe']}
-              rows={holidays}
+              headers={['Kode ID', 'Nama Divisi', 'Short Code', 'Kepala Divisi', 'Total Staff']}
+              rows={departments}
               columns={[
+                (row) => <span className="font-mono font-bold">{row.id}</span>,
                 'name',
-                (row) => formatDate(row.date),
-                'type',
+                (row) => <span className="font-mono font-semibold">{row.code}</span>,
+                'headName',
+                (row) => `${row.staffCount} Staff`,
               ]}
               actions={
                 isAdmin
                   ? (row: any) => (
                       <TableActionMenu
                         items={[
-                          { label: 'Hapus', onClick: () => handleDeleteHoliday(row.id, row.name), variant: 'danger' },
+                          { label: 'Edit', onClick: () => openDeptModal(row), variant: 'primary' },
+                          { label: 'Hapus', onClick: () => handleDeleteDept(row.id, row.name), variant: 'danger' },
                         ]}
                       />
                     )
                   : undefined
               }
             />
+          </div>
+        )}
+
+        {activeTab === 'positions' && (
+          <div className="space-y-4">
+            {isAdmin && (
+              <div className="flex justify-end">
+                <button onClick={() => openPosModal()} className="px-3 py-1.5 bg-primary hover:bg-primary-dark text-white rounded-lg text-xs font-bold shadow flex items-center gap-1.5 transition cursor-pointer">
+                  <Lucide.Plus className="w-3.5 h-3.5" />
+                  <span>Tambah Jabatan</span>
+                </button>
+              </div>
+            )}
+            <DataTable
+              headers={['ID Jabatan', 'Nama Jabatan', 'Grade/Level', 'Departemen', 'Rentang Gaji Pokok']}
+              rows={positions}
+              columns={[
+                (row) => <span className="font-mono font-bold">{row.id}</span>,
+                'name',
+                (row) => <span className="font-mono font-bold">{row.grade}</span>,
+                (row) => row.department?.name || 'Full Company (General)',
+                (row) => `${formatRupiah(row.salaryMin)} - ${formatRupiah(row.salaryMax)}`,
+              ]}
+              actions={
+                isAdmin
+                  ? (row: any) => (
+                      <TableActionMenu
+                        items={[
+                          { label: 'Edit', onClick: () => openPosModal(row), variant: 'primary' },
+                          { label: 'Hapus', onClick: () => handleDeletePos(row.id, row.name), variant: 'danger' },
+                        ]}
+                      />
+                    )
+                  : undefined
+              }
+            />
+          </div>
+        )}
+
+        {activeTab === 'holidays' && (
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+            {isAdmin && (
+              <div className="bg-slate-50 border border-slate-200/60 p-5 rounded-2xl md:col-span-4 flex flex-col gap-4">
+                <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider pb-2 border-b border-slate-200 select-none">
+                  Tambah Hari Libur
+                </h3>
+                <FormField.Input
+                  label="Pilih Tanggal Libur"
+                  type="date"
+                  required
+                  value={holidayDate}
+                  onChange={(e) => setHolidayDate(e.target.value)}
+                />
+                <button
+                  onClick={handleAddHoliday}
+                  className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-2 px-4 rounded-lg shadow text-xs transition cursor-pointer"
+                >
+                  Tambahkan Tanggal
+                </button>
+              </div>
+            )}
+            <div className={`${isAdmin ? 'md:col-span-8' : 'md:col-span-12'} bg-white border border-slate-200/80 rounded-2xl overflow-hidden flex flex-col`}>
+              <DataTable
+                headers={['Tanggal ISO', 'Nama Hari']}
+                rows={[...holidays].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())}
+                columns={[
+                  (row) => {
+                    const iso = new Date(row.date).toISOString().split('T')[0];
+                    return <span className="font-mono font-bold">{iso}</span>;
+                  },
+                  (row) => formatDate(row.date),
+                ]}
+                actions={
+                  isAdmin
+                    ? (row: any) => {
+                        const iso = new Date(row.date).toISOString().split('T')[0];
+                        return (
+                          <TableActionMenu
+                            items={[
+                              { label: 'Hapus', onClick: () => handleDeleteHoliday(row.id, iso), variant: 'danger' },
+                            ]}
+                          />
+                        );
+                      }
+                    : undefined
+                }
+              />
+            </div>
           </div>
         )}
       </div>
@@ -339,20 +520,40 @@ export default function CompanyPage() {
         </div>
       </Modal>
 
-      <Modal isOpen={holidayModal} onClose={() => setHolidayModal(false)} title="Tambah Hari Libur">
+      <Modal isOpen={deptModal} onClose={() => setDeptModal(false)} title={editingDept ? `Edit Divisi: ${editingDept.name}` : 'Tambah Departemen Baru'}>
         <div className="space-y-4">
-          <FormField.Input label="Nama Hari Libur" required value={holidayForm.name} onChange={(e) => setHolidayForm({ ...holidayForm, name: e.target.value })} />
-          <FormField.Input label="Tanggal" type="date" required value={holidayForm.date} onChange={(e) => setHolidayForm({ ...holidayForm, date: e.target.value })} />
-          <FormField.Select
-            label="Tipe"
-            options={[{ value: 'national', label: 'Nasional' }, { value: 'company', label: 'Perusahaan' }]}
-            value={holidayForm.type}
-            onChange={(e) => setHolidayForm({ ...holidayForm, type: e.target.value })}
-          />
+          <FormField.Input label="Nama Divisi Departemen" required value={deptForm.name} onChange={(e) => setDeptForm({ ...deptForm, name: e.target.value })} />
+          <FormField.Input label="Kode Singkat (Short Code)" required placeholder="Contoh: MKT, FIN" value={deptForm.code} onChange={(e) => setDeptForm({ ...deptForm, code: e.target.value.toUpperCase() })} />
         </div>
         <div className="flex justify-end gap-2 mt-6">
-          <button onClick={() => setHolidayModal(false)} className="px-4 py-2 border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg transition cursor-pointer">Batal</button>
-          <button onClick={handleSaveHoliday} className="px-4 py-2 bg-primary hover:bg-primary-dark text-white text-xs font-bold rounded-lg shadow transition cursor-pointer">Simpan</button>
+          <button onClick={() => setDeptModal(false)} className="px-4 py-2 border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg transition cursor-pointer">Batal</button>
+          <button onClick={handleSaveDept} className="px-4 py-2 bg-primary hover:bg-primary-dark text-white text-xs font-bold rounded-lg shadow transition cursor-pointer">Simpan Divisi</button>
+        </div>
+      </Modal>
+
+      <Modal isOpen={posModal} onClose={() => setPosModal(false)} title={editingPos ? `Edit Jabatan: ${editingPos.name}` : 'Tambah Jabatan Karyawan Baru'} size="lg">
+        <div className="space-y-4">
+          <FormField.Input label="Nama Jabatan / Posisi" required value={posForm.name} onChange={(e) => setPosForm({ ...posForm, name: e.target.value })} />
+          <div className="grid grid-cols-2 gap-4">
+            <FormField.Input label="Grade / Level (Contoh: M1, S1)" required value={posForm.grade} onChange={(e) => setPosForm({ ...posForm, grade: e.target.value.toUpperCase() })} />
+            <FormField.Select
+              label="Departemen Divisi"
+              value={posForm.departmentId}
+              onChange={(e) => setPosForm({ ...posForm, departmentId: e.target.value })}
+              options={[
+                { value: '', label: 'Full Company (General)' },
+                ...departments.map((d) => ({ value: d.id, label: d.name })),
+              ]}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <FormField.Input label="Gaji Minimum (Rupiah)" type="number" required value={posForm.salaryMin} onChange={(e) => setPosForm({ ...posForm, salaryMin: e.target.value })} />
+            <FormField.Input label="Gaji Maksimum (Rupiah)" type="number" required value={posForm.salaryMax} onChange={(e) => setPosForm({ ...posForm, salaryMax: e.target.value })} />
+          </div>
+        </div>
+        <div className="flex justify-end gap-2 mt-6">
+          <button onClick={() => setPosModal(false)} className="px-4 py-2 border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg transition cursor-pointer">Batal</button>
+          <button onClick={handleSavePos} className="px-4 py-2 bg-primary hover:bg-primary-dark text-white text-xs font-bold rounded-lg shadow transition cursor-pointer">Simpan Jabatan</button>
         </div>
       </Modal>
     </div>

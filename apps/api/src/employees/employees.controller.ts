@@ -55,10 +55,84 @@ export class EmployeesController {
     return this.service.findDepartments();
   }
 
+  @Post('departments')
+  async createDepartment(@Req() req: express.Request, @Body() body: any) {
+    const user = await this.getSessionUser(req);
+    const role = (user as any).role;
+    if (role !== 'SUPER_ADMIN' && role !== 'HR_ADMIN') {
+      throw new UnauthorizedException('Only admins can manage departments');
+    }
+    return this.service.createDepartment(body);
+  }
+
+  @Put('departments/:id')
+  async updateDepartment(
+    @Req() req: express.Request,
+    @Param('id') id: string,
+    @Body() body: any,
+  ) {
+    const user = await this.getSessionUser(req);
+    const role = (user as any).role;
+    if (role !== 'SUPER_ADMIN' && role !== 'HR_ADMIN') {
+      throw new UnauthorizedException('Only admins can manage departments');
+    }
+    return this.service.updateDepartment(id, body);
+  }
+
+  @Post('departments/:id/delete')
+  async deleteDepartment(@Req() req: express.Request, @Param('id') id: string) {
+    const user = await this.getSessionUser(req);
+    const role = (user as any).role;
+    if (role !== 'SUPER_ADMIN' && role !== 'HR_ADMIN') {
+      throw new UnauthorizedException('Only admins can manage departments');
+    }
+    return this.service.deleteDepartment(id);
+  }
+
   @Get('positions')
   async findPositions(@Req() req: express.Request) {
     await this.getSessionUser(req);
     return this.service.findPositions();
+  }
+
+  @Post('positions')
+  async createPosition(@Req() req: express.Request, @Body() body: any) {
+    const user = await this.getSessionUser(req);
+    const role = (user as any).role;
+    if (role !== 'SUPER_ADMIN' && role !== 'HR_ADMIN') {
+      throw new UnauthorizedException('Only admins can manage positions');
+    }
+    return this.service.createPosition(body);
+  }
+
+  @Put('positions/:id')
+  async updatePosition(
+    @Req() req: express.Request,
+    @Param('id') id: string,
+    @Body() body: any,
+  ) {
+    const user = await this.getSessionUser(req);
+    const role = (user as any).role;
+    if (role !== 'SUPER_ADMIN' && role !== 'HR_ADMIN') {
+      throw new UnauthorizedException('Only admins can manage positions');
+    }
+    return this.service.updatePosition(id, body);
+  }
+
+  @Post('positions/:id/delete')
+  async deletePosition(@Req() req: express.Request, @Param('id') id: string) {
+    const user = await this.getSessionUser(req);
+    const role = (user as any).role;
+    if (role !== 'SUPER_ADMIN' && role !== 'HR_ADMIN') {
+      throw new UnauthorizedException('Only admins can manage positions');
+    }
+    return this.service.deletePosition(id);
+  }
+
+  @Get('org-chart')
+  async getOrgChart(@Req() req: express.Request, @Query('dept') dept?: string) {
+    await this.getSessionUser(req);
+    return this.service.getOrgChart(dept);
   }
 
   @Get('managers')

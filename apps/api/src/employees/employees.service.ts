@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { EmployeeStatus, ApprovalStatus } from '@prisma/client';
 import { hashPassword } from 'better-auth/crypto';
@@ -418,15 +418,184 @@ export class EmployeesService {
   }
 
   async findDepartments() {
-    return this.prisma.department.findMany({
+    const depts = await this.prisma.department.findMany({
       orderBy: { name: 'asc' },
     });
+    const employees = await this.prisma.employee.findMany({
+      where: { status: EmployeeStatus.ACTIVE },
+      include: { position: true },
+    });
+
+    return depts.map((dept) => {
+      const deptEmployees = employees.filter((e) => e.departmentId === dept.id);
+      const head =
+        deptEmployees.find((e) => e.position?.grade?.startsWith('M')) ||
+        deptEmployees[0];
+
+      return {
+        ...dept,
+        headName: head?.fullName || 'Belum ditugaskan',
+        staffCount: deptEmployees.length,
+      };
+    });
+  }
+
+  async createDepartment(data: { name: string; code: string }) {
+    const code = data.code.trim().toUpperCase();
+    const count = await this.prisma.department.count();
+    const id = `DEPT${String(count + 1).padStart(3, '0')}`;
+
+    return this.prisma.department.create({
+      data: {
+        id,
+        name: data.name.trim(),
+        code,
+      },
+    });
+  }
+
+  async updateDepartment(id: string, data: { name: string; code: string }) {
+    const existing = await this.prisma.department.findUnique({ where: { id } });
+    if (!existing) throw new NotFoundException(`Department with ID ${id} not found`);
+
+    return this.prisma.department.update({
+      where: { id },
+      data: {
+        name: data.name.trim(),
+        code: data.code.trim().toUpperCase(),
+      },
+    });
+  }
+
+  async deleteDepartment(id: string) {
+    const existing = await this.prisma.department.findUnique({ where: { id } });
+    if (!existing) throw new NotFoundException(`Department with ID ${id} not found`);
+
+    const employeeCount = await this.prisma.employee.count({
+      where: { departmentId: id },
+    });
+    if (employeeCount > 0) {
+      throw new BadRequestException(
+        'Departemen masih memiliki karyawan. Pindahkan staff terlebih dahulu.',
+      );
+    }
+
+    return this.prisma.department.delete({ where: { id } });
   }
 
   async findPositions() {
     return this.prisma.position.findMany({
+      include: { department: true },
       orderBy: { name: 'asc' },
     });
+  }
+
+  async createPosition(data: {
+    name: string;
+    grade: string;
+    departmentId?: string;
+    salaryMin: number;
+    salaryMax: number;
+  }) {
+    const salaryMin = parseInt(String(data.salaryMin)) || 0;
+    const salaryMax = parseInt(String(data.salaryMax)) || 0;
+    if (!data.name?.trim() || !data.grade?.trim() || salaryMin < 0 || salaryMax <= salaryMin) {
+      throw new BadRequestException('Mohon lengkapi seluruh field dengan range gaji valid');
+    }
+
+    const count = await this.prisma.position.count();
+    const id = `POS${String(count + 1).padStart(3, '0')}`;
+
+    return this.prisma.position.create({
+      data: {
+        id,
+        name: data.name.trim(),
+        grade: data.grade.trim().toUpperCase(),
+        departmentId: data.departmentId || null,
+        salaryMin,
+        salaryMax,
+      },
+      include: { department: true },
+    });
+  }
+
+  async updatePosition(
+    id: string,
+    data: {
+      name: string;
+      grade: string;
+      departmentId?: string;
+      salaryMin: number;
+      salaryMax: number;
+    },
+  ) {
+    const existing = await this.prisma.position.findUnique({ where: { id } });
+    if (!existing) throw new NotFoundException(`Position with ID ${id} not found`);
+
+    const salaryMin = parseInt(String(data.salaryMin)) || 0;
+    const salaryMax = parseInt(String(data.salaryMax)) || 0;
+    if (!data.name?.trim() || !data.grade?.trim() || salaryMin < 0 || salaryMax <= salaryMin) {
+      throw new BadRequestException('Mohon lengkapi seluruh field dengan range gaji valid');
+    }
+
+    return this.prisma.position.update({
+      where: { id },
+      data: {
+        name: data.name.trim(),
+        grade: data.grade.trim().toUpperCase(),
+        departmentId: data.departmentId || null,
+        salaryMin,
+        salaryMax,
+      },
+      include: { department: true },
+    });
+  }
+
+  async deletePosition(id: string) {
+    const existing = await this.prisma.position.findUnique({ where: { id } });
+    if (!existing) throw new NotFoundException(`Position with ID ${id} not found`);
+
+    const employeeCount = await this.prisma.employee.count({
+      where: { positionId: id },
+    });
+    if (employeeCount > 0) {
+      throw new BadRequestException(
+        'Jabatan masih digunakan karyawan. Pindahkan posisi staff terlebih dahulu.',
+      );
+    }
+
+    return this.prisma.position.delete({ where: { id } });
+  }
+
+  async getOrgChart(deptFilter?: string) {
+    const employees = await this.prisma.employee.findMany({
+      where: { status: EmployeeStatus.ACTIVE },
+      include: {
+        department: true,
+        position: true,
+        manager: { select: { id: true, fullName: true } },
+      },
+      orderBy: { fullName: 'asc' },
+    });
+
+    const filtered = deptFilter
+      ? employees.filter((e) => e.departmentId === deptFilter)
+      : employees;
+
+    return filtered.map((emp) => ({
+      id: emp.id,
+      full_name: emp.fullName,
+      employee_number: emp.employeeNumber,
+      department_id: emp.departmentId,
+      department_name: emp.department?.name || '',
+      position_id: emp.positionId,
+      position_name: emp.position?.name || '',
+      direct_manager_id: emp.managerId,
+      manager_name: emp.manager?.fullName || null,
+      work_email: emp.email,
+      work_location: 'Head Office',
+      join_date: emp.joinDate ? emp.joinDate.toISOString().split('T')[0] : null,
+    }));
   }
 
   async findManagers() {

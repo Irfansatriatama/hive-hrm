@@ -220,12 +220,32 @@ export class CoreService {
   }
 
   async createHoliday(data: any) {
+    if (!data.date) {
+      throw new BadRequestException('Tanggal libur wajib diisi');
+    }
+
+    const date = new Date(data.date);
+    const isoDate = data.date.split('T')[0];
+    const existing = await this.prisma.publicHoliday.findFirst({
+      where: { date },
+    });
+    if (existing) {
+      throw new BadRequestException('Tanggal libur tersebut sudah terdaftar');
+    }
+
+    const dayName = date.toLocaleDateString('id-ID', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+
     return this.prisma.publicHoliday.create({
       data: {
-        name: data.name,
-        date: new Date(data.date),
+        name: data.name?.trim() || dayName,
+        date,
         type: data.type || 'national',
-        description: data.description || null,
+        description: data.description || isoDate,
       },
     });
   }
