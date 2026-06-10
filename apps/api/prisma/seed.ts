@@ -245,6 +245,23 @@ async function main() {
     ],
   });
 
+  console.log('Seeding attendance settings...');
+  await prisma.appSetting.create({
+    data: {
+      key: 'attendance_settings',
+      value: {
+        check_in_limit: '08:00',
+        check_out_limit: '17:00',
+        late_tolerance: 15,
+        early_checkout_tolerance: 10,
+        overtime_start_delay: 30,
+        overtime_calculation_method: 'hourly',
+        working_days: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'],
+        fingerprint_integration: false,
+      },
+    },
+  });
+
   console.log('Seeding billing settings...');
   const employeeCount = await prisma.employee.count({ where: { status: EmployeeStatus.ACTIVE } });
   await prisma.appSetting.create({

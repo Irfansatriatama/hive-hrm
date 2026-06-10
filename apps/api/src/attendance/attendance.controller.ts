@@ -4,7 +4,6 @@ import {
   Post,
   Put,
   Body,
-  Query,
   Req,
   UnauthorizedException,
   NotFoundException,
@@ -48,6 +47,13 @@ export class AttendanceController {
     return emp;
   }
 
+  private assertHRAccess(user: unknown) {
+    const role = (user as { role?: string }).role;
+    if (role !== 'SUPER_ADMIN' && role !== 'HR_ADMIN') {
+      throw new UnauthorizedException('Unauthorized access');
+    }
+  }
+
   @Get('today')
   async getTodayStatus(@Req() req: express.Request) {
     const user = await this.getSessionUser(req);
@@ -77,27 +83,20 @@ export class AttendanceController {
   }
 
   @Get('report')
-  async getReport(
+  async getReport(@Req() req: express.Request) {
+    const user = await this.getSessionUser(req);
+    this.assertHRAccess(user);
+    return this.service.getReport();
+  }
+
+  @Put('report/bulk-status')
+  async bulkUpdateStatus(
     @Req() req: express.Request,
-    @Query('search') search?: string,
-    @Query('startDate') startDate?: string,
-    @Query('endDate') endDate?: string,
-    @Query('page') page?: string,
-    @Query('limit') limit?: string
+    @Body() body: { ids: string[]; status: string }
   ) {
     const user = await this.getSessionUser(req);
-    // RBAC: Only Super Admin, HR Admin can access reports
-    const role = (user as any).role;
-    if (role !== 'SUPER_ADMIN' && role !== 'HR_ADMIN') {
-      throw new UnauthorizedException('Unauthorized access to attendance reports');
-    }
-    return this.service.getReport({
-      search,
-      startDate,
-      endDate,
-      page: page ? parseInt(page) : 1,
-      limit: limit ? parseInt(limit) : 10,
-    });
+    this.assertHRAccess(user);
+    return this.service.bulkUpdateStatus(body.ids || [], body.status, user.id);
   }
 
   @Get('settings')
@@ -109,10 +108,7 @@ export class AttendanceController {
   @Put('settings')
   async updateSettings(@Req() req: express.Request, @Body() body: any) {
     const user = await this.getSessionUser(req);
-    const role = (user as any).role;
-    if (role !== 'SUPER_ADMIN' && role !== 'HR_ADMIN') {
-      throw new UnauthorizedException('Only admins can edit settings');
-    }
-    return this.service.updateSettings(body);
+    this.assertHRAccess(user);
+    return this.service.updateSettings(body, user.id);
   }
 }
