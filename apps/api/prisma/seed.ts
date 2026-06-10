@@ -39,6 +39,8 @@ async function main() {
   await prisma.leaveRequest.deleteMany();
   await prisma.leaveType.deleteMany();
   await prisma.attendance.deleteMany();
+  await prisma.shiftSwap.deleteMany();
+  await prisma.employeeShiftSchedule.deleteMany();
   await prisma.employee.deleteMany();
   await prisma.position.deleteMany();
   await prisma.department.deleteMany();
@@ -80,10 +82,11 @@ async function main() {
   console.log('Seeding shifts...');
   await prisma.shift.createMany({
     data: [
-      { name: 'Morning Shift', startTime: '06:00', endTime: '14:00', breakTime: 60, isDefault: false },
-      { name: 'Day Shift', startTime: '08:00', endTime: '17:00', breakTime: 60, isDefault: true },
-      { name: 'Afternoon Shift', startTime: '14:00', endTime: '22:00', breakTime: 60, isDefault: false },
-      { name: 'Night Shift', startTime: '22:00', endTime: '06:00', breakTime: 60, isDefault: false },
+      { name: 'Morning Shift', startTime: '06:00', endTime: '14:00', color: '#3B82F6', breakTime: 60, isDefault: false },
+      { name: 'Day Shift', startTime: '08:00', endTime: '17:00', color: '#10B981', breakTime: 60, isDefault: true },
+      { name: 'Afternoon Shift', startTime: '14:00', endTime: '22:00', color: '#F59E0B', breakTime: 60, isDefault: false },
+      { name: 'Night Shift', startTime: '22:00', endTime: '06:00', color: '#EF4444', breakTime: 60, isDefault: false },
+      { name: 'Split Shift', startTime: '08:00', endTime: '20:00', color: '#8B5CF6', split: true, breakTime: 60, isDefault: false },
     ],
   });
 

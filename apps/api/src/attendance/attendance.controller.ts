@@ -5,6 +5,7 @@ import {
   Put,
   Body,
   Req,
+  Query,
   UnauthorizedException,
   NotFoundException,
 } from '@nestjs/common';
@@ -76,10 +77,16 @@ export class AttendanceController {
   }
 
   @Get('history')
-  async getMyHistory(@Req() req: express.Request) {
+  async getMyHistory(
+    @Req() req: express.Request,
+    @Query('month') month?: string,
+    @Query('year') year?: string,
+  ) {
     const user = await this.getSessionUser(req);
     const emp = await this.getEmployeeByUserId(user.id);
-    return this.service.getMyHistory(emp.id);
+    const m = month ? parseInt(month, 10) : undefined;
+    const y = year ? parseInt(year, 10) : undefined;
+    return this.service.getMyHistory(emp.id, m, y);
   }
 
   @Get('report')

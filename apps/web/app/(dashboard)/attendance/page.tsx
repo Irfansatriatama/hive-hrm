@@ -1,25 +1,66 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import * as Lucide from 'lucide-react';
-import { useI18n } from '@/lib/i18n';
 import { fetchAPI } from '@/lib/api';
+import { formatDate } from '@/lib/utils';
 import Badge from '@/components/shared/Badge';
 
+const MONTHS = [
+  { v: 1, l: 'Januari' },
+  { v: 2, l: 'Februari' },
+  { v: 3, l: 'Maret' },
+  { v: 4, l: 'April' },
+  { v: 5, l: 'Mei' },
+  { v: 6, l: 'Juni' },
+  { v: 7, l: 'Juli' },
+  { v: 8, l: 'Agustus' },
+  { v: 9, l: 'September' },
+  { v: 10, l: 'Oktober' },
+  { v: 11, l: 'November' },
+  { v: 12, l: 'Desember' },
+];
+
+function formatTime(iso?: string | null): string {
+  if (!iso) return '-';
+  return new Date(iso).toLocaleTimeString('id-ID', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+}
+
+function formatDuration(row: any): string {
+  if (row.workHours) {
+    const hrs = Math.floor(row.workHours);
+    const mins = Math.round((row.workHours - hrs) * 60);
+    return `${hrs}h ${mins}m`;
+  }
+  if (row.checkIn && row.checkOut) {
+    const diff = (new Date(row.checkOut).getTime() - new Date(row.checkIn).getTime()) / (1000 * 60);
+    const hrs = Math.floor(diff / 60);
+    const mins = Math.round(diff % 60);
+    return `${hrs}h ${mins}m`;
+  }
+  return '-';
+}
+
 export default function AttendancePage() {
-  const { t } = useI18n();
+  const now = new Date();
   const [todayRecord, setTodayRecord] = useState<any>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [notes, setNotes] = useState('');
-  const [location, setLocation] = useState('Head Office (Simulated GPS)');
+  const [filterMonth, setFilterMonth] = useState(now.getMonth() + 1);
+  const [filterYear, setFilterYear] = useState(now.getFullYear());
+  const [runningTimer, setRunningTimer] = useState('00:00:00');
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const loadStatusAndHistory = async () => {
     setLoading(true);
     try {
       const [status, historyData] = await Promise.all([
         fetchAPI('/attendance/today'),
-        fetchAPI<any[]>('/attendance/history'),
+        fetchAPI<any[]>(`/attendance/history?month=${filterMonth}&year=${filterYear}`),
       ]);
       setTodayRecord(status);
       setHistory(historyData);
@@ -32,16 +73,47 @@ export default function AttendancePage() {
 
   useEffect(() => {
     loadStatusAndHistory();
-  }, []);
+  }, [filterMonth, filterYear]);
+
+  useEffect(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+
+    if (todayRecord?.checkIn && !todayRecord?.checkOut) {
+      const checkInDate = new Date(todayRecord.checkIn);
+
+      const updateTimer = () => {
+        const diffMs = Date.now() - checkInDate.getTime();
+        if (diffMs < 0) {
+          setRunningTimer('00:00:00');
+          return;
+        }
+        const hrs = Math.floor(diffMs / 3600000);
+        const mins = Math.floor((diffMs % 3600000) / 60000);
+        const secs = Math.floor((diffMs % 60000) / 1000);
+        setRunningTimer(
+          `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`,
+        );
+      };
+
+      updateTimer();
+      timerRef.current = setInterval(updateTimer, 1000);
+    }
+
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [todayRecord]);
 
   const handleCheckIn = async () => {
     try {
       await fetchAPI('/attendance/check-in', {
         method: 'POST',
-        body: JSON.stringify({ location, notes }),
+        body: JSON.stringify({ location: 'Head Office (Simulated GPS)', notes: '' }),
       });
-      alert('Check-in Berhasil!');
-      setNotes('');
+      alert('Absen Masuk Berhasil!');
       loadStatusAndHistory();
     } catch (err: any) {
       alert(err.message || 'Gagal check-in');
@@ -50,163 +122,199 @@ export default function AttendancePage() {
 
   const handleCheckOut = async () => {
     try {
-      await fetchAPI('/attendance/check-out', {
-        method: 'POST',
-      });
-      alert('Check-out Berhasil!');
+      await fetchAPI('/attendance/check-out', { method: 'POST' });
+      alert('Absen Keluar Berhasil!');
       loadStatusAndHistory();
     } catch (err: any) {
       alert(err.message || 'Gagal check-out');
     }
   };
 
+  const renderActionButton = () => {
+    if (!todayRecord) {
+      return (
+        <button
+          onClick={handleCheckIn}
+          className="w-48 h-48 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-lg shadow-xl shadow-emerald-500/10 active:scale-[0.97] focus:outline-none transition-all flex flex-col items-center justify-center gap-2 border-[6px] border-emerald-50 relative group cursor-pointer"
+        >
+          <div className="absolute inset-0 rounded-full border border-emerald-400 group-hover:scale-105 transition duration-300" />
+          <Lucide.LogIn className="w-8 h-8" />
+          <span>Check In</span>
+        </button>
+      );
+    }
+
+    if (todayRecord.checkIn && !todayRecord.checkOut) {
+      return (
+        <button
+          onClick={handleCheckOut}
+          className="w-48 h-48 rounded-full bg-amber-600 hover:bg-amber-700 text-white font-bold text-lg shadow-xl shadow-amber-500/10 active:scale-[0.97] focus:outline-none transition-all flex flex-col items-center justify-center gap-2 border-[6px] border-amber-50 relative group cursor-pointer"
+        >
+          <div className="absolute inset-0 rounded-full border border-amber-400 group-hover:scale-105 transition duration-300" />
+          <Lucide.LogOut className="w-8 h-8" />
+          <span>Check Out</span>
+        </button>
+      );
+    }
+
+    return (
+      <button
+        disabled
+        className="w-48 h-48 rounded-full bg-slate-100 border-[6px] border-slate-50 text-slate-400 font-bold text-lg flex flex-col items-center justify-center gap-2 select-none"
+      >
+        <Lucide.CheckCircle2 className="w-8 h-8 text-slate-300" />
+        <span>Selesai</span>
+      </button>
+    );
+  };
+
+  const renderStatusSummary = () => {
+    if (!todayRecord) {
+      return (
+        <div className="text-center md:text-left select-none">
+          <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">
+            Status Hari Ini
+          </p>
+          <h3 className="text-xl font-bold text-slate-700 mt-1">Belum Melakukan Absen Masuk</h3>
+        </div>
+      );
+    }
+
+    if (todayRecord.checkIn && !todayRecord.checkOut) {
+      return (
+        <div className="text-center md:text-left">
+          <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">
+            Status Hari Ini
+          </p>
+          <h3 className="text-xl font-bold text-slate-700 mt-1 flex items-center justify-center md:justify-start gap-2 select-none">
+            Terabsen Masuk pada{' '}
+            <span className="font-mono text-primary font-extrabold">
+              {formatTime(todayRecord.checkIn)}
+            </span>
+          </h3>
+          <p className="text-xs text-slate-400 mt-1">
+            Durasi berjalan:{' '}
+            <span className="font-mono font-bold text-slate-600">{runningTimer}</span>
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="text-center md:text-left select-none">
+        <p className="text-sm font-semibold text-slate-400 uppercase tracking-wider">
+          Status Hari Ini
+        </p>
+        <h3 className="text-xl font-bold text-green-600 mt-1">Absensi Hari Ini Lengkap</h3>
+        <p className="text-xs text-slate-400 mt-1 font-mono">
+          Masuk: {formatTime(todayRecord.checkIn)} | Keluar: {formatTime(todayRecord.checkOut)} (
+          {formatDuration(todayRecord)})
+        </p>
+      </div>
+    );
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-      {/* Console Panel */}
-      <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm lg:col-span-5 flex flex-col gap-6 select-none">
-        <div>
-          <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Absensi Kehadiran</h2>
-          <p className="text-xs text-slate-400 mt-1">Catat kehadiran Anda hari ini berdasarkan shift kerja standard.</p>
-        </div>
-
+      <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm lg:col-span-5 flex flex-col items-center justify-center min-h-[400px] gap-6">
         {loading ? (
           <div className="flex justify-center py-10">
             <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
         ) : (
-          <div className="space-y-6">
-            {/* Clock display */}
-            <div className="bg-slate-50 p-5 rounded-xl border border-slate-100 text-center">
-              <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Waktu Hari Ini</span>
-              <h3 className="text-2xl font-bold text-slate-800 mt-1 font-mono">
-                {new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} WIB
-              </h3>
-              <p className="text-[10px] text-slate-400 font-semibold mt-1">
-                {new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-              </p>
-            </div>
-
-            {/* Check in / Check out times */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-3 bg-blue-50/50 border border-blue-100 rounded-lg text-center">
-                <span className="text-[9px] uppercase font-bold text-blue-500 tracking-wider">Jam Masuk</span>
-                <p className="text-sm font-bold text-slate-700 font-mono mt-1">
-                  {todayRecord?.checkIn
-                    ? new Date(todayRecord.checkIn).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
-                    : '--:--'}
-                </p>
-              </div>
-              <div className="p-3 bg-green-50/50 border border-green-100 rounded-lg text-center">
-                <span className="text-[9px] uppercase font-bold text-green-500 tracking-wider">Jam Pulang</span>
-                <p className="text-sm font-bold text-slate-700 font-mono mt-1">
-                  {todayRecord?.checkOut
-                    ? new Date(todayRecord.checkOut).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
-                    : '--:--'}
-                </p>
-              </div>
-            </div>
-
-            {/* Form */}
-            {!todayRecord && (
-              <div className="space-y-4">
-                <div className="space-y-1">
-                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Catatan Masuk (Opsional)</label>
-                  <textarea
-                    value={notes}
-                    onChange={e => setNotes(e.target.value)}
-                    placeholder="Tulis catatan check-in Anda..."
-                    className="block w-full px-4 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:border-primary transition resize-none"
-                    rows={2}
-                  />
-                </div>
-                <button
-                  onClick={handleCheckIn}
-                  className="w-full py-2.5 bg-primary hover:bg-primary-dark text-white rounded-lg text-xs font-bold shadow transition cursor-pointer"
-                >
-                  Check In Masuk
-                </button>
-              </div>
-            )}
-
-            {todayRecord && !todayRecord.checkOut && (
-              <div className="space-y-4">
-                <div className="p-3 bg-slate-50 border border-slate-100 rounded-lg text-center text-xs text-slate-500">
-                  <p>Anda sudah check-in pada pukul <strong>{new Date(todayRecord.checkIn).toLocaleTimeString('id-ID')}</strong>.</p>
-                  {todayRecord.notes && <p className="mt-1.5 italic">&ldquo;{todayRecord.notes}&rdquo;</p>}
-                </div>
-                <button
-                  onClick={handleCheckOut}
-                  className="w-full py-2.5 bg-green-600 hover:bg-green-750 text-white rounded-lg text-xs font-bold shadow transition cursor-pointer"
-                >
-                  Check Out Pulang
-                </button>
-              </div>
-            )}
-
-            {todayRecord?.checkOut && (
-              <div className="p-4 bg-slate-50 border border-slate-100 rounded-lg text-center space-y-2 text-xs text-slate-500">
-                <Lucide.CheckCircle className="w-8 h-8 text-green-500 mx-auto" />
-                <p className="font-bold text-slate-700">Absensi Hari Ini Lengkap</p>
-                <p>Jam Kerja: <strong>{todayRecord.workHours} Jam</strong> &bull; Status: <Badge status={todayRecord.status.toLowerCase()} /></p>
-              </div>
-            )}
-          </div>
+          <>
+            {renderActionButton()}
+            {renderStatusSummary()}
+          </>
         )}
       </div>
 
-      {/* History Panel */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm lg:col-span-7 flex flex-col overflow-hidden">
-        <div className="px-6 py-5 border-b border-slate-100 select-none">
-          <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Log Kehadiran Bulan Ini</h2>
+        <div className="px-6 py-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 select-none">
+          <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
+            Riwayat Absensi Saya
+          </h2>
+          <div className="flex items-center gap-2">
+            <select
+              value={filterMonth}
+              onChange={(e) => setFilterMonth(parseInt(e.target.value, 10))}
+              className="px-3 py-1.5 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none focus:border-primary"
+            >
+              {MONTHS.map((m) => (
+                <option key={m.v} value={m.v}>
+                  {m.l}
+                </option>
+              ))}
+            </select>
+            <select
+              value={filterYear}
+              onChange={(e) => setFilterYear(parseInt(e.target.value, 10))}
+              className="px-3 py-1.5 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none focus:border-primary"
+            >
+              <option value={2026}>2026</option>
+              <option value={2025}>2025</option>
+            </select>
+          </div>
         </div>
-        <div className="overflow-x-auto flex-1 min-h-[350px]">
+
+        <div className="overflow-x-auto flex-1">
           {loading ? (
-            <div className="flex items-center justify-center h-full py-20 select-none">
+            <div className="flex justify-center py-20">
               <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
             </div>
           ) : history.length === 0 ? (
-            <div className="flex items-center justify-center h-full py-20 text-slate-400 text-xs">
-              Belum ada riwayat kehadiran tercatat bulan ini
+            <div className="px-6 py-8 text-center text-slate-400 select-none text-xs">
+              Tidak ada riwayat absensi pada bulan/tahun ini.
             </div>
           ) : (
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-100 select-none text-slate-500 font-bold">
-                  <th className="px-6 py-3.5 uppercase tracking-wider">Tanggal</th>
-                  <th className="px-6 py-3.5 uppercase tracking-wider">Check In</th>
-                  <th className="px-6 py-3.5 uppercase tracking-wider">Check Out</th>
-                  <th className="px-6 py-3.5 uppercase tracking-wider">Jam Kerja</th>
-                  <th className="px-6 py-3.5 uppercase tracking-wider text-right">Status</th>
+                <tr className="bg-slate-50 border-b border-slate-100">
+                  <th className="px-6 py-3.5 font-bold text-slate-500 uppercase tracking-wider">
+                    Tanggal
+                  </th>
+                  <th className="px-6 py-3.5 font-bold text-slate-500 uppercase tracking-wider">
+                    Hari
+                  </th>
+                  <th className="px-6 py-3.5 font-bold text-slate-500 uppercase tracking-wider">
+                    Masuk
+                  </th>
+                  <th className="px-6 py-3.5 font-bold text-slate-500 uppercase tracking-wider">
+                    Keluar
+                  </th>
+                  <th className="px-6 py-3.5 font-bold text-slate-500 uppercase tracking-wider">
+                    Durasi
+                  </th>
+                  <th className="px-6 py-3.5 font-bold text-slate-500 uppercase tracking-wider">
+                    Status
+                  </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-slate-650">
-                {history.map(row => (
-                  <tr key={row.id} className="hover:bg-slate-50/50 transition">
-                    <td className="px-6 py-3.5 font-bold text-slate-700">
-                      {new Date(row.date).toLocaleDateString('id-ID', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric',
-                      })}
-                    </td>
-                    <td className="px-6 py-3.5 font-mono">
-                      {row.checkIn
-                        ? new Date(row.checkIn).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
-                        : '--:--'}
-                    </td>
-                    <td className="px-6 py-3.5 font-mono">
-                      {row.checkOut
-                        ? new Date(row.checkOut).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
-                        : '--:--'}
-                    </td>
-                    <td className="px-6 py-3.5 font-mono font-bold text-slate-600">
-                      {row.workHours ? `${row.workHours} Jam` : '-'}
-                    </td>
-                    <td className="px-6 py-3.5 text-right">
-                      <Badge status={row.status.toLowerCase()} />
-                    </td>
-                  </tr>
-                ))}
+              <tbody className="divide-y divide-slate-100 text-slate-600">
+                {history.map((row) => {
+                  const dateObj = new Date(row.date);
+                  const dayLabel = dateObj.toLocaleDateString('id-ID', { weekday: 'long' });
+                  return (
+                    <tr key={row.id} className="table-row-hover border-b border-slate-100 transition">
+                      <td className="px-6 py-3.5 font-semibold text-slate-700 font-mono">
+                        {formatDate(row.date, { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </td>
+                      <td className="px-6 py-3.5 text-slate-500 capitalize">{dayLabel}</td>
+                      <td className="px-6 py-3.5 font-bold text-slate-700 font-mono">
+                        {formatTime(row.checkIn)}
+                      </td>
+                      <td className="px-6 py-3.5 font-bold text-slate-700 font-mono">
+                        {formatTime(row.checkOut)}
+                      </td>
+                      <td className="px-6 py-3.5 font-bold text-slate-500 font-mono">
+                        {formatDuration(row)}
+                      </td>
+                      <td className="px-6 py-3.5">
+                        <Badge status={row.status?.toLowerCase()} />
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           )}

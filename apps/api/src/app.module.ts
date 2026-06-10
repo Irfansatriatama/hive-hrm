@@ -12,6 +12,7 @@ import { RewardModule } from './reward/reward.module';
 import { ProcurementModule } from './procurement/procurement.module';
 import { CoreModule } from './core/core.module';
 import { HiringModule } from './hiring/hiring.module';
+import { ShiftModule } from './shift/shift.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { HiringModule } from './hiring/hiring.module';
     ProcurementModule,
     CoreModule,
     HiringModule,
+    ShiftModule,
   ],
   controllers: [AppController],
   providers: [AppService],

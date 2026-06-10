@@ -110,6 +110,8 @@ export class CoreService {
         name: data.name,
         startTime: data.startTime,
         endTime: data.endTime,
+        color: data.color || '#3B82F6',
+        split: data.split || false,
         breakTime: parseInt(data.breakTime) || 60,
         isDefault: data.isDefault || false,
       },

@@ -101,11 +101,19 @@ export class AttendanceService {
     });
   }
 
-  async getMyHistory(employeeId: string) {
+  async getMyHistory(employeeId: string, month?: number, year?: number) {
+    const where: { employeeId: string; date?: { gte: Date; lte: Date } } = { employeeId };
+
+    if (month && year) {
+      const start = new Date(year, month - 1, 1);
+      const end = new Date(year, month, 0, 23, 59, 59, 999);
+      where.date = { gte: start, lte: end };
+    }
+
     return this.prisma.attendance.findMany({
-      where: { employeeId },
+      where,
       orderBy: { date: 'desc' },
-      take: 30,
+      ...(month && year ? {} : { take: 30 }),
     });
   }
 
