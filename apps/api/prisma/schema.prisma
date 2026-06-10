@@ -120,12 +120,13 @@ model Employee {
   user           User?          @relation(fields: [userId], references: [id])
   salary         Int            @default(0)
   basicSalary    Int            @default(0)
-  attendances    Attendance[]
-  leaveRequests  LeaveRequest[]
-  assets         Asset[]
-  documents      Document[]
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  attendances     Attendance[]
+  leaveRequests   LeaveRequest[]
+  assets          Asset[]
+  documents       Document[]
+  profileRequests ProfileUpdateRequest[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
 }
 
 enum EmployeeStatus {
@@ -288,4 +289,26 @@ model Branch {
   staffCount Int      @default(0)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+}
+
+model Group {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  memberIds   String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ProfileUpdateRequest {
+  id          String         @id @default(cuid())
+  employeeId  String
+  employee    Employee       @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  type        String         // address, emergency, bank, other
+  summary     String
+  details     Json           // changed fields
+  reason      String
+  status      ApprovalStatus @default(PENDING)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 }
