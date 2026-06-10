@@ -1,0 +1,291 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// === AUTH (Better Auth tables) ===
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  role          UserRole  @default(EMPLOYEE)
+  employee      Employee?
+  sessions      Session[]
+  accounts      Account[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  HR_ADMIN
+  MANAGER
+  EMPLOYEE
+  FINANCE
+}
+
+// === HRM CORE ===
+model Department {
+  id        String     @id @default(cuid())
+  name      String
+  code      String     @unique
+  createdAt DateTime   @default(now())
+  employees Employee[]
+  positions Position[]
+}
+
+model Position {
+  id           String     @id @default(cuid())
+  name         String
+  grade        String
+  salaryMin    Int
+  salaryMax    Int
+  departmentId String?
+  department   Department? @relation(fields: [departmentId], references: [id])
+  employees    Employee[]
+}
+
+model Employee {
+  id             String         @id @default(cuid())
+  employeeNumber String         @unique
+  firstName      String
+  lastName       String
+  fullName       String
+  gender         String
+  birthDate      DateTime?
+  birthPlace     String?
+  religion       String?
+  maritalStatus  String?
+  bloodType      String?
+  nationality    String?
+  address        String?
+  phone          String?
+  photoUrl       String?        // Cloudinary URL
+  email          String         @unique
+  joinDate       DateTime?
+  status         EmployeeStatus @default(ACTIVE)
+  positionId     String?
+  position       Position?      @relation(fields: [positionId], references: [id])
+  departmentId   String?
+  department     Department?    @relation(fields: [departmentId], references: [id])
+  managerId      String?
+  manager        Employee?      @relation("ManagerSubordinates", fields: [managerId], references: [id])
+  subordinates   Employee[]     @relation("ManagerSubordinates")
+  userId         String?        @unique
+  user           User?          @relation(fields: [userId], references: [id])
+  salary         Int            @default(0)
+  basicSalary    Int            @default(0)
+  attendances    Attendance[]
+  leaveRequests  LeaveRequest[]
+  assets         Asset[]
+  documents      Document[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+enum EmployeeStatus {
+  ACTIVE
+  INACTIVE
+  TERMINATED
+  ON_LEAVE
+}
+
+model Attendance {
+  id            String    @id @default(cuid())
+  employeeId    String
+  employee      Employee  @relation(fields: [employeeId], references: [id])
+  date          DateTime
+  checkIn       DateTime?
+  checkOut      DateTime?
+  status        String    // hadir, izin, sakit, alpha, dll
+  workHours     Float?
+  lateMinutes   Int?
+  location      String?
+  notes         String?
+  createdAt     DateTime  @default(now())
+}
+
+model LeaveType {
+  id           String         @id @default(cuid())
+  name         String
+  maxDays      Int
+  isPaid       Boolean        @default(true)
+  requests     LeaveRequest[]
+}
+
+model LeaveRequest {
+  id           String        @id @default(cuid())
+  employeeId   String
+  employee     Employee      @relation(fields: [employeeId], references: [id])
+  leaveTypeId  String
+  leaveType    LeaveType     @relation(fields: [leaveTypeId], references: [id])
+  startDate    DateTime
+  endDate      DateTime
+  totalDays    Int
+  reason       String?
+  status       ApprovalStatus @default(PENDING)
+  approvedBy   String?
+  approvedAt   DateTime?
+  createdAt    DateTime      @default(now())
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+model Asset {
+  id           String    @id @default(cuid())
+  assetCode    String    @unique
+  name         String
+  category     String
+  brand        String?
+  serialNumber String?
+  condition    String
+  status       String
+  purchaseDate DateTime?
+  purchasePrice Int?
+  currentValue  Int?
+  employeeId   String?
+  employee     Employee? @relation(fields: [employeeId], references: [id])
+  imageUrl     String?   // Cloudinary URL
+  notes        String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Document {
+  id           String    @id @default(cuid())
+  name         String
+  category     String
+  fileUrl      String    // Cloudinary URL
+  fileType     String
+  fileSize     Int?
+  employeeId   String?
+  employee     Employee? @relation(fields: [employeeId], references: [id])
+  isPublic     Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  uploadedBy   String?
+}
+
+model Announcement {
+  id          String    @id @default(cuid())
+  title       String
+  content     String
+  category    String?
+  isPinned    Boolean   @default(false)
+  isPublished Boolean   @default(true)
+  targetRoles String[]
+  imageUrl    String?   // Cloudinary URL
+  createdBy   String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Shift {
+  id         String   @id @default(cuid())
+  name       String
+  startTime  String   // "08:00"
+  endTime    String   // "17:00"
+  breakTime  Int?     // menit
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+model Visitor {
+  id             String    @id @default(cuid())
+  visitorName    String
+  company        String?
+  phone          String?
+  purpose        String
+  hostEmployeeId String?
+  checkIn        DateTime  @default(now())
+  checkOut       DateTime?
+  photoUrl       String?   // Cloudinary URL
+  status         String    @default("in")
+  createdAt      DateTime  @default(now())
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String
+  targetType String?
+  targetId   String?
+  targetName String?
+  details    Json?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+}
+
+// === COMPANY PROFILE & BRANCHES ===
+model Company {
+  id        String   @id @default(cuid())
+  name      String
+  tagline   String?
+  industry  String?
+  npwp      String?
+  phone     String?
+  email     String?
+  website   String?
+  address   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Branch {
+  id         String   @id @default(cuid())
+  name       String
+  address    String?
+  pic        String?
+  staffCount Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
