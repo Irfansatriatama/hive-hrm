@@ -127,7 +127,7 @@ export default function DataTable<T>({
             return (
               <tr
                 key={rowIndex}
-                className={`${rowClass} cursor-pointer`}
+                className={`${rowClass}${onRowClick ? ' cursor-pointer' : ''}`}
                 onClick={() => onRowClick?.(row, rowIndex)}
               >
                 {columns.map((col, colIndex) => {
@@ -148,7 +148,7 @@ export default function DataTable<T>({
                 })}
                 {actions && (
                   <td
-                    className="px-6 py-4 text-right font-medium space-x-2"
+                    className="px-6 py-4 text-right font-medium"
                     onClick={(e) => e.stopPropagation()}
                   >
                     {actions(row)}

@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { fetchAPI } from '@/lib/api';
 import { formatDate, formatRupiah } from '@/lib/utils';
 import DataTable from '@/components/shared/DataTable';
+import TableActionMenu from '@/components/shared/TableActionMenu';
 import Badge from '@/components/shared/Badge';
 
 export default function ProcurementPOPage() {
@@ -103,23 +104,18 @@ export default function ProcurementPOPage() {
           ]}
           actions={
             canAction
-              ? (row) =>
-                  row.status === 'pending' ? (
-                    <div className="flex items-center justify-end gap-1.5">
-                      <button
-                        onClick={() => handleAction(row.id, 'approve')}
-                        className="px-2.5 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-[10px] font-bold cursor-pointer"
-                      >
-                        Setujui
-                      </button>
-                      <button
-                        onClick={() => handleAction(row.id, 'reject')}
-                        className="px-2.5 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-[10px] font-bold cursor-pointer"
-                      >
-                        Tolak
-                      </button>
-                    </div>
-                  ) : null
+              ? (row) => (
+                  <TableActionMenu
+                    items={
+                      row.status === 'pending'
+                        ? [
+                            { label: 'Setujui', onClick: () => handleAction(row.id, 'approve'), variant: 'primary' },
+                            { label: 'Tolak', onClick: () => handleAction(row.id, 'reject'), variant: 'danger' },
+                          ]
+                        : []
+                    }
+                  />
+                )
               : undefined
           }
           emptyText="Belum ada purchase order."

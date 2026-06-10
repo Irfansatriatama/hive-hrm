@@ -7,6 +7,7 @@ import { fetchAPI } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import FormField from '@/components/shared/FormField';
 import DataTable from '@/components/shared/DataTable';
+import TableActionMenu from '@/components/shared/TableActionMenu';
 import Modal from '@/components/shared/Modal';
 
 type TabId = 'profile' | 'branches' | 'departments' | 'positions' | 'holidays';
@@ -247,21 +248,26 @@ export default function CompanyPage() {
               </div>
             )}
             <DataTable
-              headers={['Nama Cabang', 'Alamat Lengkap', 'PIC Kantor', 'Jumlah Staff', ...(isAdmin ? ['Aksi'] : [])]}
+              headers={['Nama Cabang', 'Alamat Lengkap', 'PIC Kantor', 'Jumlah Staff']}
               rows={branches}
               columns={[
                 'name',
                 'address',
                 'pic',
                 (row) => `${row.staffCount} Staff`,
-                ...(isAdmin ? [(row: any) => (
-                  <div className="space-x-2">
-                    <button onClick={() => openBranchModal(row)} className="text-primary hover:underline text-xs font-bold cursor-pointer">Edit</button>
-                    <span className="text-slate-200">|</span>
-                    <button onClick={() => handleDeleteBranch(row.id, row.name)} className="text-red-500 hover:underline text-xs font-bold cursor-pointer">Hapus</button>
-                  </div>
-                )] : []),
               ]}
+              actions={
+                isAdmin
+                  ? (row: any) => (
+                      <TableActionMenu
+                        items={[
+                          { label: 'Edit', onClick: () => openBranchModal(row), variant: 'primary' },
+                          { label: 'Hapus', onClick: () => handleDeleteBranch(row.id, row.name), variant: 'danger' },
+                        ]}
+                      />
+                    )
+                  : undefined
+              }
             />
           </div>
         )}
@@ -298,16 +304,24 @@ export default function CompanyPage() {
               </div>
             )}
             <DataTable
-              headers={['Nama Libur', 'Tanggal', 'Tipe', ...(isAdmin ? ['Aksi'] : [])]}
+              headers={['Nama Libur', 'Tanggal', 'Tipe']}
               rows={holidays}
               columns={[
                 'name',
                 (row) => formatDate(row.date),
                 'type',
-                ...(isAdmin ? [(row: any) => (
-                  <button onClick={() => handleDeleteHoliday(row.id, row.name)} className="text-red-500 hover:underline text-xs font-bold cursor-pointer">Hapus</button>
-                )] : []),
               ]}
+              actions={
+                isAdmin
+                  ? (row: any) => (
+                      <TableActionMenu
+                        items={[
+                          { label: 'Hapus', onClick: () => handleDeleteHoliday(row.id, row.name), variant: 'danger' },
+                        ]}
+                      />
+                    )
+                  : undefined
+              }
             />
           </div>
         )}

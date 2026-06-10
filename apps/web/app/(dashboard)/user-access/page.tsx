@@ -10,6 +10,7 @@ import { formatDate } from '@/lib/utils';
 import FormField from '@/components/shared/FormField';
 import Modal from '@/components/shared/Modal';
 import Avatar from '@/components/shared/Avatar';
+import TableActionMenu from '@/components/shared/TableActionMenu';
 
 type TabId = 'roles' | 'matrix' | 'users';
 
@@ -316,15 +317,16 @@ export default function UserAccessPage() {
                       <td className="px-6 py-4 font-semibold text-slate-700">{role.name}</td>
                       <td className="px-6 py-4 text-slate-500 max-w-md truncate">{role.description}</td>
                       <td className="px-6 py-4 font-bold text-slate-800 font-mono">{role.userCount} User</td>
-                      <td className="px-6 py-4 text-right space-x-2">
+                      <td className="px-6 py-4 text-right">
                         {role.isSystem ? (
                           <span className="text-xs text-slate-400">Role bawaan sistem tidak dapat dihapus.</span>
                         ) : (
-                          <>
-                            <button onClick={() => openRoleModal(role)} className="text-primary hover:underline text-xs font-bold cursor-pointer">Edit</button>
-                            <span className="text-slate-200">|</span>
-                            <button onClick={() => handleDeleteRole(role.key)} className="text-red-500 hover:underline text-xs font-bold cursor-pointer">Hapus</button>
-                          </>
+                          <TableActionMenu
+                            items={[
+                              { label: 'Edit', onClick: () => openRoleModal(role), variant: 'primary' },
+                              { label: 'Hapus', onClick: () => handleDeleteRole(role.key), variant: 'danger' },
+                            ]}
+                          />
                         )}
                       </td>
                     </tr>
@@ -415,21 +417,18 @@ export default function UserAccessPage() {
                           )}
                         </td>
                         <td className="px-6 py-4 text-slate-500 font-mono">{u.lastLoginAt ? formatDate(u.lastLoginAt) : '-'}</td>
-                        <td className="px-6 py-4 text-right space-x-2">
-                          <button
-                            onClick={() => { setEditUserModal(u); setEditUserRole(u.role); }}
-                            className="text-primary hover:underline text-xs font-bold cursor-pointer"
-                          >
-                            Edit
-                          </button>
-                          <span className="text-slate-200">|</span>
-                          <button onClick={() => handleResetPassword(u.id, u.name)} className="text-amber-600 hover:underline text-xs font-bold cursor-pointer">Reset Sandi</button>
-                          <span className="text-slate-200">|</span>
-                          {u.status === 'active' ? (
-                            <button onClick={() => handleToggleStatus(u.id, u.status, u.name)} className="text-red-500 hover:underline text-xs font-bold cursor-pointer">Tangguhkan</button>
-                          ) : (
-                            <button onClick={() => handleToggleStatus(u.id, u.status, u.name)} className="text-green-600 hover:underline text-xs font-bold cursor-pointer">Aktifkan</button>
-                          )}
+                        <td className="px-6 py-4 text-right">
+                          <TableActionMenu
+                            items={[
+                              { label: 'Edit', onClick: () => { setEditUserModal(u); setEditUserRole(u.role); }, variant: 'primary' },
+                              { label: 'Reset Sandi', onClick: () => handleResetPassword(u.id, u.name), variant: 'warning' },
+                              {
+                                label: u.status === 'active' ? 'Tangguhkan' : 'Aktifkan',
+                                onClick: () => handleToggleStatus(u.id, u.status, u.name),
+                                variant: u.status === 'active' ? 'danger' : 'primary',
+                              },
+                            ]}
+                          />
                         </td>
                       </tr>
                     );

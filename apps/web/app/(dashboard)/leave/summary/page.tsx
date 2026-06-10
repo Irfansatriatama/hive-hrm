@@ -6,6 +6,7 @@ import { useI18n } from '@/lib/i18n';
 import { fetchAPI } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import Badge from '@/components/shared/Badge';
+import TableActionMenu from '@/components/shared/TableActionMenu';
 import { usePermission, isHRRole } from '@/hooks/usePermission';
 
 export default function LeaveSummaryPage() {
@@ -309,16 +310,13 @@ export default function LeaveSummaryPage() {
                       {row.reason || '-'}
                     </td>
                     <td className="px-6 py-3.5 text-right font-medium">
-                      {row.status === 'PENDING' && !isHR ? (
-                        <button
-                          onClick={() => handleCancel(row.id)}
-                          className="text-red-500 hover:underline hover:text-red-700 cursor-pointer"
-                        >
-                          Tarik Kembali
-                        </button>
-                      ) : (
-                        '-'
-                      )}
+                      <TableActionMenu
+                        items={
+                          row.status === 'PENDING' && !isHR
+                            ? [{ label: 'Tarik Kembali', onClick: () => handleCancel(row.id), variant: 'danger' }]
+                            : []
+                        }
+                      />
                     </td>
                   </tr>
                 ))}

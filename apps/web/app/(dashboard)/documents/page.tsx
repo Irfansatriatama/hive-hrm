@@ -5,6 +5,7 @@ import * as Lucide from 'lucide-react';
 import { fetchAPI } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import DataTable from '@/components/shared/DataTable';
+import TableActionMenu from '@/components/shared/TableActionMenu';
 import Badge from '@/components/shared/Badge';
 import FormField from '@/components/shared/FormField';
 import Avatar from '@/components/shared/Avatar';
@@ -146,9 +147,9 @@ export default function DocumentsPage() {
             (row) => <Badge status={row.isPublic ? 'approved' : 'pending'} />,
           ]}
           actions={(row) => (
-            <a href={row.fileUrl} target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary font-bold hover:underline">
-              Unduh
-            </a>
+            <TableActionMenu
+              items={[{ label: 'Unduh', href: row.fileUrl, target: '_blank', variant: 'primary' }]}
+            />
           )}
           emptyText="Belum ada dokumen."
         />

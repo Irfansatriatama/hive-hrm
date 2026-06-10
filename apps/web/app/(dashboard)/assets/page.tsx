@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { fetchAPI } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import DataTable from '@/components/shared/DataTable';
+import TableActionMenu from '@/components/shared/TableActionMenu';
 import Badge from '@/components/shared/Badge';
 import FormField from '@/components/shared/FormField';
 import Avatar from '@/components/shared/Avatar';
@@ -158,13 +159,13 @@ export default function AssetsPage() {
           actions={
             isAdmin
               ? (row) => (
-                  <div className="flex justify-end gap-1">
-                    {row.status === 'Available' ? (
-                      <button onClick={() => handleAssign(row.id)} className="px-2 py-1 bg-primary text-white rounded text-[10px] font-bold cursor-pointer">Assign</button>
-                    ) : (
-                      <button onClick={() => handleReturn(row.id)} className="px-2 py-1 bg-slate-100 text-slate-600 rounded text-[10px] font-bold cursor-pointer">Return</button>
-                    )}
-                  </div>
+                  <TableActionMenu
+                    items={
+                      row.status === 'Available'
+                        ? [{ label: 'Assign', onClick: () => handleAssign(row.id), variant: 'primary' }]
+                        : [{ label: 'Return', onClick: () => handleReturn(row.id) }]
+                    }
+                  />
                 )
               : undefined
           }

@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { fetchAPI } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import DataTable from '@/components/shared/DataTable';
+import TableActionMenu from '@/components/shared/TableActionMenu';
 import Badge from '@/components/shared/Badge';
 import FormField from '@/components/shared/FormField';
 
@@ -129,13 +130,15 @@ export default function VisitorPage() {
             (row) => <span className="text-xs text-slate-500">{row.checkOut ? formatDate(row.checkOut) : '-'}</span>,
             (row) => <Badge status={row.status === 'in' ? 'active' : 'inactive'} />,
           ]}
-          actions={(row) =>
-            row.status === 'in' ? (
-              <button onClick={() => handleCheckOut(row.id)} className="px-2.5 py-1 bg-slate-800 text-white rounded text-[10px] font-bold cursor-pointer">
-                Check-out
-              </button>
-            ) : null
-          }
+          actions={(row) => (
+            <TableActionMenu
+              items={
+                row.status === 'in'
+                  ? [{ label: 'Check-out', onClick: () => handleCheckOut(row.id) }]
+                  : []
+              }
+            />
+          )}
           emptyText="Belum ada catatan tamu."
         />
       </div>

@@ -6,6 +6,7 @@ import { useI18n } from '@/lib/i18n';
 import { fetchAPI } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import Badge from '@/components/shared/Badge';
+import TableActionMenu from '@/components/shared/TableActionMenu';
 import { usePermission, isHRRole } from '@/hooks/usePermission';
 
 export default function ApprovalPage() {
@@ -262,16 +263,13 @@ export default function ApprovalPage() {
                         <Badge status={row.status.toLowerCase()} />
                       </td>
                       <td className="px-6 py-3.5 text-right font-medium">
-                        {row.status === 'PENDING' ? (
-                          <button
-                            onClick={() => handleRecall(row)}
-                            className="text-red-500 hover:underline cursor-pointer"
-                          >
-                            Tarik Kembali
-                          </button>
-                        ) : (
-                          '-'
-                        )}
+                        <TableActionMenu
+                          items={
+                            row.status === 'PENDING'
+                              ? [{ label: 'Tarik Kembali', onClick: () => handleRecall(row), variant: 'danger' }]
+                              : []
+                          }
+                        />
                       </td>
                     </tr>
                   ))}

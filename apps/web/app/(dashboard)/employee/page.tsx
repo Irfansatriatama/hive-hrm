@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import * as Lucide from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
 import { useAuth } from '@/hooks/useAuth';
@@ -9,6 +10,11 @@ import { fetchAPI } from '@/lib/api';
 import Avatar from '@/components/shared/Avatar';
 import Badge from '@/components/shared/Badge';
 import DataTable from '@/components/shared/DataTable';
+import TableActionMenu, {
+  findDetailAction,
+  triggerDetailAction,
+  type TableActionItem,
+} from '@/components/shared/TableActionMenu';
 import Pagination from '@/components/shared/Pagination';
 import FormField from '@/components/shared/FormField';
 import ConfirmDialog from '@/components/shared/ConfirmDialog';
@@ -36,6 +42,7 @@ interface Employee {
 export default function EmployeePage() {
   const { lang, t } = useI18n();
   const { user } = useAuth();
+  const router = useRouter();
   
   // State
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -336,6 +343,23 @@ export default function EmployeePage() {
   // Role details
   const isHR = user?.role === 'SUPER_ADMIN' || user?.role === 'HR_ADMIN';
 
+  const getEmployeeActionItems = (row: Employee): TableActionItem[] => [
+    { label: t('detail'), href: `/employee/${row.id}`, variant: 'primary', isDetail: true },
+    ...(isHR
+      ? [
+          { label: t('edit'), onClick: () => openWizard(true, row) },
+          ...(user?.role === 'SUPER_ADMIN'
+            ? [{ label: t('delete'), onClick: () => handleDeleteClick(row), variant: 'danger' as const }]
+            : []),
+        ]
+      : []),
+  ];
+
+  const handleEmployeeRowClick = (row: Employee) => {
+    const detail = findDetailAction(getEmployeeActionItems(row));
+    if (detail) triggerDetailAction(detail, router.push);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header Panel */}
@@ -512,37 +536,9 @@ export default function EmployeePage() {
                 ),
               ]}
               actions={(row: Employee) => (
-                <div className="flex items-center justify-end gap-3 text-xs font-bold">
-                  <Link
-                    href={`/employee/${row.id}`}
-                    className="text-primary hover:underline cursor-pointer"
-                  >
-                    {t('detail')}
-                  </Link>
-                  {isHR && (
-                    <>
-                      <span className="text-slate-200">|</span>
-                      <button
-                        onClick={() => openWizard(true, row)}
-                        className="text-slate-600 hover:underline cursor-pointer"
-                      >
-                        {t('edit')}
-                      </button>
-                      {user?.role === 'SUPER_ADMIN' && (
-                        <>
-                          <span className="text-slate-200">|</span>
-                          <button
-                            onClick={() => handleDeleteClick(row)}
-                            className="text-red-500 hover:underline cursor-pointer"
-                          >
-                            {t('delete')}
-                          </button>
-                        </>
-                      )}
-                    </>
-                  )}
-                </div>
+                <TableActionMenu items={getEmployeeActionItems(row)} />
               )}
+              onRowClick={handleEmployeeRowClick}
             />
           </div>
         ) : (

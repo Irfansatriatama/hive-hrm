@@ -5,6 +5,7 @@ import * as Lucide from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
 import { fetchAPI } from '@/lib/api';
 import Badge from '@/components/shared/Badge';
+import TableActionMenu from '@/components/shared/TableActionMenu';
 import { usePermission, isHRRole } from '@/hooks/usePermission';
 
 export default function ApprovalRulesPage() {
@@ -220,20 +221,13 @@ export default function ApprovalRulesPage() {
                       <td className="px-6 py-4">
                         <Badge status={row.status} />
                       </td>
-                      <td className="px-6 py-4 text-right space-x-2 font-medium">
-                        <button
-                          onClick={() => openRuleModal(row)}
-                          className="text-primary hover:underline text-xs font-bold cursor-pointer"
-                        >
-                          Edit
-                        </button>
-                        <span className="text-slate-200">|</span>
-                        <button
-                          onClick={() => handleDeleteRule(row)}
-                          className="text-red-500 hover:underline text-xs font-bold cursor-pointer"
-                        >
-                          Hapus
-                        </button>
+                      <td className="px-6 py-4 text-right font-medium">
+                        <TableActionMenu
+                          items={[
+                            { label: 'Edit', onClick: () => openRuleModal(row), variant: 'primary' },
+                            { label: 'Hapus', onClick: () => handleDeleteRule(row), variant: 'danger' },
+                          ]}
+                        />
                       </td>
                     </tr>
                   );

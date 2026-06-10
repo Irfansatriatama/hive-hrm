@@ -5,6 +5,7 @@ import * as Lucide from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
 import { fetchAPI } from '@/lib/api';
 import { usePermission, isHRRole } from '@/hooks/usePermission';
+import TableActionMenu from '@/components/shared/TableActionMenu';
 
 export default function LeaveBalancePage() {
   const { t } = useI18n();
@@ -285,12 +286,11 @@ export default function LeaveBalancePage() {
                       </td>
                       <td className="px-6 py-3.5 font-mono text-slate-400">{row.year}</td>
                       <td className="px-6 py-3.5 text-right font-medium">
-                        <button
-                          onClick={() => openAdjustModal(row)}
-                          className="text-primary hover:underline text-xs font-bold cursor-pointer"
-                        >
-                          Edit Saldo
-                        </button>
+                        <TableActionMenu
+                          items={[
+                            { label: 'Edit Saldo', onClick: () => openAdjustModal(row), variant: 'primary' },
+                          ]}
+                        />
                       </td>
                     </tr>
                   );

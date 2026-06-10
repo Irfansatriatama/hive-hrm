@@ -6,6 +6,7 @@ import * as Lucide from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { fetchAPI } from '@/lib/api';
 import DataTable from '@/components/shared/DataTable';
+import TableActionMenu from '@/components/shared/TableActionMenu';
 import FormField from '@/components/shared/FormField';
 import Modal from '@/components/shared/Modal';
 
@@ -252,7 +253,7 @@ export default function SettingsHiringPage() {
               </button>
             </div>
             <DataTable
-              headers={['Urutan', 'Tahapan Seleksi', 'PIC Default', 'Target Waktu', 'Aksi']}
+              headers={['Urutan', 'Tahapan Seleksi', 'PIC Default', 'Target Waktu']}
               rows={[...stages].sort((a, b) => a.sequence - b.sequence)}
               loading={loading}
               columns={[
@@ -260,14 +261,15 @@ export default function SettingsHiringPage() {
                 (row) => <span className="font-bold text-slate-800">{row.name}</span>,
                 (row) => <span className="font-semibold text-slate-600">{row.pic}</span>,
                 (row) => <span className="font-bold font-mono text-slate-800">{row.duration} Hari</span>,
-                (row) => (
-                  <div className="space-x-2">
-                    <button onClick={() => openStageModal(row)} className="text-primary hover:underline text-xs font-bold cursor-pointer">Edit</button>
-                    <span className="text-slate-200">|</span>
-                    <button onClick={() => handleDeleteStage(row.id)} className="text-red-500 hover:underline text-xs font-bold cursor-pointer">Hapus</button>
-                  </div>
-                ),
               ]}
+              actions={(row) => (
+                <TableActionMenu
+                  items={[
+                    { label: 'Edit', onClick: () => openStageModal(row), variant: 'primary' },
+                    { label: 'Hapus', onClick: () => handleDeleteStage(row.id), variant: 'danger' },
+                  ]}
+                />
+              )}
             />
           </div>
         )}
@@ -284,20 +286,21 @@ export default function SettingsHiringPage() {
               </button>
             </div>
             <DataTable
-              headers={['Nama Jabatan', 'Deskripsi Singkat', 'Aksi']}
+              headers={['Nama Jabatan', 'Deskripsi Singkat']}
               rows={templates}
               loading={loading}
               columns={[
                 (row) => <span className="font-bold text-slate-800">{row.position}</span>,
                 (row) => <span className="text-slate-500 max-w-md truncate">{row.description}</span>,
-                (row) => (
-                  <div className="space-x-2">
-                    <button onClick={() => openTemplateModal(row)} className="text-primary hover:underline text-xs font-bold cursor-pointer">Edit</button>
-                    <span className="text-slate-200">|</span>
-                    <button onClick={() => handleDeleteTemplate(row.id)} className="text-red-500 hover:underline text-xs font-bold cursor-pointer">Hapus</button>
-                  </div>
-                ),
               ]}
+              actions={(row) => (
+                <TableActionMenu
+                  items={[
+                    { label: 'Edit', onClick: () => openTemplateModal(row), variant: 'primary' },
+                    { label: 'Hapus', onClick: () => handleDeleteTemplate(row.id), variant: 'danger' },
+                  ]}
+                />
+              )}
             />
           </div>
         )}
@@ -322,7 +325,7 @@ export default function SettingsHiringPage() {
             </div>
             <div className="md:col-span-8 bg-white border border-slate-200/80 rounded-2xl overflow-hidden">
               <DataTable
-                headers={['ID', 'Sumber Rekrutmen', 'Status', 'Aksi']}
+                headers={['ID', 'Sumber Rekrutmen', 'Status']}
                 rows={sources}
                 loading={loading}
                 columns={[
@@ -333,12 +336,18 @@ export default function SettingsHiringPage() {
                   ) : (
                     <span className="px-2.5 py-0.5 bg-slate-100 text-slate-600 rounded-full font-bold border border-slate-200 text-[10px]">Nonaktif</span>
                   ),
-                  (row) => (
-                    <button onClick={() => handleToggleSource(row.id)} className="text-primary hover:underline text-xs font-bold cursor-pointer">
-                      {row.active ? 'Nonaktif' : 'Aktif'}
-                    </button>
-                  ),
                 ]}
+                actions={(row) => (
+                  <TableActionMenu
+                    items={[
+                      {
+                        label: row.active ? 'Nonaktifkan' : 'Aktifkan',
+                        onClick: () => handleToggleSource(row.id),
+                        variant: 'primary',
+                      },
+                    ]}
+                  />
+                )}
               />
             </div>
           </div>

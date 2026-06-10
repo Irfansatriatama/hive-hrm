@@ -7,6 +7,7 @@ import { fetchAPI } from '@/lib/api';
 import FormField from '@/components/shared/FormField';
 import Badge from '@/components/shared/Badge';
 import ConfirmDialog from '@/components/shared/ConfirmDialog';
+import TableActionMenu from '@/components/shared/TableActionMenu';
 
 interface RequestHistory {
   id: string;
@@ -328,16 +329,13 @@ export default function RequestPage() {
                       <Badge status={req.status.toLowerCase()} />
                     </td>
                     <td className="px-6 py-3.5 text-right font-medium">
-                      {req.status.toLowerCase() === 'pending' ? (
-                        <button
-                          onClick={() => handleCancelClick(req.id)}
-                          className="text-red-500 hover:underline cursor-pointer"
-                        >
-                          Batalkan
-                        </button>
-                      ) : (
-                        '-'
-                      )}
+                      <TableActionMenu
+                        items={
+                          req.status.toLowerCase() === 'pending'
+                            ? [{ label: 'Batalkan', onClick: () => handleCancelClick(req.id), variant: 'danger' }]
+                            : []
+                        }
+                      />
                     </td>
                   </tr>
                 ))}

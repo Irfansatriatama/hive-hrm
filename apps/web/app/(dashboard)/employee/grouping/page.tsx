@@ -8,6 +8,11 @@ import { fetchAPI } from '@/lib/api';
 import Avatar from '@/components/shared/Avatar';
 import FormField from '@/components/shared/FormField';
 import ConfirmDialog from '@/components/shared/ConfirmDialog';
+import TableActionMenu, {
+  findDetailAction,
+  triggerDetailAction,
+  type TableActionItem,
+} from '@/components/shared/TableActionMenu';
 
 interface Group {
   id: string;
@@ -135,6 +140,17 @@ export default function GroupingPage() {
     setShowViewModal(true);
   };
 
+  const getGroupActionItems = (group: Group): TableActionItem[] => [
+    { label: 'Lihat Anggota', onClick: () => handleOpenViewModal(group), variant: 'primary', isDetail: true },
+    { label: 'Edit', onClick: () => handleOpenEditModal(group) },
+    { label: 'Hapus', onClick: () => handleDeleteClick(group), variant: 'danger' },
+  ];
+
+  const handleGroupRowClick = (group: Group) => {
+    const detail = findDetailAction(getGroupActionItems(group));
+    if (detail) triggerDetailAction(detail);
+  };
+
   // Delete handlers
   const handleDeleteClick = (group: Group) => {
     setDeleteGroupId(group.id);
@@ -201,7 +217,11 @@ export default function GroupingPage() {
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
               {groups.map(g => (
-                <tr key={g.id} className="hover:bg-slate-50/50 transition">
+                <tr
+                  key={g.id}
+                  className="hover:bg-slate-50/50 transition cursor-pointer"
+                  onClick={() => handleGroupRowClick(g)}
+                >
                   <td className="px-6 py-4 font-bold text-slate-800">{g.name}</td>
                   <td className="px-6 py-4 text-slate-500 max-w-sm truncate">
                     {g.description || '-'}
@@ -209,27 +229,11 @@ export default function GroupingPage() {
                   <td className="px-6 py-4 font-bold text-primary font-mono">
                     {(g.memberIds || []).length} Anggota
                   </td>
-                  <td className="px-6 py-4 text-right space-x-2 font-bold select-none">
-                    <button
-                      onClick={() => handleOpenViewModal(g)}
-                      className="text-primary hover:underline text-xs cursor-pointer"
-                    >
-                      Lihat Anggota
-                    </button>
-                    <span className="text-slate-200">|</span>
-                    <button
-                      onClick={() => handleOpenEditModal(g)}
-                      className="text-slate-650 hover:underline text-xs cursor-pointer"
-                    >
-                      Edit
-                    </button>
-                    <span className="text-slate-200">|</span>
-                    <button
-                      onClick={() => handleDeleteClick(g)}
-                      className="text-red-500 hover:underline text-xs cursor-pointer"
-                    >
-                      Hapus
-                    </button>
+                  <td
+                    className="px-6 py-4 text-right font-bold select-none"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <TableActionMenu items={getGroupActionItems(g)} />
                   </td>
                 </tr>
               ))}
