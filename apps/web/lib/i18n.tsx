@@ -90,7 +90,22 @@ const translations = {
     no_data: "Belum ada data",
     loading: "Memuat...",
     all: "Semua",
-    date: "Tanggal"
+    date: "Tanggal",
+
+    // Login screen translations
+    login_title: "Selamat Datang kembali",
+    login_subtitle: "Silakan masuk menggunakan akun demo Anda",
+    login_email: "Alamat Email",
+    login_password: "Kata Sandi",
+    login_forgot: "Lupa kata sandi?",
+    login_remember: "Ingat saya untuk 30 hari",
+    login_submit: "Masuk",
+    login_invalid: "Email atau password salah. Silakan coba lagi.",
+    forgot_title: "Reset Kata Sandi",
+    forgot_desc: "Masukkan alamat email Anda untuk menerima instruksi pemulihan kata sandi (Simulasi).",
+    forgot_label: "Email Pemulihan",
+    forgot_success: "Instruksi pemulihan kata sandi telah dikirim ke email Anda (Telah disimulasikan).",
+    demo_accounts: "Akun Demo (Klik untuk Isi Otomatis)"
   },
   en: {
     // Common Menu / Module Names
@@ -177,7 +192,22 @@ const translations = {
     no_data: "No data available",
     loading: "Loading...",
     all: "All",
-    date: "Date"
+    date: "Date",
+
+    // Login screen translations
+    login_title: "Welcome Back",
+    login_subtitle: "Please sign in using your demo account",
+    login_email: "Email Address",
+    login_password: "Password",
+    login_forgot: "Forgot password?",
+    login_remember: "Remember me for 30 days",
+    login_submit: "Sign In",
+    login_invalid: "Invalid email or password. Please try again.",
+    forgot_title: "Reset Password",
+    forgot_desc: "Enter your email address to receive password recovery instructions (Simulated).",
+    forgot_label: "Recovery Email",
+    forgot_success: "Password recovery instructions have been sent to your email (Simulated).",
+    demo_accounts: "Demo Accounts (Click to Autofill)"
   }
 };
 
