@@ -13,6 +13,7 @@ import { ProcurementModule } from './procurement/procurement.module';
 import { CoreModule } from './core/core.module';
 import { HiringModule } from './hiring/hiring.module';
 import { ShiftModule } from './shift/shift.module';
+import { ReportingModule } from './reporting/reporting.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { ShiftModule } from './shift/shift.module';
     CoreModule,
     HiringModule,
     ShiftModule,
+    ReportingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

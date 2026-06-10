@@ -7,6 +7,7 @@ import FormField from '@/components/shared/FormField';
 import Badge from '@/components/shared/Badge';
 import Modal from '@/components/shared/Modal';
 import ConfirmDialog from '@/components/shared/ConfirmDialog';
+import TableActionMenu from '@/components/shared/TableActionMenu';
 import { isHRRole, usePermission } from '@/hooks/usePermission';
 
 type TabId = 'catalog' | 'hashtags' | 'settings';
@@ -256,22 +257,16 @@ export default function RewardManagePage() {
                       <td className="px-6 py-4 font-bold text-slate-700 font-mono">{r.stock} Unit</td>
                       <td className="px-6 py-4 capitalize font-medium text-slate-400">{r.category}</td>
                       <td className="px-6 py-4 text-right font-medium">
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => openCatalogModal(r)}
-                            className="px-2.5 py-1.5 border border-slate-200 hover:bg-slate-50 text-primary rounded-lg text-[10px] font-bold transition cursor-pointer flex items-center gap-1"
-                          >
-                            <Lucide.Pencil className="w-3 h-3" />
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => setDeleteTarget({ type: 'catalog', id: r.id, name: r.name })}
-                            className="px-2.5 py-1.5 border border-red-200 hover:bg-red-50 text-red-600 rounded-lg text-[10px] font-bold transition cursor-pointer flex items-center gap-1"
-                          >
-                            <Lucide.Trash2 className="w-3 h-3" />
-                            Hapus
-                          </button>
-                        </div>
+                        <TableActionMenu
+                          items={[
+                            { label: 'Edit', onClick: () => openCatalogModal(r), variant: 'primary' },
+                            {
+                              label: 'Hapus',
+                              onClick: () => setDeleteTarget({ type: 'catalog', id: r.id, name: r.name }),
+                              variant: 'danger',
+                            },
+                          ]}
+                        />
                       </td>
                     </tr>
                   ))}
@@ -308,22 +303,16 @@ export default function RewardManagePage() {
                       <td className="px-6 py-4 font-bold text-slate-700 font-mono">{h.usageCount} Kali</td>
                       <td className="px-6 py-4"><Badge status={h.status} /></td>
                       <td className="px-6 py-4 text-right font-medium">
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => openHashtagModal(h)}
-                            className="px-2.5 py-1.5 border border-slate-200 hover:bg-slate-50 text-primary rounded-lg text-[10px] font-bold transition cursor-pointer flex items-center gap-1"
-                          >
-                            <Lucide.Pencil className="w-3 h-3" />
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => setDeleteTarget({ type: 'hashtag', id: h.id, name: h.tag })}
-                            className="px-2.5 py-1.5 border border-red-200 hover:bg-red-50 text-red-600 rounded-lg text-[10px] font-bold transition cursor-pointer flex items-center gap-1"
-                          >
-                            <Lucide.Trash2 className="w-3 h-3" />
-                            Hapus
-                          </button>
-                        </div>
+                        <TableActionMenu
+                          items={[
+                            { label: 'Edit', onClick: () => openHashtagModal(h), variant: 'primary' },
+                            {
+                              label: 'Hapus',
+                              onClick: () => setDeleteTarget({ type: 'hashtag', id: h.id, name: h.tag }),
+                              variant: 'danger',
+                            },
+                          ]}
+                        />
                       </td>
                     </tr>
                   ))}
