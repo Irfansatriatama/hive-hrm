@@ -75,3 +75,6 @@ Desktop.ini
 *.pid
 *.seed
 *.pid.lock
+
+# Local reference prototype (not part of the app)
+_references/
