@@ -117,6 +117,7 @@ model Employee {
   attendances     Attendance[]
   leaveRequests   LeaveRequest[]
   assets          Asset[]
+  assetRequests   AssetRequest[]
   documents       Document[]
   profileRequests ProfileUpdateRequest[]
   rewardPointsReceived RewardPointTransaction[] @relation("RewardPointRecipient")
@@ -126,6 +127,7 @@ model Employee {
   shiftSchedules       EmployeeShiftSchedule[]
   shiftSwapsRequested  ShiftSwap[]             @relation("ShiftSwapRequester")
   shiftSwapsPartner    ShiftSwap[]             @relation("ShiftSwapPartner")
+  announcementReads    AnnouncementRead[]
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 }
@@ -184,23 +186,74 @@ enum ApprovalStatus {
 }
 
 model Asset {
-  id           String    @id @default(cuid())
-  assetCode    String    @unique
-  name         String
-  category     String
-  brand        String?
-  serialNumber String?
-  condition    String
-  status       String
-  purchaseDate DateTime?
+  id            String         @id @default(cuid())
+  assetCode     String         @unique
+  name          String
+  category      String
+  brand         String?
+  model         String?
+  serialNumber  String?
+  condition     String
+  status        String
+  location      String?
+  purchaseDate  DateTime?
   purchasePrice Int?
   currentValue  Int?
+  assignedDate  DateTime?
+  employeeId    String?
+  employee      Employee?      @relation(fields: [employeeId], references: [id])
+  imageUrl      String?
+  notes         String?
+  history       AssetHistory[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model AssetCategory {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AssetLocation {
+  id        String   @id @default(cuid())
+  code      String   @unique
+  name      String
+  address   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AssetRequest {
+  id            String   @id @default(cuid())
+  requestCode   String   @unique
+  employeeId    String
+  employee      Employee @relation(fields: [employeeId], references: [id])
+  assetId       String?
+  assetName     String
+  reason        String
+  duration      Int
+  status        String   @default("pending")
+  dateRequested DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model AssetHistory {
+  id           String   @id @default(cuid())
+  assetId      String
+  asset        Asset    @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  assetCode    String
+  assetName    String
+  action       String
   employeeId   String?
-  employee     Employee? @relation(fields: [employeeId], references: [id])
-  imageUrl     String?   // Cloudinary URL
-  notes        String?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  employeeName String
+  date         DateTime @default(now())
+  condition    String?
+  createdAt    DateTime @default(now())
 }
 
 model Document {
@@ -218,17 +271,30 @@ model Document {
 }
 
 model Announcement {
-  id          String    @id @default(cuid())
+  id          String             @id @default(cuid())
   title       String
   content     String
-  category    String?
-  isPinned    Boolean   @default(false)
-  isPublished Boolean   @default(true)
-  targetRoles String[]
-  imageUrl    String?   // Cloudinary URL
+  target      String             @default("all")
+  isPinned    Boolean            @default(false)
+  status      String             @default("published")
+  publishDate DateTime           @default(now())
+  expireDate  DateTime?
+  imageUrl    String?
   createdBy   String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  reads       AnnouncementRead[]
+}
+
+model AnnouncementRead {
+  id             String       @id @default(cuid())
+  announcementId String
+  announcement   Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  employeeId     String
+  employee       Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  readAt         DateTime     @default(now())
+
+  @@unique([announcementId, employeeId])
 }
 
 model Shift {

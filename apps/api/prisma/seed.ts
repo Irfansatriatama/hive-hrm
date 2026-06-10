@@ -33,6 +33,7 @@ async function main() {
   await prisma.rewardHashtag.deleteMany();
   await prisma.rewardCatalogItem.deleteMany();
   await prisma.visitor.deleteMany();
+  await prisma.announcementRead.deleteMany();
   await prisma.announcement.deleteMany();
   await prisma.asset.deleteMany();
   await prisma.document.deleteMany();
@@ -251,6 +252,45 @@ async function main() {
       { name: 'Hari Buruh Internasional', date: new Date('2026-05-01'), type: 'national' },
       { name: 'Hari Kemerdekaan RI', date: new Date('2026-08-17'), type: 'national' },
       { name: 'Hari Natal', date: new Date('2026-12-25'), type: 'national' },
+    ],
+  });
+
+  console.log('Seeding announcements...');
+  await prisma.announcement.createMany({
+    data: [
+      {
+        title: 'Kebijakan Cuti Bersama Idul Fitri 1447H',
+        content:
+          'Diberitahukan kepada seluruh karyawan bahwa cuti bersama Idul Fitri ditetapkan dari tanggal 18 Maret sampai 22 Maret 2026. Operasional kantor akan diliburkan secara penuh selama periode tersebut.',
+        target: 'all',
+        isPinned: true,
+        status: 'published',
+        publishDate: new Date('2026-05-25'),
+        expireDate: new Date('2026-06-15'),
+        createdBy: 'Sari Dewi Lestari',
+      },
+      {
+        title: 'Townhall Meeting Triwulan II - 2026',
+        content:
+          'Undangan Townhall Meeting Triwulan II untuk seluruh divisi pada Jumat, 12 Juni 2026, pukul 14:00 WIB di Main Auditorium. CEO akan memaparkan update kinerja kuartal lalu serta arah strategi korporasi ke depan.',
+        target: 'all',
+        isPinned: false,
+        status: 'published',
+        publishDate: new Date('2026-06-01'),
+        expireDate: new Date('2026-06-13'),
+        createdBy: 'Arief Budiman',
+      },
+      {
+        title: 'Pelatihan Kemanan Data & ISO 27001 - Divisi IT',
+        content:
+          'Wajib bagi seluruh staff Teknologi dan Produk untuk mengikuti seminar ISO 27001 yang akan diadakan secara online pada Senin depan pukul 09:00 WIB.',
+        target: 'DEPT001',
+        isPinned: false,
+        status: 'published',
+        publishDate: new Date('2026-06-08'),
+        expireDate: new Date('2026-06-16'),
+        createdBy: 'Arief Budiman',
+      },
     ],
   });
 

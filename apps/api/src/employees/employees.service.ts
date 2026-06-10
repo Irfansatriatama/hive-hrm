@@ -348,19 +348,24 @@ export class EmployeesService {
       }));
 
     // Announcements
+    const now = new Date();
     const announcements = await this.prisma.announcement.findMany({
-      where: { isPublished: true },
-      orderBy: { createdAt: 'desc' },
+      where: {
+        status: 'published',
+        publishDate: { lte: now },
+        OR: [{ expireDate: null }, { expireDate: { gte: now } }],
+      },
+      orderBy: [{ isPinned: 'desc' }, { publishDate: 'desc' }],
       take: 3,
     });
 
-    const formattedAnnouncements = announcements.map(ann => ({
+    const formattedAnnouncements = announcements.map((ann) => ({
       id: ann.id,
       title: ann.title,
       content: ann.content,
       pinned: ann.isPinned,
       author: ann.createdBy || 'HR Admin',
-      publish_date: ann.createdAt.toISOString(),
+      publish_date: ann.publishDate.toISOString(),
     }));
 
     // Department Distribution

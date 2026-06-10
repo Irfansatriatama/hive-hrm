@@ -35,48 +35,236 @@ export class CoreController {
   }
 
   // 1. Announcements
+  private isAnnouncementAdmin(role?: string) {
+    return role === 'SUPER_ADMIN' || role === 'HR_ADMIN' || role === 'MANAGER';
+  }
+
+  @Get('announcements/feed')
+  async getAnnouncementFeed(@Req() req: express.Request) {
+    const user = await this.getSessionUser(req);
+    return this.service.getAnnouncementFeed(user);
+  }
+
+  @Get('announcements/manage')
+  async getAnnouncementsManage(@Req() req: express.Request) {
+    const user = await this.getSessionUser(req);
+    const role = (user as any).role;
+    if (!this.isAnnouncementAdmin(role)) {
+      throw new UnauthorizedException('Only admins can manage announcements');
+    }
+    return this.service.getAnnouncementsManage();
+  }
+
   @Get('announcements')
   async getAnnouncements(@Req() req: express.Request) {
-    await this.getSessionUser(req);
-    return this.service.getAnnouncements();
+    const user = await this.getSessionUser(req);
+    return this.service.getAnnouncementFeed(user);
   }
 
   @Post('announcements')
   async createAnnouncement(@Req() req: express.Request, @Body() body: any) {
     const user = await this.getSessionUser(req);
     const role = (user as any).role;
-    if (role !== 'SUPER_ADMIN' && role !== 'HR_ADMIN') {
+    if (!this.isAnnouncementAdmin(role)) {
       throw new UnauthorizedException('Only admins can create announcements');
     }
-    return this.service.createAnnouncement({ ...body, createdBy: user.name });
+    return this.service.createAnnouncement({ ...body, createdBy: user.name }, user.id);
+  }
+
+  @Put('announcements/:id')
+  async updateAnnouncement(
+    @Req() req: express.Request,
+    @Param('id') id: string,
+    @Body() body: any,
+  ) {
+    const user = await this.getSessionUser(req);
+    const role = (user as any).role;
+    if (!this.isAnnouncementAdmin(role)) {
+      throw new UnauthorizedException('Only admins can update announcements');
+    }
+    return this.service.updateAnnouncement(id, body, user.id);
+  }
+
+  @Post('announcements/:id/delete')
+  async deleteAnnouncement(@Req() req: express.Request, @Param('id') id: string) {
+    const user = await this.getSessionUser(req);
+    const role = (user as any).role;
+    if (!this.isAnnouncementAdmin(role)) {
+      throw new UnauthorizedException('Only admins can delete announcements');
+    }
+    return this.service.deleteAnnouncement(id, user.id);
+  }
+
+  @Post('announcements/:id/read')
+  async markAnnouncementRead(@Req() req: express.Request, @Param('id') id: string) {
+    const user = await this.getSessionUser(req);
+    return this.service.markAnnouncementRead(id, user);
   }
 
   // 2. Assets
+  private isAssetAdmin(role?: string) {
+    return role === 'SUPER_ADMIN' || role === 'HR_ADMIN';
+  }
+
   @Get('assets')
   async getAssets(@Req() req: express.Request) {
-    await this.getSessionUser(req);
-    return this.service.getAssets();
+    const user = await this.getSessionUser(req);
+    return this.service.getAssets(user as any);
   }
 
   @Post('assets')
   async createAsset(@Req() req: express.Request, @Body() body: any) {
     const user = await this.getSessionUser(req);
-    const role = (user as any).role;
-    if (role !== 'SUPER_ADMIN' && role !== 'HR_ADMIN') {
+    if (!this.isAssetAdmin((user as any).role)) {
       throw new UnauthorizedException('Only admins can add assets');
     }
     return this.service.createAsset(body);
+  }
+
+  @Get('assets/requests/list')
+  async getAssetRequests(@Req() req: express.Request) {
+    const user = await this.getSessionUser(req);
+    return this.service.getAssetRequests(user as any);
+  }
+
+  @Post('assets/requests')
+  async createAssetRequest(
+    @Req() req: express.Request,
+    @Body() body: { assetName: string; reason: string; duration: number },
+  ) {
+    const user = await this.getSessionUser(req);
+    return this.service.createAssetRequest(user as any, body);
+  }
+
+  @Post('assets/requests/:id/process')
+  async processAssetRequest(
+    @Req() req: express.Request,
+    @Param('id') id: string,
+    @Body() body: { status: 'approved' | 'rejected' },
+  ) {
+    const user = await this.getSessionUser(req);
+    if (!this.isAssetAdmin((user as any).role)) {
+      throw new UnauthorizedException('Only admins can process asset requests');
+    }
+    return this.service.processAssetRequest(id, body.status);
+  }
+
+  @Get('assets/history/list')
+  async getAssetHistory(@Req() req: express.Request) {
+    await this.getSessionUser(req);
+    return this.service.getAssetHistory();
+  }
+
+  @Get('assets/categories')
+  async getAssetCategories(@Req() req: express.Request) {
+    await this.getSessionUser(req);
+    return this.service.getAssetCategories();
+  }
+
+  @Post('assets/categories')
+  async createAssetCategory(@Req() req: express.Request, @Body() body: any) {
+    const user = await this.getSessionUser(req);
+    if (!this.isAssetAdmin((user as any).role)) {
+      throw new UnauthorizedException('Only admins can manage asset categories');
+    }
+    return this.service.createAssetCategory(body);
+  }
+
+  @Put('assets/categories/:id')
+  async updateAssetCategory(
+    @Req() req: express.Request,
+    @Param('id') id: string,
+    @Body() body: any,
+  ) {
+    const user = await this.getSessionUser(req);
+    if (!this.isAssetAdmin((user as any).role)) {
+      throw new UnauthorizedException('Only admins can manage asset categories');
+    }
+    return this.service.updateAssetCategory(id, body);
+  }
+
+  @Delete('assets/categories/:id')
+  async deleteAssetCategory(@Req() req: express.Request, @Param('id') id: string) {
+    const user = await this.getSessionUser(req);
+    if (!this.isAssetAdmin((user as any).role)) {
+      throw new UnauthorizedException('Only admins can manage asset categories');
+    }
+    return this.service.deleteAssetCategory(id);
+  }
+
+  @Get('assets/locations')
+  async getAssetLocations(@Req() req: express.Request) {
+    await this.getSessionUser(req);
+    return this.service.getAssetLocations();
+  }
+
+  @Post('assets/locations')
+  async createAssetLocation(@Req() req: express.Request, @Body() body: any) {
+    const user = await this.getSessionUser(req);
+    if (!this.isAssetAdmin((user as any).role)) {
+      throw new UnauthorizedException('Only admins can manage asset locations');
+    }
+    return this.service.createAssetLocation(body);
+  }
+
+  @Put('assets/locations/:id')
+  async updateAssetLocation(
+    @Req() req: express.Request,
+    @Param('id') id: string,
+    @Body() body: any,
+  ) {
+    const user = await this.getSessionUser(req);
+    if (!this.isAssetAdmin((user as any).role)) {
+      throw new UnauthorizedException('Only admins can manage asset locations');
+    }
+    return this.service.updateAssetLocation(id, body);
+  }
+
+  @Delete('assets/locations/:id')
+  async deleteAssetLocation(@Req() req: express.Request, @Param('id') id: string) {
+    const user = await this.getSessionUser(req);
+    if (!this.isAssetAdmin((user as any).role)) {
+      throw new UnauthorizedException('Only admins can manage asset locations');
+    }
+    return this.service.deleteAssetLocation(id);
+  }
+
+  @Get('assets/settings/rules')
+  async getAssetLoanRules(@Req() req: express.Request) {
+    await this.getSessionUser(req);
+    return this.service.getAssetLoanRules();
+  }
+
+  @Put('assets/settings/rules')
+  async updateAssetLoanRules(@Req() req: express.Request, @Body() body: any) {
+    const user = await this.getSessionUser(req);
+    if (!this.isAssetAdmin((user as any).role)) {
+      throw new UnauthorizedException('Only admins can update asset loan rules');
+    }
+    return this.service.updateAssetLoanRules(body);
+  }
+
+  @Put('assets/:id')
+  async updateAsset(
+    @Req() req: express.Request,
+    @Param('id') id: string,
+    @Body() body: any,
+  ) {
+    const user = await this.getSessionUser(req);
+    if (!this.isAssetAdmin((user as any).role)) {
+      throw new UnauthorizedException('Only admins can update assets');
+    }
+    return this.service.updateAsset(id, body);
   }
 
   @Post('assets/:id/assign')
   async assignAsset(
     @Req() req: express.Request,
     @Param('id') id: string,
-    @Body() body: { employeeId: string }
+    @Body() body: { employeeId: string },
   ) {
     const user = await this.getSessionUser(req);
-    const role = (user as any).role;
-    if (role !== 'SUPER_ADMIN' && role !== 'HR_ADMIN') {
+    if (!this.isAssetAdmin((user as any).role)) {
       throw new UnauthorizedException('Only admins can assign assets');
     }
     return this.service.assignAsset(id, body.employeeId);
@@ -85,8 +273,7 @@ export class CoreController {
   @Post('assets/:id/return')
   async returnAsset(@Req() req: express.Request, @Param('id') id: string) {
     const user = await this.getSessionUser(req);
-    const role = (user as any).role;
-    if (role !== 'SUPER_ADMIN' && role !== 'HR_ADMIN') {
+    if (!this.isAssetAdmin((user as any).role)) {
       throw new UnauthorizedException('Only admins can return assets');
     }
     return this.service.returnAsset(id);

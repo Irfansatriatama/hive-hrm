@@ -6,7 +6,6 @@ import { fetchAPI } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import Badge from '@/components/shared/Badge';
 import Modal from '@/components/shared/Modal';
-import TableActionMenu from '@/components/shared/TableActionMenu';
 import { isHRRole, usePermission } from '@/hooks/usePermission';
 
 export default function RewardApprovalPage() {
@@ -139,16 +138,26 @@ export default function RewardApprovalPage() {
                     <td className="px-6 py-4 font-mono text-slate-500">{formatDate(row.createdAt, { day: 'numeric', month: 'short', year: 'numeric' })}</td>
                     <td className="px-6 py-4"><Badge status={row.status} /></td>
                     <td className="px-6 py-4 text-right font-medium">
-                      <TableActionMenu
-                        items={
-                          row.status === 'pending'
-                            ? [
-                                { label: 'Setujui', onClick: () => approveRedemption(row.id), variant: 'primary' },
-                                { label: 'Tolak', onClick: () => setRejectModal({ open: true, id: row.id }), variant: 'danger' },
-                              ]
-                            : []
-                        }
-                      />
+                      {row.status === 'pending' ? (
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => approveRedemption(row.id)}
+                            className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[10px] font-bold transition cursor-pointer flex items-center gap-1"
+                          >
+                            <Lucide.Check className="w-3 h-3" />
+                            Setujui
+                          </button>
+                          <button
+                            onClick={() => setRejectModal({ open: true, id: row.id })}
+                            className="px-2.5 py-1.5 border border-red-200 hover:bg-red-50 text-red-600 rounded-lg text-[10px] font-bold transition cursor-pointer flex items-center gap-1"
+                          >
+                            <Lucide.X className="w-3 h-3" />
+                            Tolak
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-slate-300">-</span>
+                      )}
                     </td>
                   </tr>
                 ))}
