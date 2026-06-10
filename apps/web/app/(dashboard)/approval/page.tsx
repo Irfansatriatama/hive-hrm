@@ -6,13 +6,14 @@ import { useI18n } from '@/lib/i18n';
 import { fetchAPI } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import Badge from '@/components/shared/Badge';
+import { usePermission, isHRRole } from '@/hooks/usePermission';
 
 export default function ApprovalPage() {
   const { t } = useI18n();
   const [activeTab, setActiveTab] = useState<'mine' | 'my_requests' | 'all'>('mine');
   const [inbox, setInbox] = useState<any[]>([]);
   const [myRequests, setMyRequests] = useState<any[]>([]);
-  const [userRole, setUserRole] = useState<string>('EMPLOYEE');
+  const { userRole, isLoading: authLoading } = usePermission();
   const [loading, setLoading] = useState(true);
 
   // Reject Modal State
@@ -24,9 +25,7 @@ export default function ApprovalPage() {
   const loadApprovalContext = async () => {
     setLoading(true);
     try {
-      const me = await fetchAPI('/auth/me');
-      const role = me?.role || 'EMPLOYEE';
-      setUserRole(role);
+      const role = userRole;
 
       // Fetch pending approvals for inbox
       const inboxData = await fetchAPI<any[]>('/approval/inbox');
@@ -66,8 +65,10 @@ export default function ApprovalPage() {
   };
 
   useEffect(() => {
-    loadApprovalContext();
-  }, []);
+    if (!authLoading) {
+      loadApprovalContext();
+    }
+  }, [authLoading, userRole]);
 
   const handleApprove = async (item: any) => {
     if (!confirm('Apakah Anda yakin ingin menyetujui pengajuan ini?')) return;
@@ -135,7 +136,7 @@ export default function ApprovalPage() {
     }
   };
 
-  const isHR = userRole === 'SUPER_ADMIN' || userRole === 'HR_ADMIN';
+  const isHR = isHRRole(userRole);
   const isManager = userRole === 'MANAGER';
   const hasInboxAccess = isHR || isManager;
 

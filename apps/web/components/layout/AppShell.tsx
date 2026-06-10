@@ -4,6 +4,8 @@ import React from 'react';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 import { LayoutProvider, useLayout } from '@/lib/layout-context';
+import { ModulesProvider } from '@/lib/modules-context';
+import { PermissionsProvider } from '@/lib/permissions-context';
 
 function AppShellContent({ children }: { children: React.ReactNode }) {
   const { isCollapsed, isMobileOpen, closeMobile } = useLayout();
@@ -62,7 +64,11 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
 export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <LayoutProvider>
-      <AppShellContent>{children}</AppShellContent>
+      <PermissionsProvider>
+        <ModulesProvider>
+          <AppShellContent>{children}</AppShellContent>
+        </ModulesProvider>
+      </PermissionsProvider>
     </LayoutProvider>
   );
 }

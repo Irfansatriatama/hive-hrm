@@ -8,6 +8,8 @@ import { useLayout } from '@/lib/layout-context';
 import { useI18n } from '@/lib/i18n';
 import { useAuth } from '@/hooks/useAuth';
 import { usePermission } from '@/hooks/usePermission';
+import { useModules } from '@/hooks/useModules';
+import { menuKeyToModuleKey } from '@/lib/modules';
 
 // Static icon mapper to keep bundle size small and type-safe
 const IconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -49,6 +51,7 @@ export default function Sidebar() {
   const { t } = useI18n();
   const { user } = useAuth();
   const { hasAccess } = usePermission();
+  const { isModuleEnabled } = useModules();
   const pathname = usePathname();
   const [openSubs, setOpenSubs] = useState<Record<string, boolean>>({});
 
@@ -186,9 +189,9 @@ export default function Sidebar() {
       {/* Navigation list */}
       <div className="flex-1 overflow-y-auto py-4 px-3 space-y-1.5 scrollbar-thin">
         {menuItems.map(item => {
-          // Normalize permission key format (e.g. user_access -> user-access)
-          const permissionKey = item.key.replace('_', '-');
-          if (!hasAccess(permissionKey)) return null;
+          const moduleKey = menuKeyToModuleKey(item.key);
+          if (!isModuleEnabled(moduleKey)) return null;
+          if (!hasAccess(moduleKey)) return null;
 
           const isParentActive = pathname.startsWith(item.path);
           const activeClass = isParentActive

@@ -5,11 +5,12 @@ import * as Lucide from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
 import { fetchAPI } from '@/lib/api';
 import Badge from '@/components/shared/Badge';
+import { usePermission, isHRRole } from '@/hooks/usePermission';
 
 export default function ApprovalRulesPage() {
   const { t } = useI18n();
+  const { userRole, isLoading: authLoading } = usePermission();
   const [rules, setRules] = useState<any[]>([]);
-  const [userRole, setUserRole] = useState<string>('EMPLOYEE');
   const [loading, setLoading] = useState(true);
 
   // Modal State
@@ -27,9 +28,6 @@ export default function ApprovalRulesPage() {
   const loadRules = async () => {
     setLoading(true);
     try {
-      const me = await fetchAPI('/auth/me');
-      setUserRole(me?.role || 'EMPLOYEE');
-
       const rulesData = await fetchAPI<any[]>('/approval/rules');
       setRules(rulesData);
     } catch (err) {
@@ -141,9 +139,17 @@ export default function ApprovalRulesPage() {
     }
   };
 
-  const isHR = userRole === 'SUPER_ADMIN' || userRole === 'HR_ADMIN';
+  const isHR = isHRRole(userRole);
 
-  if (!isHR && !loading) {
+  if (authLoading || loading) {
+    return (
+      <div className="flex items-center justify-center h-[60vh]">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isHR) {
     return (
       <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm text-center">
         <Lucide.ShieldAlert className="w-12 h-12 text-red-500 mx-auto mb-3" />

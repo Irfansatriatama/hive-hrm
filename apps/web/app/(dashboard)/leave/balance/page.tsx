@@ -1,18 +1,17 @@
-'use5client';
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import * as Lucide from 'lucide-react';
 import { useI18n } from '@/lib/i18n';
 import { fetchAPI } from '@/lib/api';
+import { usePermission, isHRRole } from '@/hooks/usePermission';
 
 export default function LeaveBalancePage() {
   const { t } = useI18n();
+  const { userRole, isLoading: authLoading } = usePermission();
   const [balances, setBalances] = useState<any[]>([]);
   const [departments, setDepartments] = useState<any[]>([]);
   const [leaveTypes, setLeaveTypes] = useState<any[]>([]);
-  const [userRole, setUserRole] = useState<string>('EMPLOYEE');
-  
   const [loading, setLoading] = useState(true);
   const [filterYear, setFilterYear] = useState(2026);
   const [filterDept, setFilterDept] = useState('');
@@ -29,9 +28,6 @@ export default function LeaveBalancePage() {
   const loadBalancesAndFilters = async () => {
     setLoading(true);
     try {
-      const me = await fetchAPI('/auth/me');
-      setUserRole(me?.role || 'EMPLOYEE');
-
       const [balsData, deptsData, typesData] = await Promise.all([
         fetchAPI<any[]>('/leave/balances/all'),
         fetchAPI<any[]>('/employees/departments'),
@@ -155,9 +151,17 @@ export default function LeaveBalancePage() {
     document.body.removeChild(link);
   };
 
-  const isHR = userRole === 'SUPER_ADMIN' || userRole === 'HR_ADMIN';
+  const isHR = isHRRole(userRole);
 
-  if (!isHR && !loading) {
+  if (authLoading || loading) {
+    return (
+      <div className="flex items-center justify-center h-[60vh]">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isHR) {
     return (
       <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm text-center">
         <Lucide.ShieldAlert className="w-12 h-12 text-red-500 mx-auto mb-3" />

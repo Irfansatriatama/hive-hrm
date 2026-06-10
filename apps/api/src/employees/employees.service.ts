@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { UserRole, EmployeeStatus, ApprovalStatus } from '@prisma/client';
+import { EmployeeStatus, ApprovalStatus } from '@prisma/client';
 import { hashPassword } from 'better-auth/crypto';
 
 // Hashed password for "Admin@1234" used as default for new accounts
@@ -188,7 +188,7 @@ export class EmployeesService {
       data: {
         name: `${data.firstName} ${data.lastName}`,
         email: data.email,
-        role: UserRole.EMPLOYEE,
+        role: 'EMPLOYEE',
         emailVerified: true,
       },
     });
@@ -197,7 +197,7 @@ export class EmployeesService {
       data: {
         userId: user.id,
         accountId: data.email,
-        providerId: 'email',
+        providerId: 'credential',
         password: DEFAULT_PASS_HASH,
       },
     });

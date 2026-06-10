@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Put,
+  Delete,
   Body,
   Param,
   Req,
@@ -177,28 +178,207 @@ export class CoreController {
     return this.service.createBranch(body);
   }
 
-  // 7. User Access
-  @Get('user-access')
-  async getUsers(@Req() req: express.Request) {
+  @Put('company/branches/:id')
+  async updateBranch(
+    @Req() req: express.Request,
+    @Param('id') id: string,
+    @Body() body: any,
+  ) {
+    const user = await this.getSessionUser(req);
+    const role = (user as any).role;
+    if (role !== 'SUPER_ADMIN' && role !== 'HR_ADMIN') {
+      throw new UnauthorizedException('Only admins can update branches');
+    }
+    return this.service.updateBranch(id, body);
+  }
+
+  @Post('company/branches/:id/delete')
+  async deleteBranch(@Req() req: express.Request, @Param('id') id: string) {
+    const user = await this.getSessionUser(req);
+    const role = (user as any).role;
+    if (role !== 'SUPER_ADMIN' && role !== 'HR_ADMIN') {
+      throw new UnauthorizedException('Only admins can delete branches');
+    }
+    return this.service.deleteBranch(id);
+  }
+
+  @Get('company/holidays')
+  async getHolidays(@Req() req: express.Request) {
+    await this.getSessionUser(req);
+    return this.service.getHolidays();
+  }
+
+  @Post('company/holidays')
+  async createHoliday(@Req() req: express.Request, @Body() body: any) {
+    const user = await this.getSessionUser(req);
+    const role = (user as any).role;
+    if (role !== 'SUPER_ADMIN' && role !== 'HR_ADMIN') {
+      throw new UnauthorizedException('Only admins can manage holidays');
+    }
+    return this.service.createHoliday(body);
+  }
+
+  @Post('company/holidays/:id/delete')
+  async deleteHoliday(@Req() req: express.Request, @Param('id') id: string) {
+    const user = await this.getSessionUser(req);
+    const role = (user as any).role;
+    if (role !== 'SUPER_ADMIN' && role !== 'HR_ADMIN') {
+      throw new UnauthorizedException('Only admins can manage holidays');
+    }
+    return this.service.deleteHoliday(id);
+  }
+
+  @Get('modules')
+  async getModules(@Req() req: express.Request) {
+    await this.getSessionUser(req);
+    return this.service.getModules();
+  }
+
+  @Put('modules/:key')
+  async updateModule(
+    @Req() req: express.Request,
+    @Param('key') key: string,
+    @Body() body: { isEnabled: boolean },
+  ) {
     const user = await this.getSessionUser(req);
     const role = (user as any).role;
     if (role !== 'SUPER_ADMIN') {
-      throw new UnauthorizedException('Access to user directory is restricted to Super Admins');
+      throw new UnauthorizedException('Only Super Admins can manage modules');
     }
+    return this.service.updateModule(key, body.isEnabled);
+  }
+
+  @Put('modules')
+  async bulkUpdateModules(
+    @Req() req: express.Request,
+    @Body() body: { modules: { key: string; isEnabled: boolean }[] },
+  ) {
+    const user = await this.getSessionUser(req);
+    const role = (user as any).role;
+    if (role !== 'SUPER_ADMIN') {
+      throw new UnauthorizedException('Only Super Admins can manage modules');
+    }
+    return this.service.bulkUpdateModules(body.modules);
+  }
+
+  @Get('billing')
+  async getBilling(@Req() req: express.Request) {
+    const user = await this.getSessionUser(req);
+    const role = (user as any).role;
+    if (role !== 'SUPER_ADMIN' && role !== 'FINANCE') {
+      throw new UnauthorizedException('Billing access restricted');
+    }
+    return this.service.getBillingSettings();
+  }
+
+  @Put('billing')
+  async updateBilling(@Req() req: express.Request, @Body() body: any) {
+    const user = await this.getSessionUser(req);
+    const role = (user as any).role;
+    if (role !== 'SUPER_ADMIN' && role !== 'FINANCE') {
+      throw new UnauthorizedException('Billing access restricted');
+    }
+    return this.service.updateBillingSettings(body);
+  }
+
+  // 7. Permissions (all authenticated users)
+  @Get('permissions')
+  async getPermissions(@Req() req: express.Request) {
+    await this.getSessionUser(req);
+    return this.service.getPublicPermissionMatrix();
+  }
+
+  // 8. User Access Management (Super Admin only)
+  private assertSuperAdmin(user: any) {
+    if (user?.role !== 'SUPER_ADMIN') {
+      throw new UnauthorizedException('Access restricted to Super Admins');
+    }
+  }
+
+  @Get('user-access/roles')
+  async getRoles(@Req() req: express.Request) {
+    this.assertSuperAdmin(await this.getSessionUser(req));
+    return this.service.getRoles();
+  }
+
+  @Post('user-access/roles')
+  async createRole(@Req() req: express.Request, @Body() body: any) {
+    this.assertSuperAdmin(await this.getSessionUser(req));
+    return this.service.createRole(body);
+  }
+
+  @Put('user-access/roles/:key')
+  async updateRole(
+    @Req() req: express.Request,
+    @Param('key') key: string,
+    @Body() body: any,
+  ) {
+    this.assertSuperAdmin(await this.getSessionUser(req));
+    return this.service.updateRole(key, body);
+  }
+
+  @Delete('user-access/roles/:key')
+  async deleteRole(@Req() req: express.Request, @Param('key') key: string) {
+    this.assertSuperAdmin(await this.getSessionUser(req));
+    return this.service.deleteRole(key);
+  }
+
+  @Get('user-access/permissions')
+  async getPermissionMatrix(@Req() req: express.Request) {
+    this.assertSuperAdmin(await this.getSessionUser(req));
+    return this.service.getPermissionMatrix();
+  }
+
+  @Put('user-access/permissions')
+  async savePermissionMatrix(
+    @Req() req: express.Request,
+    @Body() body: { matrix: Record<string, string[]> },
+  ) {
+    this.assertSuperAdmin(await this.getSessionUser(req));
+    return this.service.savePermissionMatrix(body.matrix);
+  }
+
+  @Get('user-access')
+  async getUsers(@Req() req: express.Request) {
+    this.assertSuperAdmin(await this.getSessionUser(req));
     return this.service.getUsers();
+  }
+
+  @Get('user-access/unassigned-employees')
+  async getUnassignedEmployees(@Req() req: express.Request) {
+    this.assertSuperAdmin(await this.getSessionUser(req));
+    return this.service.getUnassignedEmployees();
+  }
+
+  @Post('user-access/users')
+  async createUser(@Req() req: express.Request, @Body() body: any) {
+    this.assertSuperAdmin(await this.getSessionUser(req));
+    return this.service.createUserAccount(body);
   }
 
   @Put('user-access/:id/role')
   async updateUserRole(
     @Req() req: express.Request,
     @Param('id') id: string,
-    @Body() body: { role: string }
+    @Body() body: { role: string },
   ) {
-    const user = await this.getSessionUser(req);
-    const role = (user as any).role;
-    if (role !== 'SUPER_ADMIN') {
-      throw new UnauthorizedException('Only Super Admins can edit user roles');
-    }
+    this.assertSuperAdmin(await this.getSessionUser(req));
     return this.service.updateUserRole(id, body.role);
+  }
+
+  @Put('user-access/:id/status')
+  async updateUserStatus(
+    @Req() req: express.Request,
+    @Param('id') id: string,
+    @Body() body: { status: string },
+  ) {
+    this.assertSuperAdmin(await this.getSessionUser(req));
+    return this.service.updateUserStatus(id, body.status);
+  }
+
+  @Post('user-access/:id/reset-password')
+  async resetUserPassword(@Req() req: express.Request, @Param('id') id: string) {
+    this.assertSuperAdmin(await this.getSessionUser(req));
+    return this.service.resetUserPassword(id);
   }
 }

@@ -6,6 +6,7 @@ import { useI18n } from '@/lib/i18n';
 import { fetchAPI } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import Badge from '@/components/shared/Badge';
+import { usePermission, isHRRole } from '@/hooks/usePermission';
 
 export default function LeaveSummaryPage() {
   const { t } = useI18n();
@@ -13,7 +14,7 @@ export default function LeaveSummaryPage() {
   const [employees, setEmployees] = useState<any[]>([]);
   const [leaveTypes, setLeaveTypes] = useState<any[]>([]);
   const [departments, setDepartments] = useState<any[]>([]);
-  const [userRole, setUserRole] = useState<string>('EMPLOYEE');
+  const { userRole, isLoading: authLoading } = usePermission();
   const [loading, setLoading] = useState(true);
 
   // Filter States
@@ -27,27 +28,23 @@ export default function LeaveSummaryPage() {
   const [filterType, setFilterType] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
 
-  const isHR = userRole === 'SUPER_ADMIN' || userRole === 'HR_ADMIN';
+  const isHR = isHRRole(userRole);
 
   const loadData = async () => {
     setLoading(true);
     try {
-      const me = await fetchAPI('/auth/me');
-      const role = me?.role || 'EMPLOYEE';
-      setUserRole(role);
-
       const [types, depts, emps] = await Promise.all([
         fetchAPI<any[]>('/leave/types'),
-        role === 'SUPER_ADMIN' || role === 'HR_ADMIN' ? fetchAPI<any[]>('/employees/departments') : Promise.resolve([]),
-        role === 'SUPER_ADMIN' || role === 'HR_ADMIN' ? fetchAPI<any[]>('/employees') : Promise.resolve([]),
+        isHRRole(userRole) ? fetchAPI<any[]>('/employees/departments') : Promise.resolve([]),
+        isHRRole(userRole) ? fetchAPI<any[]>('/employees') : Promise.resolve([]),
       ]);
 
       setLeaveTypes(types);
       setDepartments(depts);
       setEmployees(emps);
 
-      const endpoint = (role === 'SUPER_ADMIN' || role === 'HR_ADMIN') 
-        ? '/leave/requests' 
+      const endpoint = isHRRole(userRole)
+        ? '/leave/requests'
         : '/leave/requests/my';
         
       const reqsData = await fetchAPI<any[]>(endpoint);
@@ -60,8 +57,10 @@ export default function LeaveSummaryPage() {
   };
 
   useEffect(() => {
-    loadData();
-  }, []);
+    if (!authLoading) {
+      loadData();
+    }
+  }, [authLoading, userRole]);
 
   const handleCancel = async (id: string) => {
     if (!confirm('Apakah Anda yakin ingin membatalkan pengajuan cuti pending ini?')) return;

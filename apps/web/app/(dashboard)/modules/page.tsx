@@ -1,45 +1,70 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as Lucide from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useModules, SystemModule } from '@/hooks/useModules';
+import { fetchAPI } from '@/lib/api';
 import { MODULE_PERMISSIONS, UserRole } from '@hive-hrm/types';
 
-const MODULE_LIST = [
-  { key: 'dashboard', label: 'Dashboard', icon: Lucide.LayoutDashboard },
-  { key: 'employee', label: 'Employee', icon: Lucide.Users },
-  { key: 'attendance', label: 'Attendance', icon: Lucide.Clock },
-  { key: 'leave', label: 'Leave', icon: Lucide.Calendar },
-  { key: 'reward', label: 'Reward', icon: Lucide.Award },
-  { key: 'approval', label: 'Approval', icon: Lucide.CheckSquare },
-  { key: 'shift', label: 'Shift', icon: Lucide.CalendarDays },
-  { key: 'org-chart', label: 'Org Chart', icon: Lucide.Network },
-  { key: 'announcement', label: 'Announcement', icon: Lucide.Megaphone },
-  { key: 'assets', label: 'Assets', icon: Lucide.Package },
-  { key: 'documents', label: 'Documents', icon: Lucide.FolderOpen },
-  { key: 'visitor', label: 'Visitor', icon: Lucide.UserCheck },
-  { key: 'procurement', label: 'Procurement', icon: Lucide.ShoppingCart },
-  { key: 'reporting', label: 'Reporting', icon: Lucide.BarChart2 },
-  { key: 'settings', label: 'Settings', icon: Lucide.Settings },
-  { key: 'user-access', label: 'User Access', icon: Lucide.Shield },
-];
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  'layout-dashboard': Lucide.LayoutDashboard,
+  'users': Lucide.Users,
+  'clock': Lucide.Clock,
+  'calendar': Lucide.Calendar,
+  'award': Lucide.Award,
+  'check-square': Lucide.CheckSquare,
+  'calendar-days': Lucide.CalendarDays,
+  'sitemap': Lucide.Network,
+  'megaphone': Lucide.Megaphone,
+  'package': Lucide.Package,
+  'folder-open': Lucide.FolderOpen,
+  'user-check': Lucide.UserCheck,
+  'shopping-cart': Lucide.ShoppingCart,
+  'bar-chart-2': Lucide.BarChart2,
+  'credit-card': Lucide.CreditCard,
+  'shield': Lucide.Shield,
+  'settings': Lucide.Settings,
+  'building-2': Lucide.Building2,
+};
 
 export default function ModulesPage() {
   const { user } = useAuth();
-  const [enabledModules, setEnabledModules] = useState<Record<string, boolean>>(() => {
-    const initial: Record<string, boolean> = {};
-    MODULE_LIST.forEach((m) => { initial[m.key] = true; });
-    return initial;
-  });
+  const { modules, loading, refreshModules } = useModules();
+  const [localModules, setLocalModules] = useState<SystemModule[]>([]);
+  const [saving, setSaving] = useState(false);
 
   const isSuperAdmin = user?.role === 'SUPER_ADMIN';
 
+  useEffect(() => {
+    setLocalModules(modules);
+  }, [modules]);
+
   const toggleModule = (key: string) => {
-    setEnabledModules((prev) => ({ ...prev, [key]: !prev[key] }));
+    setLocalModules((prev) =>
+      prev.map((m) => (m.key === key && !m.isCore ? { ...m, isEnabled: !m.isEnabled } : m)),
+    );
   };
 
-  const handleSave = () => {
-    alert('Konfigurasi modul berhasil disimpan.');
+  const handleSave = async () => {
+    if (saving) return;
+    setSaving(true);
+    try {
+      await fetchAPI('/core/modules', {
+        method: 'PUT',
+        body: JSON.stringify({
+          modules: localModules
+            .filter((m) => !m.isCore)
+            .map((m) => ({ key: m.key, isEnabled: m.isEnabled })),
+        }),
+      });
+      await refreshModules();
+      alert('Konfigurasi modul berhasil disimpan.');
+    } catch (err: any) {
+      alert(err.message || 'Gagal menyimpan konfigurasi modul');
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (!isSuperAdmin) {
@@ -52,59 +77,63 @@ export default function ModulesPage() {
     );
   }
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[60vh]">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4 select-none">
         <div>
-          <h1 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Daftar Modul</h1>
-          <p className="text-xs text-slate-400 mt-1">Aktifkan atau nonaktifkan modul fitur HIVE HRM.</p>
+          <h1 className="text-lg font-bold text-slate-800 uppercase tracking-wider">Pusat Kontrol Modul Aplikasi</h1>
+          <p className="text-xs text-slate-400 mt-1">Aktifkan atau nonaktifkan modul platform secara modular. Modul inti tidak dapat dinonaktifkan.</p>
         </div>
-        <button onClick={handleSave} className="px-4 py-2 bg-primary text-white rounded-lg text-xs font-bold cursor-pointer">
-          Simpan Konfigurasi
+        <button onClick={handleSave} disabled={saving} className="px-4 py-2 bg-primary text-white rounded-lg text-xs font-bold cursor-pointer disabled:opacity-50">
+          {saving ? 'Menyimpan...' : 'Simpan Konfigurasi'}
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {MODULE_LIST.map((mod) => {
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+        {localModules.map((mod) => {
+          const Icon = ICON_MAP[mod.icon || ''] || Lucide.LayoutGrid;
           const roles = MODULE_PERMISSIONS[mod.key] as UserRole[] | undefined;
+
           return (
-            <div
-              key={mod.key}
-              className={`bg-white p-4 rounded-xl border shadow-sm transition ${
-                enabledModules[mod.key] ? 'border-slate-100' : 'border-slate-200 opacity-60'
-              }`}
-            >
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
-                    enabledModules[mod.key] ? 'bg-blue-50 text-primary' : 'bg-slate-100 text-slate-400'
-                  }`}>
-                    <mod.icon className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-xs font-bold text-slate-800">{mod.label}</h3>
-                    <p className="text-[9px] text-slate-400 font-mono">{mod.key}</p>
-                  </div>
+            <div key={mod.key} className="p-6 bg-white border border-slate-150 rounded-2xl shadow-sm hover:shadow-md transition flex flex-col justify-between gap-4">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 text-slate-500 flex items-center justify-center shrink-0">
+                  <Icon className="w-6 h-6" />
                 </div>
-                <button
-                  onClick={() => toggleModule(mod.key)}
-                  className={`relative w-10 h-5 rounded-full transition cursor-pointer ${
-                    enabledModules[mod.key] ? 'bg-primary' : 'bg-slate-300'
-                  }`}
-                >
-                  <span
-                    className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition ${
-                      enabledModules[mod.key] ? 'left-5' : 'left-0.5'
-                    }`}
-                  />
-                </button>
+                <div className="space-y-1">
+                  <h3 className="text-sm font-bold text-slate-800">{mod.name}</h3>
+                  <p className="text-[11px] text-slate-500 leading-relaxed">{mod.description}</p>
+                </div>
+              </div>
+              <div className="flex items-center justify-between border-t border-slate-50 pt-3 mt-1 select-none">
+                <span className={`text-xs font-semibold ${mod.isEnabled ? 'text-green-600' : 'text-slate-500'}`}>
+                  {mod.isEnabled ? 'Modul Aktif' : 'Modul Nonaktif'}
+                </span>
+                {mod.isCore ? (
+                  <span className="text-[10px] font-bold text-slate-400 uppercase bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-lg">
+                    Modul Inti Sistem
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => toggleModule(mod.key)}
+                    className={`relative w-10 h-6 rounded-full transition cursor-pointer ${mod.isEnabled ? 'bg-primary' : 'bg-slate-300'}`}
+                  >
+                    <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition ${mod.isEnabled ? 'left-5' : 'left-1'}`} />
+                  </button>
+                )}
               </div>
               {roles && (
                 <div className="flex flex-wrap gap-1">
                   {roles.map((r) => (
-                    <span key={r} className="px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded text-[8px] font-bold">
-                      {r}
-                    </span>
+                    <span key={r} className="px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded text-[8px] font-bold">{r}</span>
                   ))}
                 </div>
               )}
