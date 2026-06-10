@@ -12,6 +12,7 @@ import { RewardModule } from './reward/reward.module';
 import { ProcurementModule } from './procurement/procurement.module';
 import { CoreModule } from './core/core.module';
 import { HiringModule } from './hiring/hiring.module';
+import { SettingsModule } from './settings/settings.module';
 import { ShiftModule } from './shift/shift.module';
 import { ReportingModule } from './reporting/reporting.module';
 
@@ -28,6 +29,7 @@ import { ReportingModule } from './reporting/reporting.module';
     ProcurementModule,
     CoreModule,
     HiringModule,
+    SettingsModule,
     ShiftModule,
     ReportingModule,
   ],

@@ -156,11 +156,24 @@ model Attendance {
 }
 
 model LeaveType {
-  id           String         @id @default(cuid())
-  name         String
-  maxDays      Int
-  isPaid       Boolean        @default(true)
-  requests     LeaveRequest[]
+  id          String         @id @default(cuid())
+  name        String
+  maxDays     Int
+  isPaid      Boolean        @default(true)
+  accrualType String         @default("none")
+  carryOver   Boolean        @default(false)
+  maxCarry    Int            @default(0)
+  requests    LeaveRequest[]
+}
+
+model LeaveBlackout {
+  id          String   @id @default(cuid())
+  date        DateTime @db.Date
+  description String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([date])
 }
 
 model LeaveRequest {
@@ -590,12 +603,30 @@ model PurchaseOrder {
   updatedAt     DateTime    @updatedAt
 }
 
+model ProcurementCategory {
+  id        String   @id @default(cuid())
+  code      String
+  name      String
+  tax       Float    @default(11)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model ProcurementVendor {
   id        String   @id @default(cuid())
   name      String   @unique
   npwp      String?
   contact   String?
   category  String?
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CustomForm {
+  id        String   @id @default(cuid())
+  name      String
+  fields    Json
   status    String   @default("active")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
