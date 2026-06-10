@@ -1,14 +1,25 @@
 import { PrismaClient, EmployeeStatus } from '@prisma/client';
-import { DEFAULT_ROLES, DEFAULT_PERMISSION_MATRIX } from '../src/core/default-roles';
+import { DEFAULT_ROLES, DEFAULT_PERMISSION_MATRIX, PERMISSION_MATRIX_MODULES } from '../src/core/default-roles';
 import { hashPassword } from 'better-auth/crypto';
 import { DEFAULT_SYSTEM_MODULES } from '@hive-hrm/types';
 
 const prisma = new PrismaClient();
 
-const DEMO_PASSWORD = 'Admin@1234';
+const SUPERADMIN_EMAIL = 'superadmin@hive.id';
+const SUPERADMIN_PASSWORD = 'Admin@1234';
+
+function buildFullSuperAdminPermissionMatrix(): Record<string, string[]> {
+  const matrix: Record<string, string[]> = {};
+  for (const mod of PERMISSION_MATRIX_MODULES) {
+    const roles = new Set(DEFAULT_PERMISSION_MATRIX[mod.key] || []);
+    roles.add('SUPER_ADMIN');
+    matrix[mod.key] = Array.from(roles);
+  }
+  return matrix;
+}
 
 async function main() {
-  const hashedPassword = await hashPassword(DEMO_PASSWORD);
+  const hashedPassword = await hashPassword(SUPERADMIN_PASSWORD);
   console.log('Clearing database tables...');
   
   // Clear tables in dependency order
@@ -29,6 +40,10 @@ async function main() {
   await prisma.user.deleteMany();
   await prisma.appSetting.deleteMany();
   await prisma.publicHoliday.deleteMany();
+  await prisma.applicationFormField.deleteMany();
+  await prisma.recruitmentSource.deleteMany();
+  await prisma.jobTemplate.deleteMany();
+  await prisma.hiringPipelineStage.deleteMany();
   await prisma.systemModule.deleteMany();
   await prisma.roleDefinition.deleteMany();
   await prisma.company.deleteMany();
@@ -110,6 +125,7 @@ async function main() {
 
   console.log('Seeding employees...');
   const employeesData = [
+    { id: 'EMP000', first: 'System', last: 'Administrator', pos: 'POS001', dept: 'DEPT001', gender: 'male', email: SUPERADMIN_EMAIL, salary: 50000000 },
     { id: 'EMP001', first: 'Arief', last: 'Budiman', pos: 'POS002', dept: 'DEPT001', gender: 'male', email: 'arief.budiman@hive.id', salary: 35000000 },
     { id: 'EMP002', first: 'Sari', last: 'Dewi Lestari', pos: 'POS011', dept: 'DEPT002', gender: 'female', email: 'hradmin@hive.id', salary: 20000000 },
     { id: 'EMP003', first: 'Budi', last: 'Santoso', pos: 'POS003', dept: 'DEPT001', gender: 'male', email: 'manager@hive.id', salary: 18000000 },
@@ -152,72 +168,30 @@ async function main() {
     });
   }
 
-  console.log('Seeding users and Better Auth accounts...');
-  // Standard demo users mapping
-  const demoUsers = [
-    { email: 'superadmin@hive.id', role: 'SUPER_ADMIN', name: 'System Administrator', empId: 'EMP001' },
-    { email: 'hradmin@hive.id', role: 'HR_ADMIN', name: 'Sari Dewi Lestari', empId: 'EMP002' },
-    { email: 'manager@hive.id', role: 'MANAGER', name: 'Budi Santoso', empId: 'EMP003' },
-    { email: 'karyawan@hive.id', role: 'EMPLOYEE', name: 'Rina Agustina', empId: 'EMP004' },
-    { email: 'finance@hive.id', role: 'FINANCE', name: 'Dani Firmansyah', empId: 'EMP018' },
-  ];
+  console.log('Seeding superadmin account...');
+  const superAdminUser = await prisma.user.create({
+    data: {
+      email: SUPERADMIN_EMAIL,
+      name: 'System Administrator',
+      role: 'SUPER_ADMIN',
+      emailVerified: true,
+      status: 'active',
+    },
+  });
 
-  for (const demoUser of demoUsers) {
-    // 1. Create User
-    const user = await prisma.user.create({
-      data: {
-        email: demoUser.email,
-        name: demoUser.name,
-        role: demoUser.role,
-        emailVerified: true,
-      },
-    });
+  await prisma.employee.update({
+    where: { id: 'EMP000' },
+    data: { userId: superAdminUser.id },
+  });
 
-    // Link User to Employee
-    await prisma.employee.update({
-      where: { id: demoUser.empId },
-      data: { userId: user.id },
-    });
-
-    // 2. Create Account for password login
-    await prisma.account.create({
-      data: {
-        userId: user.id,
-        accountId: demoUser.email,
-        providerId: 'credential',
-        password: hashedPassword,
-      },
-    });
-  }
-
-  // Create accounts for all other employees so they can login too if needed
-  for (const emp of employeesData) {
-    const isDemo = demoUsers.some(d => d.empId === emp.id);
-    if (!isDemo) {
-      const user = await prisma.user.create({
-        data: {
-          email: emp.email,
-          name: `${emp.first} ${emp.last}`,
-          role: emp.id === 'EMP001' ? 'SUPER_ADMIN' : emp.id === 'EMP002' ? 'HR_ADMIN' : emp.id === 'EMP003' ? 'MANAGER' : 'EMPLOYEE',
-          emailVerified: true,
-        },
-      });
-
-      await prisma.employee.update({
-        where: { id: emp.id },
-        data: { userId: user.id },
-      });
-
-      await prisma.account.create({
-        data: {
-          userId: user.id,
-          accountId: emp.email,
-          providerId: 'credential',
-          password: hashedPassword,
-        },
-      });
-    }
-  }
+  await prisma.account.create({
+    data: {
+      userId: superAdminUser.id,
+      accountId: SUPERADMIN_EMAIL,
+      providerId: 'credential',
+      password: hashedPassword,
+    },
+  });
 
   console.log('Seeding leave types...');
   await prisma.leaveType.createMany({
@@ -243,7 +217,7 @@ async function main() {
 
   console.log('Seeding permission matrix...');
   await prisma.appSetting.create({
-    data: { key: 'permission_matrix', value: DEFAULT_PERMISSION_MATRIX as any },
+    data: { key: 'permission_matrix', value: buildFullSuperAdminPermissionMatrix() as any },
   });
 
   console.log('Seeding system modules...');
@@ -296,6 +270,55 @@ async function main() {
         ],
       },
     },
+  });
+
+  console.log('Seeding hiring settings...');
+  await prisma.hiringPipelineStage.createMany({
+    data: [
+      { name: 'Screening Resume', sequence: 1, pic: 'Fitri Nuraini', duration: 3 },
+      { name: 'Psikotes / Technical Test', sequence: 2, pic: 'Fitri Nuraini', duration: 5 },
+      { name: 'Wawancara HR', sequence: 3, pic: 'Sari Dewi Lestari', duration: 4 },
+      { name: 'Wawancara User (Tech Lead)', sequence: 4, pic: 'Budi Santoso', duration: 7 },
+      { name: 'Offering Letter', sequence: 5, pic: 'Sari Dewi Lestari', duration: 3 },
+      { name: 'Onboarding Coordinator', sequence: 6, pic: 'Ratna Komala', duration: 1 },
+    ],
+  });
+  await prisma.jobTemplate.createMany({
+    data: [
+      {
+        position: 'Senior Full Stack Engineer',
+        description: 'Membangun dan memelihara aplikasi inti HIVE HRM.',
+        qualification: 'Pengalaman 5+ tahun PHP/React/Vue. Terbiasa dengan clean architecture.',
+        benefits: 'Gaji kompetitif, Asuransi swasta, WFH 2 hari seminggu.',
+      },
+      {
+        position: 'HR Generalist Specialist',
+        description: 'Mengelola administrasi kepengurusan karyawan, onboarding, dan payroll.',
+        qualification: 'S1 Psikologi/Hukum. Paham UU Ketenagakerjaan.',
+        benefits: 'BPJS, Bonus tahunan, Katering makan siang.',
+      },
+    ],
+  });
+  await prisma.recruitmentSource.createMany({
+    data: [
+      { name: 'LinkedIn Profile Apply', active: true },
+      { name: 'Jobstreet Portal', active: true },
+      { name: 'Website Karir Internal', active: true },
+      { name: 'Rekomendasi Karyawan (Referral)', active: true },
+      { name: 'Walk-in Interview & Drop CV', active: false },
+    ],
+  });
+  await prisma.applicationFormField.createMany({
+    data: [
+      { key: 'full_name', label: 'Nama Lengkap Karyawan', required: true, isSystem: true, sortOrder: 1 },
+      { key: 'email', label: 'Email Pribadi', required: true, isSystem: true, sortOrder: 2 },
+      { key: 'phone', label: 'Nomor Telepon', required: true, isSystem: true, sortOrder: 3 },
+      { key: 'resume', label: 'Berkas CV / Resume PDF', required: true, isSystem: false, sortOrder: 4 },
+      { key: 'portfolio', label: 'Tautan Portofolio / GitHub Link', required: false, isSystem: false, sortOrder: 5 },
+      { key: 'expected_salary', label: 'Ekspektasi Gaji Bulanan (IDR)', required: true, isSystem: false, sortOrder: 6 },
+      { key: 'notice_period', label: 'Masa Notice Pengunduran Diri (Hari)', required: false, isSystem: false, sortOrder: 7 },
+      { key: 'emergency_contact', label: 'Kontak Darurat Kerabat', required: false, isSystem: false, sortOrder: 8 },
+    ],
   });
 
   console.log('Database seeding completed successfully!');

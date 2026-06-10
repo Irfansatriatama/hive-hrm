@@ -6,7 +6,7 @@ import * as Lucide from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 const settingsLinks = [
-  { href: '/settings/hiring', icon: Lucide.UserPlus, title: 'Pengaturan Rekrutmen', desc: 'Konfigurasi alur hiring dan onboarding karyawan baru.' },
+  { href: '/settings/hiring', icon: Lucide.UserPlus, title: 'Pengaturan Rekrutmen', desc: 'Kelola alur pipeline, template lowongan, sumber kandidat, dan formulir lamaran.' },
   { href: '/settings/procurement', icon: Lucide.ShoppingCart, title: 'Pengaturan Procurement', desc: 'Atur batas approval PO dan kebijakan pengadaan.' },
   { href: '/settings/custom-form', icon: Lucide.FileEdit, title: 'Custom Form', desc: 'Kelola formulir kustom untuk pengajuan internal.' },
   { href: '/settings/leave', icon: Lucide.Calendar, title: 'Pengaturan Cuti', desc: 'Konfigurasi jenis cuti, kuota, dan kebijakan cuti.' },

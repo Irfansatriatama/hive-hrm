@@ -27,13 +27,6 @@ export default function LoginPage() {
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotSuccess, setForgotSuccess] = useState(false);
 
-  // Quick autofill helper
-  const handleAutofill = (demoEmail: string) => {
-    setEmail(demoEmail);
-    setPassword('Admin@1234');
-    setErrorMsg('');
-  };
-
   // Submit sign in handler
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -224,47 +217,6 @@ export default function LoginPage() {
             {!isLoading && <Lucide.ArrowRight className="w-5 h-5" />}
           </button>
         </form>
-
-        {/* Account Helpers Accordion */}
-        <div className="mt-8 border-t border-slate-100 pt-6">
-          <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3 select-none">
-            {t('demo_accounts')}
-          </h3>
-          <div className="grid grid-cols-2 gap-2 text-[10px]">
-            <button
-              type="button"
-              onClick={() => handleAutofill('superadmin@hive.id')}
-              className="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-left text-slate-700 font-bold transition block truncate cursor-pointer"
-            >
-              <strong>Super Admin:</strong><br />
-              <span className="text-slate-400 font-normal">superadmin@hive.id</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleAutofill('hradmin@hive.id')}
-              className="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-left text-slate-700 font-bold transition block truncate cursor-pointer"
-            >
-              <strong>HR Admin:</strong><br />
-              <span className="text-slate-400 font-normal">hradmin@hive.id</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleAutofill('manager@hive.id')}
-              className="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-left text-slate-700 font-bold transition block truncate cursor-pointer"
-            >
-              <strong>Manager:</strong><br />
-              <span className="text-slate-400 font-normal">manager@hive.id</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleAutofill('karyawan@hive.id')}
-              className="p-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-left text-slate-700 font-bold transition block truncate cursor-pointer"
-            >
-              <strong>Karyawan:</strong><br />
-              <span className="text-slate-400 font-normal">karyawan@hive.id</span>
-            </button>
-          </div>
-        </div>
       </div>
 
       {/* Reset Password Modal (Simulated) */}

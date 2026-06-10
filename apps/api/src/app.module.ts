@@ -11,6 +11,7 @@ import { ApprovalModule } from './approval/approval.module';
 import { RewardModule } from './reward/reward.module';
 import { ProcurementModule } from './procurement/procurement.module';
 import { CoreModule } from './core/core.module';
+import { HiringModule } from './hiring/hiring.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { CoreModule } from './core/core.module';
     RewardModule,
     ProcurementModule,
     CoreModule,
+    HiringModule,
   ],
   controllers: [AppController],
   providers: [AppService],
