@@ -35,10 +35,11 @@ export default function ApplyLeavePage() {
         setLeaveTypes(typesData);
         setBalances(balancesData);
 
-        // Fetch current user details to get direct manager
-        const me = await fetchAPI('/auth/me');
-        if (me?.employee) {
-          setEmployee(me.employee);
+        try {
+          const me = await fetchAPI('/employees/me');
+          if (me) setEmployee(me);
+        } catch {
+          // Employee profile may not be linked; form can still load
         }
       } catch (err) {
         console.error('Failed to load leave apply details:', err);
@@ -81,7 +82,7 @@ export default function ApplyLeavePage() {
   // Approval Chain Preview
   let managerChainName = 'Sari Dewi Lestari (HR Manager)';
   if (employee && employee.manager) {
-    managerChainName = `${employee.manager.fullName} (${t('manager')}) → Sari Dewi Lestari (HR Manager)`;
+    managerChainName = `${employee.manager.fullName || employee.manager.full_name} (${t('manager')}) → Sari Dewi Lestari (HR Manager)`;
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

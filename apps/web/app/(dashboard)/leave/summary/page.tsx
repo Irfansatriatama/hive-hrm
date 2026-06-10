@@ -37,12 +37,12 @@ export default function LeaveSummaryPage() {
       const [types, depts, emps] = await Promise.all([
         fetchAPI<any[]>('/leave/types'),
         isHRRole(userRole) ? fetchAPI<any[]>('/employees/departments') : Promise.resolve([]),
-        isHRRole(userRole) ? fetchAPI<any[]>('/employees') : Promise.resolve([]),
+        isHRRole(userRole) ? fetchAPI<{ employees: any[] }>('/employees?limit=1000') : Promise.resolve({ employees: [] }),
       ]);
 
       setLeaveTypes(types);
       setDepartments(depts);
-      setEmployees(emps);
+      setEmployees(emps.employees || []);
 
       const endpoint = isHRRole(userRole)
         ? '/leave/requests'
@@ -186,7 +186,7 @@ export default function LeaveSummaryPage() {
           >
             <option value="">Semua Karyawan</option>
             {employees.map((e) => (
-              <option key={e.id} value={e.id}>{e.fullName}</option>
+              <option key={e.id} value={e.id}>{e.full_name || e.fullName}</option>
             ))}
           </select>
         </div>
