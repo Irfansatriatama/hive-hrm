@@ -523,14 +523,21 @@ export default function Topbar() {
                   <p className="font-bold text-slate-800 text-xs truncate leading-tight">{userName}</p>
                   <p className="text-[10px] text-slate-400 capitalize mt-0.5 truncate">{userRoleText}</p>
                 </div>
-                <Link
-                  href={`/employee/${user?.id || 'EMP001'}`}
-                  onClick={() => setIsUserOpen(false)}
-                  className="flex items-center gap-2 px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 font-medium"
-                >
-                  <Lucide.User className="w-4 h-4 text-slate-400" />
-                  <span>{t('profile')}</span>
-                </Link>
+                {user?.employee_id ? (
+                  <Link
+                    href={`/employee/${user.employee_id}`}
+                    onClick={() => setIsUserOpen(false)}
+                    className="flex items-center gap-2 px-4 py-2 text-xs text-slate-700 hover:bg-slate-50 font-medium"
+                  >
+                    <Lucide.User className="w-4 h-4 text-slate-400" />
+                    <span>{t('profile')}</span>
+                  </Link>
+                ) : (
+                  <span className="flex items-center gap-2 px-4 py-2 text-xs text-slate-400 font-medium cursor-not-allowed">
+                    <Lucide.User className="w-4 h-4 text-slate-300" />
+                    <span>{t('profile')}</span>
+                  </span>
+                )}
                 <Link
                   href="/settings"
                   onClick={() => setIsUserOpen(false)}

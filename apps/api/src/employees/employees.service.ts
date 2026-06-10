@@ -591,5 +591,11 @@ export class EmployeesService {
       where: { email },
     });
   }
+
+  async findLinkedEmployee(userId: string, email: string) {
+    const byUser = await this.findByUserId(userId);
+    if (byUser) return byUser;
+    return this.findByEmail(email);
+  }
 }
 

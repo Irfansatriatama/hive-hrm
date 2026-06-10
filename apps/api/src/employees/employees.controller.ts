@@ -9,6 +9,7 @@ import {
   Query,
   Req,
   UnauthorizedException,
+  NotFoundException,
 } from '@nestjs/common';
 import * as express from 'express';
 import { EmployeesService } from './employees.service';
@@ -90,10 +91,20 @@ export class EmployeesController {
     return this.service.removeGroup(id, user.id);
   }
 
+  @Get('me')
+  async findMe(@Req() req: express.Request) {
+    const user = await this.getSessionUser(req);
+    const emp = await this.service.findLinkedEmployee(user.id, user.email);
+    if (!emp) {
+      throw new NotFoundException('Profile karyawan tidak ditemukan');
+    }
+    return this.service.findOne(emp.id);
+  }
+
   @Get('requests/my')
   async findMyRequests(@Req() req: express.Request) {
     const user = await this.getSessionUser(req);
-    const emp = await this.service.findByUserId(user.id);
+    const emp = await this.service.findLinkedEmployee(user.id, user.email);
     if (!emp) return [];
     return this.service.findMyRequests(emp.id);
   }
@@ -101,7 +112,7 @@ export class EmployeesController {
   @Post('requests')
   async createProfileRequest(@Req() req: express.Request, @Body() body: any) {
     const user = await this.getSessionUser(req);
-    const emp = await this.service.findByUserId(user.id);
+    const emp = await this.service.findLinkedEmployee(user.id, user.email);
     if (!emp) throw new UnauthorizedException('No employee profile associated with this user');
     return this.service.createProfileRequest(emp.id, body, user.id);
   }
@@ -109,7 +120,7 @@ export class EmployeesController {
   @Delete('requests/:id')
   async cancelProfileRequest(@Req() req: express.Request, @Param('id') id: string) {
     const user = await this.getSessionUser(req);
-    const emp = await this.service.findByUserId(user.id);
+    const emp = await this.service.findLinkedEmployee(user.id, user.email);
     if (!emp) throw new UnauthorizedException('No employee profile associated with this user');
     return this.service.cancelProfileRequest(id, emp.id, user.id);
   }

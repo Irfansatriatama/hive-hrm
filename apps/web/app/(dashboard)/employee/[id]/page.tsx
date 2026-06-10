@@ -134,7 +134,7 @@ export default function EmployeeProfilePage() {
     user?.role === 'SUPER_ADMIN' ||
     user?.role === 'HR_ADMIN' ||
     user?.role === 'FINANCE' ||
-    user?.email === emp.email;
+    user?.employee_id === emp.id;
 
   const tabs = [
     { id: 'personal', label: 'Info Pribadi', icon: Lucide.User },
