@@ -119,6 +119,10 @@ model Employee {
   assets          Asset[]
   documents       Document[]
   profileRequests ProfileUpdateRequest[]
+  rewardPointsReceived RewardPointTransaction[] @relation("RewardPointRecipient")
+  rewardPointsSent     RewardPointTransaction[] @relation("RewardPointSender")
+  rewardRedemptions    RewardRedemption[]
+  pointBalance         EmployeePointBalance?
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 }
@@ -387,4 +391,67 @@ model ApplicationFormField {
   sortOrder Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// === REWARDS & GAMIFICATION ===
+model RewardCatalogItem {
+  id          String             @id @default(cuid())
+  name        String
+  description String
+  points      Int
+  stock       Int                @default(0)
+  category    String
+  status      String             @default("active")
+  imageUrl    String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  redemptions RewardRedemption[]
+}
+
+model RewardHashtag {
+  id          String   @id @default(cuid())
+  tag         String   @unique
+  description String
+  usageCount  Int      @default(0)
+  status      String   @default("active")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model RewardPointTransaction {
+  id               String   @id @default(cuid())
+  employeeId       String
+  employee         Employee @relation("RewardPointRecipient", fields: [employeeId], references: [id])
+  senderEmployeeId String?
+  senderEmployee   Employee? @relation("RewardPointSender", fields: [senderEmployeeId], references: [id])
+  type             String
+  points           Int
+  hashtag          String?
+  message          String?
+  balanceAfter     Int?
+  counterpartyName String?
+  rewardCatalogId  String?
+  redemptionId     String?
+  createdAt        DateTime @default(now())
+}
+
+model RewardRedemption {
+  id              String            @id @default(cuid())
+  employeeId      String
+  employee        Employee          @relation(fields: [employeeId], references: [id])
+  rewardCatalogId String
+  rewardCatalog   RewardCatalogItem @relation(fields: [rewardCatalogId], references: [id])
+  points          Int
+  status          String            @default("pending")
+  dateProcessed   DateTime?
+  notes           String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+}
+
+model EmployeePointBalance {
+  employeeId String   @id
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  balance    Int      @default(1000)
+  updatedAt  DateTime @updatedAt
 }

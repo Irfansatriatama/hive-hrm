@@ -27,6 +27,11 @@ async function main() {
   await prisma.session.deleteMany();
   await prisma.verification.deleteMany();
   await prisma.auditLog.deleteMany();
+  await prisma.rewardPointTransaction.deleteMany();
+  await prisma.rewardRedemption.deleteMany();
+  await prisma.employeePointBalance.deleteMany();
+  await prisma.rewardHashtag.deleteMany();
+  await prisma.rewardCatalogItem.deleteMany();
   await prisma.visitor.deleteMany();
   await prisma.announcement.deleteMany();
   await prisma.asset.deleteMany();
@@ -259,6 +264,116 @@ async function main() {
         working_days: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'],
         fingerprint_integration: false,
       },
+    },
+  });
+
+  console.log('Seeding reward settings...');
+  await prisma.appSetting.create({
+    data: {
+      key: 'reward_settings',
+      value: {
+        max_give_daily: 100,
+        max_receive_monthly: 500,
+        manager_multiplier: 1.5,
+      },
+    },
+  });
+
+  console.log('Seeding reward catalog...');
+  const rewardCatalog = [
+    { id: 'RWD001', name: 'Voucher Sodexo Rp 100k', description: 'Dapat ditukarkan di berbagai merchant supermarket dan restoran', points: 100, stock: 25, category: 'Voucher', status: 'active' },
+    { id: 'RWD002', name: 'Extra Day Off', description: 'Satu hari cuti ekstra berbayar yang bisa ditambahkan ke saldo Anda', points: 250, stock: 10, category: 'Benefit', status: 'active' },
+    { id: 'RWD003', name: 'HIVE HRM Custom Hoodie', description: 'Hoodie eksklusif dengan bordir logo HIVE berkualitas premium', points: 500, stock: 15, category: 'Merchandise', status: 'active' },
+    { id: 'RWD004', name: 'Voucher Kopi Janji Jiwa Rp 50k', description: 'Voucher elektronik senilai Rp 50.000', points: 50, stock: 50, category: 'Voucher', status: 'active' },
+    { id: 'RWD005', name: 'Bose SoundLink Speaker', description: 'Speaker bluetooth portable dengan suara jernih premium', points: 2500, stock: 2, category: 'Elektronik', status: 'active' },
+    { id: 'RWD006', name: 'Tiket Nonton XXI', description: '2 tiket nonton studio reguler XXI', points: 120, stock: 20, category: 'Hiburan', status: 'active' },
+  ];
+  for (const item of rewardCatalog) {
+    await prisma.rewardCatalogItem.create({ data: item });
+  }
+
+  console.log('Seeding reward hashtags...');
+  const rewardHashtags = [
+    { tag: '#Inovatif', description: 'Menciptakan terobosan baru dan cara kerja kreatif', usageCount: 24, status: 'active' },
+    { tag: '#Kolaborasi', description: 'Bekerja sama lintas tim dengan harmoni dan saling mendukung', usageCount: 35, status: 'active' },
+    { tag: '#ProAktif', description: 'Mengambil inisiatif sebelum diminta demi kebaikan bersama', usageCount: 18, status: 'active' },
+    { tag: '#Jujur', description: 'Mengedepankan kebenaran, transparansi, dan integritas tinggi', usageCount: 12, status: 'active' },
+    { tag: '#Bertumbuh', description: 'Haus belajar dan selalu ingin meningkatkan kapasitas diri', usageCount: 15, status: 'active' },
+    { tag: '#Integritas', description: 'Komitmen moral yang kokoh pada prinsip etika kerja', usageCount: 20, status: 'active' },
+    { tag: '#CustomerFirst', description: 'Memprioritaskan kepuasan klien dan user', usageCount: 28, status: 'active' },
+    { tag: '#Disiplin', description: 'Tepat waktu dan bertanggung jawab atas tugasnya', usageCount: 14, status: 'active' },
+  ];
+  for (const ht of rewardHashtags) {
+    await prisma.rewardHashtag.create({ data: ht });
+  }
+
+  console.log('Seeding employee point balances & sample transactions...');
+  const employeeIds = employeesData.map(e => e.id);
+  const balances: Record<string, number> = {};
+  for (const empId of employeeIds) {
+    const balance = 100 + Math.floor(Math.random() * 800);
+    balances[empId] = balance;
+    await prisma.employeePointBalance.create({
+      data: { employeeId: empId, balance },
+    });
+  }
+
+  for (let i = 1; i <= 30; i++) {
+    const fromIdx = i % employeeIds.length;
+    const toIdx = (i + 3) % employeeIds.length;
+    const fromId = employeeIds[fromIdx];
+    const toId = employeeIds[toIdx];
+    if (fromId === toId) continue;
+
+    const fromEmp = employeesData.find(e => e.id === fromId)!;
+    const toEmp = employeesData.find(e => e.id === toId)!;
+    const ht = rewardHashtags[i % rewardHashtags.length];
+    const points = 10 * ((i % 3) + 1);
+    const txDate = new Date();
+    txDate.setDate(txDate.getDate() - (30 - i));
+
+    balances[toId] += points;
+    await prisma.employeePointBalance.update({
+      where: { employeeId: toId },
+      data: { balance: balances[toId] },
+    });
+
+    await prisma.rewardPointTransaction.create({
+      data: {
+        employeeId: toId,
+        senderEmployeeId: fromId,
+        type: 'received',
+        points,
+        hashtag: ht.tag,
+        message: `Terima kasih atas bantuannya dalam menyelesaikan ${i % 2 === 0 ? 'proyek migrasi server' : 'desain presentasi klien'}. Kerja kerasmu sangat membantu!`,
+        balanceAfter: balances[toId],
+        counterpartyName: `${fromEmp.first} ${fromEmp.last}`,
+        createdAt: txDate,
+      },
+    });
+  }
+
+  console.log('Seeding reward redemptions...');
+  await prisma.rewardRedemption.create({
+    data: {
+      id: 'RED001',
+      employeeId: 'EMP004',
+      rewardCatalogId: 'RWD001',
+      points: 100,
+      status: 'approved',
+      dateProcessed: new Date('2026-06-02'),
+      notes: 'Kode voucher dikirim via email',
+      createdAt: new Date('2026-06-01'),
+    },
+  });
+  await prisma.rewardRedemption.create({
+    data: {
+      id: 'RED002',
+      employeeId: 'EMP007',
+      rewardCatalogId: 'RWD003',
+      points: 500,
+      status: 'pending',
+      createdAt: new Date('2026-06-05'),
     },
   });
 
