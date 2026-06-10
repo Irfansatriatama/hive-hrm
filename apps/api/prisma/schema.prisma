@@ -65,12 +65,13 @@ model Verification {
 
 // === HRM CORE ===
 model Department {
-  id        String     @id @default(cuid())
-  name      String
-  code      String     @unique
-  createdAt DateTime   @default(now())
-  employees Employee[]
-  positions Position[]
+  id             String          @id @default(cuid())
+  name           String
+  code           String          @unique
+  createdAt      DateTime        @default(now())
+  employees      Employee[]
+  positions      Position[]
+  purchaseOrders PurchaseOrder[]
 }
 
 model Position {
@@ -345,15 +346,21 @@ model ShiftSwap {
 
 model Visitor {
   id             String    @id @default(cuid())
+  badgeNumber    String?
   visitorName    String
   company        String?
+  idType         String?
+  idNumber       String?
   phone          String?
+  email          String?
   purpose        String
   hostEmployeeId String?
+  vehicleNumber  String?
   checkIn        DateTime  @default(now())
   checkOut       DateTime?
+  notes          String?
   photoUrl       String?   // Cloudinary URL
-  status         String    @default("in")
+  status         String    @default("checked_in")
   createdAt      DateTime  @default(now())
 }
 
@@ -559,4 +566,37 @@ model EmployeePointBalance {
   employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   balance    Int      @default(1000)
   updatedAt  DateTime @updatedAt
+}
+
+// === PROCUREMENT ===
+model PurchaseOrder {
+  id            String      @id @default(cuid())
+  poNumber      String      @unique
+  requesterId   String?
+  requesterName String
+  departmentId  String?
+  department    Department? @relation(fields: [departmentId], references: [id])
+  vendorName    String
+  items         Json
+  subtotal      Float
+  taxEnabled    Boolean     @default(true)
+  taxPercentage Float       @default(11)
+  taxAmount     Float       @default(0)
+  totalAmount   Float
+  targetDate    DateTime
+  status        String      @default("Draft")
+  notes         String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model ProcurementVendor {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  npwp      String?
+  contact   String?
+  category  String?
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

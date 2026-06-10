@@ -483,6 +483,81 @@ async function main() {
     },
   });
 
+  console.log('Seeding visitors...');
+  const visitors = [
+    {
+      id: 'VIS001',
+      badgeNumber: 'V-001',
+      visitorName: 'Andi Wijaya',
+      company: 'PT. Mitra Sejahtera',
+      idType: 'KTP',
+      idNumber: '3201021503920002',
+      phone: '08123456789',
+      email: 'andi@mitra.co.id',
+      purpose: 'Meeting bisnis pengembangan sistem',
+      hostEmployeeId: 'EMP003',
+      vehicleNumber: 'B 1234 ABC',
+      checkIn: new Date('2026-06-09T09:30:00'),
+      checkOut: new Date('2026-06-09T11:15:00'),
+      status: 'checked_out',
+      notes: 'Sudah selesai',
+    },
+    {
+      id: 'VIS002',
+      badgeNumber: 'V-002',
+      visitorName: 'Dewi Lestari',
+      company: 'BPJS Kesehatan',
+      idType: 'KTP',
+      idNumber: '3201026005900004',
+      phone: '08198765432',
+      email: 'dewi@bpjs.go.id',
+      purpose: 'Sosialisasi update program jaminan',
+      hostEmployeeId: 'EMP002',
+      vehicleNumber: 'B 7789 XYZ',
+      checkIn: new Date('2026-06-09T10:00:00'),
+      checkOut: null,
+      status: 'checked_in',
+      notes: 'Lantai 3',
+    },
+    {
+      id: 'VIS003',
+      badgeNumber: 'V-003',
+      visitorName: 'Roy Kiyoshi',
+      company: 'Gojek Indonesia',
+      idType: 'SIM',
+      idNumber: '8809182394',
+      phone: '08521199334',
+      email: 'roy.k@gojek.com',
+      purpose: 'Kunjungan kurir instan PO',
+      hostEmployeeId: 'EMP005',
+      vehicleNumber: 'F 4321 AC',
+      checkIn: new Date('2026-06-09T11:45:00'),
+      checkOut: null,
+      status: 'checked_in',
+      notes: 'Kirim invoice',
+    },
+    {
+      id: 'VIS004',
+      badgeNumber: 'V-004',
+      visitorName: 'Joni Iskandar',
+      company: 'PT. Sarana Jaya',
+      idType: 'KTP',
+      idNumber: '3201101004880005',
+      phone: '0811223344',
+      email: 'joni@saranajaya.com',
+      purpose: 'Survei AC kantor pusat',
+      hostEmployeeId: 'EMP012',
+      vehicleNumber: 'B 9901 AA',
+      checkIn: new Date('2026-06-09T08:30:00'),
+      checkOut: new Date('2026-06-09T10:30:00'),
+      status: 'checked_out',
+      notes: 'Instalasi selesai',
+    },
+  ];
+  for (const visitor of visitors) {
+    await prisma.visitor.create({ data: visitor });
+  }
+
   console.log('Seeding billing settings...');
   const employeeCount = await prisma.employee.count({ where: { status: EmployeeStatus.ACTIVE } });
   await prisma.appSetting.create({

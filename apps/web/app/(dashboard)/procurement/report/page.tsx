@@ -107,12 +107,12 @@ export default function ProcurementReportPage() {
                 {report.recentApproved.map((po: any) => (
                   <div key={po.id} className="flex items-center justify-between p-3 border border-slate-100 rounded-xl bg-slate-50">
                     <div>
-                      <p className="text-xs font-bold text-slate-800">{po.itemName}</p>
+                      <p className="text-xs font-bold text-slate-800">{po.vendorName || po.poNumber}</p>
                       <p className="text-[10px] text-slate-400">{po.poNumber} · {formatDate(po.createdAt)}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs font-bold text-primary font-mono">{formatRupiah(po.totalPrice)}</p>
-                      <Badge status="approved" />
+                      <p className="text-xs font-bold text-primary font-mono">{formatRupiah(po.totalAmount || po.totalPrice)}</p>
+                      <Badge status={po.status || 'approved'} />
                     </div>
                   </div>
                 ))}

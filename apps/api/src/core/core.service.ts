@@ -650,33 +650,128 @@ export class CoreService {
   }
 
   // 5. Visitors
+  private formatVisitorRow(visitor: any, host?: { fullName: string; employeeNumber: string } | null) {
+    return {
+      id: visitor.id,
+      badgeNumber: visitor.badgeNumber,
+      badge_number: visitor.badgeNumber,
+      visitorName: visitor.visitorName,
+      visitor_name: visitor.visitorName,
+      company: visitor.company,
+      visitor_company: visitor.company,
+      idType: visitor.idType,
+      visitor_id_type: visitor.idType,
+      idNumber: visitor.idNumber,
+      visitor_id_number: visitor.idNumber,
+      phone: visitor.phone,
+      visitor_phone: visitor.phone,
+      email: visitor.email,
+      visitor_email: visitor.email,
+      purpose: visitor.purpose,
+      hostEmployeeId: visitor.hostEmployeeId,
+      host_employee_id: visitor.hostEmployeeId,
+      hostName: host?.fullName || visitor.hostEmployeeId || '-',
+      vehicleNumber: visitor.vehicleNumber,
+      vehicle_number: visitor.vehicleNumber,
+      checkIn: visitor.checkIn,
+      check_in: visitor.checkIn,
+      checkOut: visitor.checkOut,
+      check_out: visitor.checkOut,
+      notes: visitor.notes,
+      status: visitor.status,
+      createdAt: visitor.createdAt,
+    };
+  }
+
   async getVisitors() {
-    return this.prisma.visitor.findMany({
+    const visitors = await this.prisma.visitor.findMany({
       orderBy: { checkIn: 'desc' },
     });
+
+    const hostIds = [
+      ...new Set(visitors.map((v) => v.hostEmployeeId).filter((id): id is string => !!id)),
+    ];
+    const hosts = hostIds.length
+      ? await this.prisma.employee.findMany({
+          where: { id: { in: hostIds } },
+          select: { id: true, fullName: true, employeeNumber: true },
+        })
+      : [];
+    const hostMap = Object.fromEntries(hosts.map((h) => [h.id, h]));
+
+    return visitors.map((visitor) =>
+      this.formatVisitorRow(visitor, visitor.hostEmployeeId ? hostMap[visitor.hostEmployeeId] : null),
+    );
   }
 
   async createVisitor(data: any) {
-    return this.prisma.visitor.create({
+    const visitorName = (data.visitorName || data.visitor_name || '').trim();
+    const company = (data.company || data.visitor_company || '').trim();
+    const idNumber = (data.idNumber || data.visitor_id_number || '').trim();
+    const phone = (data.phone || data.visitor_phone || '').trim();
+    const purpose = (data.purpose || '').trim();
+
+    if (!visitorName || !company || !idNumber || !phone || !purpose) {
+      throw new BadRequestException('Mohon lengkapi data wajib tamu!');
+    }
+
+    const totalVisitors = await this.prisma.visitor.count();
+    const badgeNumber = `V-${String(totalVisitors + 1).padStart(3, '0')}`;
+
+    const created = await this.prisma.visitor.create({
       data: {
-        visitorName: data.visitorName,
-        company: data.company || null,
-        phone: data.phone || null,
-        purpose: data.purpose,
-        hostEmployeeId: data.hostEmployeeId || null,
-        status: 'in',
+        badgeNumber,
+        visitorName,
+        company,
+        idType: data.idType || data.visitor_id_type || 'KTP',
+        idNumber,
+        phone,
+        email: data.email || data.visitor_email || null,
+        purpose,
+        hostEmployeeId: data.hostEmployeeId || data.host_employee_id || null,
+        vehicleNumber: data.vehicleNumber || data.vehicle_number || null,
+        notes: data.notes || '',
+        status: 'checked_in',
       },
     });
+
+    let host: { fullName: string; employeeNumber: string } | null = null;
+    if (created.hostEmployeeId) {
+      host = await this.prisma.employee.findUnique({
+        where: { id: created.hostEmployeeId },
+        select: { fullName: true, employeeNumber: true },
+      });
+    }
+
+    return this.formatVisitorRow(created, host);
   }
 
   async checkOutVisitor(id: string) {
-    return this.prisma.visitor.update({
+    const existing = await this.prisma.visitor.findUnique({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException('Tamu tidak ditemukan');
+    }
+    if (existing.status === 'checked_out') {
+      throw new BadRequestException('Tamu sudah check-out');
+    }
+
+    const updated = await this.prisma.visitor.update({
       where: { id },
       data: {
         checkOut: new Date(),
-        status: 'out',
+        status: 'checked_out',
       },
     });
+
+    let host: { fullName: string; employeeNumber: string } | null = null;
+    if (updated.hostEmployeeId) {
+      host = await this.prisma.employee.findUnique({
+        where: { id: updated.hostEmployeeId },
+        select: { fullName: true, employeeNumber: true },
+      });
+    }
+
+    return this.formatVisitorRow(updated, host);
   }
 
   // 6. Company & Branches
