@@ -62,6 +62,7 @@ export default function Sidebar() {
       path: '/employee',
       icon: 'users',
       sub: [
+        { key: 'employee_list', path: '/employee' },
         { key: 'employee_request', path: '/employee/request' },
         { key: 'employee_grouping', path: '/employee/grouping' },
       ],
