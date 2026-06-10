@@ -280,6 +280,18 @@ export class CoreController {
   }
 
   // 3. Documents
+  @Get('documents/folders')
+  async getDocumentFolders(@Req() req: express.Request) {
+    await this.getSessionUser(req);
+    return this.service.getDocumentFolders();
+  }
+
+  @Post('documents/folders')
+  async createDocumentFolder(@Req() req: express.Request, @Body() body: { name: string }) {
+    await this.getSessionUser(req);
+    return this.service.createDocumentFolder(body.name);
+  }
+
   @Get('documents')
   async getDocuments(@Req() req: express.Request) {
     await this.getSessionUser(req);
@@ -288,8 +300,14 @@ export class CoreController {
 
   @Post('documents')
   async createDocument(@Req() req: express.Request, @Body() body: any) {
+    const user = await this.getSessionUser(req);
+    return this.service.createDocument(body, user.id);
+  }
+
+  @Delete('documents/:id')
+  async deleteDocument(@Req() req: express.Request, @Param('id') id: string) {
     await this.getSessionUser(req);
-    return this.service.createDocument(body);
+    return this.service.deleteDocument(id);
   }
 
   // 4. Shifts

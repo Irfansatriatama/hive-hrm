@@ -37,6 +37,7 @@ async function main() {
   await prisma.announcement.deleteMany();
   await prisma.asset.deleteMany();
   await prisma.document.deleteMany();
+  await prisma.documentFolder.deleteMany();
   await prisma.leaveRequest.deleteMany();
   await prisma.leaveType.deleteMany();
   await prisma.attendance.deleteMany();
@@ -290,6 +291,67 @@ async function main() {
         publishDate: new Date('2026-06-08'),
         expireDate: new Date('2026-06-16'),
         createdBy: 'Arief Budiman',
+      },
+    ],
+  });
+
+  console.log('Seeding document folders & sample documents...');
+  const documentFolders = [
+    'Peraturan Perusahaan',
+    'Panduan Karyawan',
+    'Formulir',
+    'HR Policies',
+    'Template Surat',
+  ];
+  await prisma.documentFolder.createMany({
+    data: documentFolders.map((name) => ({ name })),
+  });
+  await prisma.document.createMany({
+    data: [
+      {
+        name: 'Peraturan Perusahaan NDI 2026.pdf',
+        category: 'Peraturan Perusahaan',
+        fileUrl: 'https://cloudinary.com/simulated/peraturan_2026.pdf',
+        fileType: 'PDF',
+        fileSize: 2516582,
+        visibility: 'all',
+        isPublic: true,
+      },
+      {
+        name: 'Handbook Karyawan Baru.pdf',
+        category: 'Panduan Karyawan',
+        fileUrl: 'https://cloudinary.com/simulated/handbook.pdf',
+        fileType: 'PDF',
+        fileSize: 5347737,
+        visibility: 'all',
+        isPublic: true,
+      },
+      {
+        name: 'Formulir Klaim Medis Rawat Jalan.docx',
+        category: 'Formulir',
+        fileUrl: 'https://cloudinary.com/simulated/klaim_medis.docx',
+        fileType: 'DOC',
+        fileSize: 122880,
+        visibility: 'all',
+        isPublic: true,
+      },
+      {
+        name: 'Struktur Organisasi 2026.jpg',
+        category: 'HR Policies',
+        fileUrl: 'https://cloudinary.com/simulated/org_chart.jpg',
+        fileType: 'IMG',
+        fileSize: 870400,
+        visibility: 'all',
+        isPublic: true,
+      },
+      {
+        name: 'Format Surat Pengunduran Diri.docx',
+        category: 'Template Surat',
+        fileUrl: 'https://cloudinary.com/simulated/resign_template.docx',
+        fileType: 'DOC',
+        fileSize: 97280,
+        visibility: 'all',
+        isPublic: true,
       },
     ],
   });

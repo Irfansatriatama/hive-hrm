@@ -463,7 +463,13 @@ export default function EmployeeProfilePage() {
                       </div>
                     </div>
                     <button
-                      onClick={() => alert('Mengunduh file simulasi...')}
+                      onClick={() => {
+                        if (doc.fileUrl) {
+                          window.open(doc.fileUrl, '_blank', 'noopener,noreferrer');
+                        } else {
+                          alert('Mengunduh file...');
+                        }
+                      }}
                       className="p-1 rounded bg-slate-100 text-slate-500 hover:text-slate-700 hover:bg-slate-200 shrink-0 cursor-pointer"
                     >
                       <Lucide.Download className="w-4 h-4" />

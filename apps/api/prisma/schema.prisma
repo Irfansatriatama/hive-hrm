@@ -256,6 +256,12 @@ model AssetHistory {
   createdAt    DateTime @default(now())
 }
 
+model DocumentFolder {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+}
+
 model Document {
   id           String    @id @default(cuid())
   name         String
@@ -265,7 +271,8 @@ model Document {
   fileSize     Int?
   employeeId   String?
   employee     Employee? @relation(fields: [employeeId], references: [id])
-  isPublic     Boolean   @default(false)
+  isPublic     Boolean   @default(true)
+  visibility   String    @default("all")
   createdAt    DateTime  @default(now())
   uploadedBy   String?
 }

@@ -54,6 +54,8 @@ export default function AttendancePage() {
   const [filterYear, setFilterYear] = useState(now.getFullYear());
   const [runningTimer, setRunningTimer] = useState('00:00:00');
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const currentYear = now.getFullYear();
+  const yearOptions = [currentYear, currentYear - 1, currentYear - 2];
 
   const loadStatusAndHistory = async () => {
     setLoading(true);
@@ -109,11 +111,15 @@ export default function AttendancePage() {
 
   const handleCheckIn = async () => {
     try {
-      await fetchAPI('/attendance/check-in', {
+      const result = await fetchAPI<any>('/attendance/check-in', {
         method: 'POST',
         body: JSON.stringify({ location: 'Head Office (Simulated GPS)', notes: '' }),
       });
-      alert('Absen Masuk Berhasil!');
+      const timeStr = result?.checkIn
+        ? formatTime(result.checkIn)
+        : new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false });
+      const status = result?.status || 'On Time';
+      alert(`Absen Masuk Berhasil pada ${timeStr} (${status})`);
       loadStatusAndHistory();
     } catch (err: any) {
       alert(err.message || 'Gagal check-in');
@@ -122,8 +128,12 @@ export default function AttendancePage() {
 
   const handleCheckOut = async () => {
     try {
-      await fetchAPI('/attendance/check-out', { method: 'POST' });
-      alert('Absen Keluar Berhasil!');
+      const result = await fetchAPI<any>('/attendance/check-out', { method: 'POST' });
+      const timeStr = result?.checkOut
+        ? formatTime(result.checkOut)
+        : new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false });
+      const duration = formatDuration(result);
+      alert(`Absen Keluar Berhasil pada ${timeStr}. Durasi Kerja: ${duration}`);
       loadStatusAndHistory();
     } catch (err: any) {
       alert(err.message || 'Gagal check-out');
@@ -251,8 +261,11 @@ export default function AttendancePage() {
               onChange={(e) => setFilterYear(parseInt(e.target.value, 10))}
               className="px-3 py-1.5 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none focus:border-primary"
             >
-              <option value={2026}>2026</option>
-              <option value={2025}>2025</option>
+              {yearOptions.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
             </select>
           </div>
         </div>

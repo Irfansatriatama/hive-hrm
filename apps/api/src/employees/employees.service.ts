@@ -170,11 +170,18 @@ export class EmployeesService {
         serial_number: a.serialNumber,
         assigned_date: a.purchaseDate ? a.purchaseDate.toISOString().split('T')[0] : null,
       })),
-      documents: emp.documents.map(d => ({
+      documents: emp.documents
+        .filter((d) => d.isPublic !== false && (d.visibility === 'all' || !d.visibility))
+        .map(d => ({
         id: d.id,
         name: d.name,
-        size: '1.2 MB',
+        size: d.fileSize
+          ? d.fileSize < 1024 * 1024
+            ? `${(d.fileSize / 1024).toFixed(0)} KB`
+            : `${(d.fileSize / (1024 * 1024)).toFixed(1)} MB`
+          : '1.2 MB',
         folder: d.category,
+        fileUrl: d.fileUrl,
       })),
     };
   }

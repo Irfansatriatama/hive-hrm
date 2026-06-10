@@ -526,25 +526,106 @@ export class CoreService {
   }
 
   // 3. Documents
+  private readonly defaultDocumentFolders = [
+    'Peraturan Perusahaan',
+    'Panduan Karyawan',
+    'Formulir',
+    'HR Policies',
+    'Template Surat',
+  ];
+
+  async ensureDocumentFolders() {
+    const existing = await this.prisma.documentFolder.findMany();
+    if (existing.length === 0) {
+      await this.prisma.documentFolder.createMany({
+        data: this.defaultDocumentFolders.map((name) => ({ name })),
+      });
+    }
+    return this.prisma.documentFolder.findMany({ orderBy: { name: 'asc' } });
+  }
+
+  async getDocumentFolders() {
+    return this.ensureDocumentFolders();
+  }
+
+  async createDocumentFolder(name: string) {
+    const trimmed = name.trim();
+    if (!trimmed) {
+      throw new BadRequestException('Nama folder wajib diisi');
+    }
+    const existing = await this.prisma.documentFolder.findUnique({ where: { name: trimmed } });
+    if (existing) {
+      throw new BadRequestException('Nama folder tersebut sudah terdaftar');
+    }
+    return this.prisma.documentFolder.create({ data: { name: trimmed } });
+  }
+
   async getDocuments() {
-    return this.prisma.document.findMany({
+    await this.ensureDocumentFolders();
+    const docs = await this.prisma.document.findMany({
       include: { employee: true },
       orderBy: { createdAt: 'desc' },
     });
+    return docs.map((doc) => ({
+      ...doc,
+      folder: doc.category,
+      type: doc.fileType,
+      size: this.formatDocumentSize(doc.fileSize),
+    }));
   }
 
-  async createDocument(data: any) {
+  private formatDocumentSize(bytes?: number | null) {
+    if (!bytes) return '1.2 MB';
+    const mb = bytes / (1024 * 1024);
+    if (mb < 1) return `${(bytes / 1024).toFixed(0)} KB`;
+    return `${mb.toFixed(1)} MB`;
+  }
+
+  private parseDocumentSize(size?: string | number | null) {
+    if (typeof size === 'number') return size;
+    if (!size) return 1200000;
+    const normalized = String(size).trim().toUpperCase();
+    const match = normalized.match(/^([\d.]+)\s*(KB|MB|GB)?$/);
+    if (!match) return 1200000;
+    const value = parseFloat(match[1]);
+    const unit = match[2] || 'MB';
+    if (unit === 'KB') return Math.round(value * 1024);
+    if (unit === 'GB') return Math.round(value * 1024 * 1024 * 1024);
+    return Math.round(value * 1024 * 1024);
+  }
+
+  async createDocument(data: any, uploadedBy?: string) {
+    await this.ensureDocumentFolders();
+    const folder = (data.folder || data.category || this.defaultDocumentFolders[0]).trim();
+    const visibility = data.visibility || (data.isPublic ? 'all' : 'private');
+    const folderExists = await this.prisma.documentFolder.findUnique({ where: { name: folder } });
+    if (!folderExists) {
+      await this.prisma.documentFolder.create({ data: { name: folder } });
+    }
+
     return this.prisma.document.create({
       data: {
         name: data.name,
-        category: data.category,
+        category: folder,
         fileUrl: data.fileUrl || 'https://cloudinary.com/simulated-doc.pdf',
-        fileType: data.fileType || 'PDF',
-        fileSize: parseInt(data.fileSize) || 1200000,
+        fileType: data.fileType || data.type || 'PDF',
+        fileSize: this.parseDocumentSize(data.fileSize ?? data.size),
         employeeId: data.employeeId || null,
-        isPublic: data.isPublic || false,
+        isPublic: visibility === 'all',
+        visibility,
+        uploadedBy: uploadedBy || null,
       },
+      include: { employee: true },
     });
+  }
+
+  async deleteDocument(id: string) {
+    const doc = await this.prisma.document.findUnique({ where: { id } });
+    if (!doc) {
+      throw new NotFoundException('Dokumen tidak ditemukan');
+    }
+    await this.prisma.document.delete({ where: { id } });
+    return { success: true, name: doc.name };
   }
 
   // 4. Shifts
