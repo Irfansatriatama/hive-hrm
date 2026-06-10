@@ -5,6 +5,12 @@ import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { EmployeesModule } from './employees/employees.module';
+import { AttendanceModule } from './attendance/attendance.module';
+import { LeaveModule } from './leave/leave.module';
+import { ApprovalModule } from './approval/approval.module';
+import { RewardModule } from './reward/reward.module';
+import { ProcurementModule } from './procurement/procurement.module';
+import { CoreModule } from './core/core.module';
 
 @Module({
   imports: [
@@ -12,8 +18,15 @@ import { EmployeesModule } from './employees/employees.module';
     PrismaModule,
     AuthModule,
     EmployeesModule,
+    AttendanceModule,
+    LeaveModule,
+    ApprovalModule,
+    RewardModule,
+    ProcurementModule,
+    CoreModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
+

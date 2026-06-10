@@ -48,3 +48,25 @@ export function cn(...inputs: (string | undefined | null | boolean | Record<stri
   });
   return classes.join(' ');
 }
+
+/**
+ * Calculates working days between two dates, excluding weekends (Saturdays and Sundays).
+ */
+export function getWorkingDays(startDateStr: string, endDateStr: string): number {
+  const start = new Date(startDateStr);
+  const end = new Date(endDateStr);
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) return 0;
+  if (start > end) return 0;
+
+  let count = 0;
+  const current = new Date(start);
+  while (current <= end) {
+    const day = current.getDay();
+    if (day !== 0 && day !== 6) { // Exclude Sunday (0) and Saturday (6)
+      count++;
+    }
+    current.setDate(current.getDate() + 1);
+  }
+  return count;
+}
+
