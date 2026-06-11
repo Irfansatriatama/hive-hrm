@@ -48,11 +48,11 @@ export class ReportingService {
 
     switch (type) {
       case 'hr_attendance':
-        return this.getAttendanceReport(filters);
+        return this.getAttendancePreview(filters);
       case 'hr_leaves':
-        return this.getLeaveReport(filters);
+        return this.getLeavePreview(filters);
       case 'payroll_rekap':
-        return this.getPayrollReport(filters);
+        return this.getPayrollPreview(filters);
       case 'perf_hashtags':
         return this.getHashtagReport(filters);
       case 'assets_borrowed':
@@ -127,7 +127,307 @@ export class ReportingService {
     }).format(amount || 0);
   }
 
-  private async getAttendanceReport(filters: ReportFilters): Promise<ReportPreviewResult> {
+  private getMonthRange(month: number, year: number) {
+    const start = new Date(year, month - 1, 1);
+    const end = new Date(year, month, 0, 23, 59, 59, 999);
+    return { start, end };
+  }
+
+  private normalizeAttendanceStatus(status: string, lateMinutes?: number | null, checkIn?: Date | null) {
+    const s = (status || '').toLowerCase();
+    if (lateMinutes && lateMinutes > 0) return 'telat';
+    if (s.includes('late') || s.includes('telat')) return 'telat';
+    if (s.includes('alpha') || s.includes('absent')) return 'alpha';
+    if (s.includes('izin') || s.includes('sakit') || s.includes('leave') || s.includes('permission')) {
+      return 'izin';
+    }
+    if (checkIn || s.includes('on time') || s.includes('hadir') || s.includes('present')) {
+      return 'hadir';
+    }
+    return 'alpha';
+  }
+
+  async getAttendanceReport(month: number, year: number) {
+    const { start, end } = this.getMonthRange(month, year);
+    const records = await this.prisma.attendance.findMany({
+      where: { date: { gte: start, lte: end } },
+      include: {
+        employee: { include: { department: true } },
+      },
+    });
+
+    const deptMap = new Map<
+      string,
+      { dept: string; hadir: number; izin: number; alpha: number; telat: number; totalHours: number; hourCount: number }
+    >();
+    const lateCountMap = new Map<string, { employee: (typeof records)[0]['employee']; count: number }>();
+
+    for (const row of records) {
+      const deptId = row.employee.departmentId || 'unassigned';
+      const deptName = row.employee.department?.name || 'Tanpa Departemen';
+      if (!deptMap.has(deptId)) {
+        deptMap.set(deptId, { dept: deptName, hadir: 0, izin: 0, alpha: 0, telat: 0, totalHours: 0, hourCount: 0 });
+      }
+      const entry = deptMap.get(deptId)!;
+      const normalized = this.normalizeAttendanceStatus(row.status, row.lateMinutes, row.checkIn);
+      entry[normalized as 'hadir' | 'izin' | 'alpha' | 'telat'] += 1;
+      if (row.workHours) {
+        entry.totalHours += row.workHours;
+        entry.hourCount += 1;
+      }
+
+      if (normalized === 'telat') {
+        const existing = lateCountMap.get(row.employeeId);
+        if (existing) {
+          existing.count += 1;
+        } else {
+          lateCountMap.set(row.employeeId, { employee: row.employee, count: 1 });
+        }
+      }
+    }
+
+    const byDept = [...deptMap.values()].map((d) => ({
+      dept: d.dept,
+      hadir: d.hadir,
+      izin: d.izin,
+      alpha: d.alpha,
+      telat: d.telat,
+      avgHours: d.hourCount > 0 ? Math.round((d.totalHours / d.hourCount) * 10) / 10 : 0,
+    }));
+
+    const topLate = [...lateCountMap.values()]
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5)
+      .map((item) => ({
+        id: item.employee.id,
+        fullName: item.employee.fullName,
+        department: item.employee.department?.name || '-',
+        lateCount: item.count,
+      }));
+
+    return { byDept, topLate };
+  }
+
+  async getLeaveReport(month: number, year: number) {
+    const { start, end } = this.getMonthRange(month, year);
+    const records = await this.prisma.leaveRequest.findMany({
+      where: {
+        status: 'APPROVED',
+        startDate: { lte: end },
+        endDate: { gte: start },
+      },
+      include: {
+        employee: { include: { department: true } },
+        leaveType: true,
+      },
+    });
+
+    const typeMap = new Map<string, { type: string; totalDays: number }>();
+    const deptMap = new Map<string, { dept: string; totalDays: number }>();
+    let total = 0;
+
+    for (const row of records) {
+      total += row.totalDays;
+      const typeKey = row.leaveTypeId;
+      if (!typeMap.has(typeKey)) {
+        typeMap.set(typeKey, { type: row.leaveType.name, totalDays: 0 });
+      }
+      typeMap.get(typeKey)!.totalDays += row.totalDays;
+
+      const deptId = row.employee.departmentId || 'unassigned';
+      const deptName = row.employee.department?.name || 'Tanpa Departemen';
+      if (!deptMap.has(deptId)) {
+        deptMap.set(deptId, { dept: deptName, totalDays: 0 });
+      }
+      deptMap.get(deptId)!.totalDays += row.totalDays;
+    }
+
+    return {
+      byType: [...typeMap.values()],
+      byDept: [...deptMap.values()],
+      total,
+    };
+  }
+
+  async getPayrollReport(periodId?: string) {
+    if (periodId) {
+      const records = await this.prisma.payrollRecord.findMany({
+        where: { periodId },
+        include: {
+          employee: { include: { department: true } },
+        },
+      });
+
+      const deptMap = new Map<
+        string,
+        { dept: string; gross: number; deduct: number; net: number; count: number }
+      >();
+      let totalGross = 0;
+      let totalDeduct = 0;
+      let totalNet = 0;
+
+      for (const row of records) {
+        totalGross += row.grossSalary;
+        totalDeduct += row.totalDeduct;
+        totalNet += row.netSalary;
+
+        const deptId = row.employee.departmentId || 'unassigned';
+        const deptName = row.employee.department?.name || 'Tanpa Departemen';
+        if (!deptMap.has(deptId)) {
+          deptMap.set(deptId, { dept: deptName, gross: 0, deduct: 0, net: 0, count: 0 });
+        }
+        const entry = deptMap.get(deptId)!;
+        entry.gross += row.grossSalary;
+        entry.deduct += row.totalDeduct;
+        entry.net += row.netSalary;
+        entry.count += 1;
+      }
+
+      return {
+        totalGross,
+        totalDeduct,
+        totalNet,
+        byDept: [...deptMap.values()],
+        employeeCount: records.length,
+        source: 'period' as const,
+      };
+    }
+
+    const employees = await this.prisma.employee.findMany({
+      where: { status: 'ACTIVE' },
+      include: { department: true },
+    });
+
+    const deptMap = new Map<
+      string,
+      { dept: string; gross: number; deduct: number; net: number; count: number }
+    >();
+    let totalGross = 0;
+    let totalDeduct = 0;
+    let totalNet = 0;
+
+    for (const emp of employees) {
+      const basicSalary = emp.basicSalary || emp.salary || 0;
+      const taxEstimate = Math.round(basicSalary * 0.05);
+      const bpjsEstimate = Math.round(basicSalary * 0.03);
+      const gross = basicSalary;
+      const deduct = taxEstimate + bpjsEstimate;
+      const net = gross - deduct;
+
+      totalGross += gross;
+      totalDeduct += deduct;
+      totalNet += net;
+
+      const deptId = emp.departmentId || 'unassigned';
+      const deptName = emp.department?.name || 'Tanpa Departemen';
+      if (!deptMap.has(deptId)) {
+        deptMap.set(deptId, { dept: deptName, gross: 0, deduct: 0, net: 0, count: 0 });
+      }
+      const entry = deptMap.get(deptId)!;
+      entry.gross += gross;
+      entry.deduct += deduct;
+      entry.net += net;
+      entry.count += 1;
+    }
+
+    return {
+      totalGross,
+      totalDeduct,
+      totalNet,
+      byDept: [...deptMap.values()],
+      employeeCount: employees.length,
+      source: 'estimate' as const,
+    };
+  }
+
+  async getHeadcountReport() {
+    const employees = await this.prisma.employee.findMany({
+      include: { department: true },
+    });
+
+    const deptMap = new Map<string, { dept: string; count: number }>();
+    const statusMap = new Map<string, number>();
+    const genderMap = new Map<string, number>();
+
+    for (const emp of employees) {
+      const deptId = emp.departmentId || 'unassigned';
+      const deptName = emp.department?.name || 'Tanpa Departemen';
+      if (!deptMap.has(deptId)) {
+        deptMap.set(deptId, { dept: deptName, count: 0 });
+      }
+      deptMap.get(deptId)!.count += 1;
+
+      statusMap.set(emp.status, (statusMap.get(emp.status) || 0) + 1);
+      genderMap.set(emp.gender || 'Unknown', (genderMap.get(emp.gender || 'Unknown') || 0) + 1);
+    }
+
+    const now = new Date();
+    const joinTrend: { month: string; count: number }[] = [];
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthStart = new Date(d.getFullYear(), d.getMonth(), 1);
+      const monthEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999);
+      const count = employees.filter(
+        (e) => e.joinDate && e.joinDate >= monthStart && e.joinDate <= monthEnd,
+      ).length;
+      const label = monthStart.toLocaleDateString('id-ID', { month: 'short', year: '2-digit' });
+      joinTrend.push({ month: label, count });
+    }
+
+    return {
+      byDept: [...deptMap.values()],
+      byStatus: [...statusMap.entries()].map(([status, count]) => ({ status, count })),
+      byGender: [...genderMap.entries()].map(([gender, count]) => ({ gender, count })),
+      joinTrend,
+      total: employees.length,
+    };
+  }
+
+  async getExpenseReport(month: number, year: number) {
+    try {
+      const { start, end } = this.getMonthRange(month, year);
+      const claims = await this.prisma.expenseClaim.findMany({
+        where: {
+          createdAt: { gte: start, lte: end },
+          status: { in: ['submitted', 'approved', 'paid'] },
+        },
+        include: {
+          items: { include: { category: true } },
+        },
+      });
+
+      const categoryMap = new Map<string, { category: string; totalAmount: number }>();
+      let totalAmount = 0;
+
+      for (const claim of claims) {
+        totalAmount += claim.totalAmount;
+        for (const item of claim.items) {
+          const catName = item.category?.name || 'Lain-lain';
+          if (!categoryMap.has(catName)) {
+            categoryMap.set(catName, { category: catName, totalAmount: 0 });
+          }
+          categoryMap.get(catName)!.totalAmount += item.amount;
+        }
+        if (claim.items.length === 0) {
+          const catName = 'Tanpa Kategori';
+          if (!categoryMap.has(catName)) {
+            categoryMap.set(catName, { category: catName, totalAmount: 0 });
+          }
+          categoryMap.get(catName)!.totalAmount += claim.totalAmount;
+        }
+      }
+
+      return {
+        byCategory: [...categoryMap.values()],
+        totalAmount,
+        claimCount: claims.length,
+      };
+    } catch {
+      return { byCategory: [], totalAmount: 0, claimCount: 0 };
+    }
+  }
+
+  private async getAttendancePreview(filters: ReportFilters): Promise<ReportPreviewResult> {
     const dateRange = this.buildDateRange(filters);
     const records = await this.prisma.attendance.findMany({
       where: {
@@ -160,7 +460,7 @@ export class ReportingService {
     };
   }
 
-  private async getLeaveReport(filters: ReportFilters): Promise<ReportPreviewResult> {
+  private async getLeavePreview(filters: ReportFilters): Promise<ReportPreviewResult> {
     const dateRange = this.buildDateRange(filters);
     const records = await this.prisma.leaveRequest.findMany({
       where: {
@@ -208,7 +508,7 @@ export class ReportingService {
     };
   }
 
-  private async getPayrollReport(filters: ReportFilters): Promise<ReportPreviewResult> {
+  private async getPayrollPreview(filters: ReportFilters): Promise<ReportPreviewResult> {
     const employees = await this.prisma.employee.findMany({
       where: {
         status: 'ACTIVE',

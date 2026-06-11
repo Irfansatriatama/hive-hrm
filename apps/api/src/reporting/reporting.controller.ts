@@ -60,4 +60,68 @@ export class ReportingController {
       employeeId,
     });
   }
+
+  @Get('attendance')
+  async getAttendanceReport(
+    @Req() req: express.Request,
+    @Query('month') month?: string,
+    @Query('year') year?: string,
+  ) {
+    const user = await this.getSessionUser(req);
+    this.assertReportingAccess(user);
+
+    const now = new Date();
+    const m = month ? parseInt(month, 10) : now.getMonth() + 1;
+    const y = year ? parseInt(year, 10) : now.getFullYear();
+    return this.service.getAttendanceReport(m, y);
+  }
+
+  @Get('leave')
+  async getLeaveReport(
+    @Req() req: express.Request,
+    @Query('month') month?: string,
+    @Query('year') year?: string,
+  ) {
+    const user = await this.getSessionUser(req);
+    this.assertReportingAccess(user);
+
+    const now = new Date();
+    const m = month ? parseInt(month, 10) : now.getMonth() + 1;
+    const y = year ? parseInt(year, 10) : now.getFullYear();
+    return this.service.getLeaveReport(m, y);
+  }
+
+  @Get('payroll')
+  async getPayrollReport(
+    @Req() req: express.Request,
+    @Query('periodId') periodId?: string,
+  ) {
+    const user = await this.getSessionUser(req);
+    this.assertReportingAccess(user);
+
+    return this.service.getPayrollReport(periodId || undefined);
+  }
+
+  @Get('headcount')
+  async getHeadcountReport(@Req() req: express.Request) {
+    const user = await this.getSessionUser(req);
+    this.assertReportingAccess(user);
+
+    return this.service.getHeadcountReport();
+  }
+
+  @Get('expense')
+  async getExpenseReport(
+    @Req() req: express.Request,
+    @Query('month') month?: string,
+    @Query('year') year?: string,
+  ) {
+    const user = await this.getSessionUser(req);
+    this.assertReportingAccess(user);
+
+    const now = new Date();
+    const m = month ? parseInt(month, 10) : now.getMonth() + 1;
+    const y = year ? parseInt(year, 10) : now.getFullYear();
+    return this.service.getExpenseReport(m, y);
+  }
 }
