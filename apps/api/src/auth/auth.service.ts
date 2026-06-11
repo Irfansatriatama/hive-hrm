@@ -1,5 +1,5 @@
 import { betterAuth } from 'better-auth';
-import { customSession } from 'better-auth/plugins';
+import { bearer, customSession } from 'better-auth/plugins';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { PrismaClient } from '@prisma/client';
 
@@ -43,6 +43,7 @@ export const auth = betterAuth({
     }
   },
   plugins: [
+    bearer(),
     customSession(async ({ user, session }) => {
       const employee_id = await resolveEmployeeId(user.id, user.email);
       return {
