@@ -143,6 +143,44 @@ class AnnouncementSkeleton extends StatelessWidget {
   }
 }
 
+class ProfileSkeleton extends StatelessWidget {
+  const ProfileSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(AppTheme.md),
+      child: Column(
+        children: [
+          const SkeletonBox(
+            width: AppTheme.tapMin + AppTheme.xs,
+            height: AppTheme.tapMin + AppTheme.xs,
+            radius: AppTheme.tapMin,
+          ),
+          const SizedBox(height: AppTheme.sm),
+          const SkeletonBox(width: 180, height: 22),
+          const SizedBox(height: AppTheme.xs),
+          const SkeletonBox(width: 120, height: 14),
+          const SizedBox(height: AppTheme.sm),
+          const SkeletonBox(width: 72, height: 24, radius: AppTheme.radiusPill),
+          const SizedBox(height: AppTheme.lg),
+          ...List.generate(
+            4,
+            (_) => const Padding(
+              padding: EdgeInsets.only(bottom: AppTheme.sm),
+              child: SkeletonBox(height: 56),
+            ),
+          ),
+          const SizedBox(height: AppTheme.md),
+          const SkeletonBox(height: 56),
+          const SizedBox(height: AppTheme.sm),
+          const SkeletonBox(height: 56),
+        ],
+      ),
+    );
+  }
+}
+
 class AttendanceSkeleton extends StatelessWidget {
   const AttendanceSkeleton({super.key});
 

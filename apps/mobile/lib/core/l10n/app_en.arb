@@ -160,5 +160,17 @@
   "leaveTypeRequired": "Select a leave type",
   "reasonRequired": "Reason is required",
   "dateRequired": "Select leave dates",
-  "applyLeaveTitle": "Apply for Leave"
+  "applyLeaveTitle": "Apply for Leave",
+  "nameLabel": "Name",
+  "phoneLabel": "Phone Number",
+  "addressLabel": "Address",
+  "logoutConfirm": "Are you sure you want to sign out?",
+  "profileUpdateSuccess": "Profile update request submitted successfully",
+  "profileUpdateFailed": "Failed to submit update request",
+  "notAvailable": "—",
+  "profileUpdateTitle": "Request Data Update",
+  "profileUpdateReason": "Personal data update request from mobile app",
+  "nameRequired": "Name is required",
+  "phoneRequired": "Phone number is required",
+  "addressRequired": "Address is required"
 }

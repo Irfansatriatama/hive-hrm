@@ -160,5 +160,17 @@
   "leaveTypeRequired": "Pilih tipe cuti",
   "reasonRequired": "Alasan wajib diisi",
   "dateRequired": "Pilih tanggal cuti",
-  "applyLeaveTitle": "Ajukan Cuti"
+  "applyLeaveTitle": "Ajukan Cuti",
+  "nameLabel": "Nama",
+  "phoneLabel": "Nomor HP",
+  "addressLabel": "Alamat",
+  "logoutConfirm": "Anda yakin ingin keluar?",
+  "profileUpdateSuccess": "Permintaan update data berhasil dikirim",
+  "profileUpdateFailed": "Gagal mengirim permintaan update",
+  "notAvailable": "—",
+  "profileUpdateTitle": "Minta Update Data",
+  "profileUpdateReason": "Permintaan update data pribadi dari aplikasi mobile",
+  "nameRequired": "Nama wajib diisi",
+  "phoneRequired": "Nomor HP wajib diisi",
+  "addressRequired": "Alamat wajib diisi"
 }
