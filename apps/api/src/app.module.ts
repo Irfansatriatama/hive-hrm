@@ -16,6 +16,7 @@ import { SettingsModule } from './settings/settings.module';
 import { ShiftModule } from './shift/shift.module';
 import { ReportingModule } from './reporting/reporting.module';
 import { PayrollModule } from './payroll/payroll.module';
+import { OnboardingModule } from './onboarding/onboarding.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { PayrollModule } from './payroll/payroll.module';
     ShiftModule,
     ReportingModule,
     PayrollModule,
+    OnboardingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -32,6 +32,7 @@ const IconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   'layout-grid': Lucide.LayoutGrid,
   'settings': Lucide.Settings,
   'banknote': Lucide.Banknote,
+  'clipboard-check': Lucide.ClipboardCheck,
 };
 
 interface SubMenuItem {
@@ -121,6 +122,15 @@ const MENU_SECTIONS: MenuSection[] = [
         sub: [
           { key: 'payroll_periods', path: '/payroll' },
           { key: 'payroll_my_payslips', path: '/payroll/my-payslips' },
+        ],
+      },
+      {
+        key: 'onboarding',
+        path: '/onboarding',
+        icon: 'clipboard-check',
+        sub: [
+          { key: 'onboarding_assignments', path: '/onboarding' },
+          { key: 'onboarding_my', path: '/onboarding/my' },
         ],
       },
     ],

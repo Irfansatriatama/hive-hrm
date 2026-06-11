@@ -47,6 +47,10 @@ async function main() {
   await prisma.payrollRecord.deleteMany();
   await prisma.payrollPeriod.deleteMany();
   await prisma.payrollComponent.deleteMany();
+  await prisma.onboardingTaskProgress.deleteMany();
+  await prisma.onboardingAssignment.deleteMany();
+  await prisma.onboardingTemplateTask.deleteMany();
+  await prisma.onboardingTemplate.deleteMany();
   await prisma.employee.deleteMany();
   await prisma.position.deleteMany();
   await prisma.department.deleteMany();
@@ -182,6 +186,25 @@ async function main() {
       },
     });
   }
+
+  console.log('Seeding onboarding template...');
+  await prisma.onboardingTemplate.create({
+    data: {
+      name: 'Standard Onboarding Karyawan Baru',
+      description: 'Template onboarding standar untuk semua karyawan baru',
+      tasks: {
+        create: [
+          { title: 'Pengurusan Dokumen Kontrak', category: 'document', dueAfterDays: 1, assignedTo: 'hr', sortOrder: 1 },
+          { title: 'Setup Akun Email & Sistem', category: 'access', dueAfterDays: 1, assignedTo: 'hr', sortOrder: 2 },
+          { title: 'Pengenalan Tim & Departemen', category: 'training', dueAfterDays: 3, assignedTo: 'manager', sortOrder: 3 },
+          { title: 'Penerimaan Peralatan Kerja', category: 'equipment', dueAfterDays: 3, assignedTo: 'hr', sortOrder: 4 },
+          { title: 'Orientasi Kebijakan Perusahaan', category: 'training', dueAfterDays: 7, assignedTo: 'employee', sortOrder: 5 },
+          { title: 'Penyelesaian Data Profil', category: 'document', dueAfterDays: 7, assignedTo: 'employee', sortOrder: 6 },
+          { title: 'Meeting Review Pertama dengan Manager', category: 'training', dueAfterDays: 14, assignedTo: 'manager', sortOrder: 7 },
+        ],
+      },
+    },
+  });
 
   console.log('Seeding payroll components...');
   await prisma.payrollComponent.createMany({

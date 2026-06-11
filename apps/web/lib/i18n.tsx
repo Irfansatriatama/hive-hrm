@@ -55,6 +55,11 @@ const translations = {
     payroll_components: "Komponen Gaji",
     payroll_process: "Proses Gaji",
     payroll_finalize: "Finalisasi",
+    onboarding: "Onboarding",
+    onboarding_assignments: "Daftar Onboarding",
+    onboarding_templates: "Template Onboarding",
+    onboarding_tasks: "Daftar Tugas",
+    onboarding_my: "Onboarding Saya",
 
     // Sidebar sections
     sidebar_main: "Utama",
@@ -172,6 +177,11 @@ const translations = {
     payroll_components: "Salary Components",
     payroll_process: "Process Payroll",
     payroll_finalize: "Finalize",
+    onboarding: "Onboarding",
+    onboarding_assignments: "Onboarding List",
+    onboarding_templates: "Templates",
+    onboarding_tasks: "Task List",
+    onboarding_my: "My Onboarding",
 
     // Sidebar sections
     sidebar_main: "Main",

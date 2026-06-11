@@ -129,7 +129,8 @@ model Employee {
   shiftSwapsRequested  ShiftSwap[]             @relation("ShiftSwapRequester")
   shiftSwapsPartner    ShiftSwap[]             @relation("ShiftSwapPartner")
   announcementReads    AnnouncementRead[]
-  payrollRecords       PayrollRecord[]
+  payrollRecords          PayrollRecord[]
+  onboardingAssignments   OnboardingAssignment[]
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 }
@@ -691,4 +692,60 @@ model PayrollItem {
   amount    Int
   notes     String?
   createdAt DateTime      @default(now())
+}
+
+// === ONBOARDING ===
+model OnboardingTemplate {
+  id          String                   @id @default(cuid())
+  name        String
+  description String?
+  isActive    Boolean                  @default(true)
+  tasks       OnboardingTemplateTask[]
+  assignments OnboardingAssignment[]
+  createdAt   DateTime                 @default(now())
+  updatedAt   DateTime                 @updatedAt
+}
+
+model OnboardingTemplateTask {
+  id           String                   @id @default(cuid())
+  templateId   String
+  template     OnboardingTemplate       @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  title        String
+  description  String?
+  category     String                   // document | equipment | training | access | other
+  dueAfterDays Int                      @default(7)
+  assignedTo   String                   // employee | manager | hr
+  sortOrder    Int                      @default(0)
+  progress     OnboardingTaskProgress[]
+  createdAt    DateTime                 @default(now())
+}
+
+model OnboardingAssignment {
+  id           String                   @id @default(cuid())
+  templateId   String
+  template     OnboardingTemplate       @relation(fields: [templateId], references: [id])
+  employeeId   String
+  employee     Employee                 @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  status       String                   @default("in_progress") // in_progress | completed
+  startDate    DateTime                 @default(now())
+  completedAt  DateTime?
+  notes        String?
+  taskProgress OnboardingTaskProgress[]
+  createdAt    DateTime                 @default(now())
+  updatedAt    DateTime                 @updatedAt
+}
+
+model OnboardingTaskProgress {
+  id           String                 @id @default(cuid())
+  assignmentId String
+  assignment   OnboardingAssignment   @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  taskId       String
+  task         OnboardingTemplateTask @relation(fields: [taskId], references: [id])
+  status       String                 @default("pending") // pending | done | skipped
+  completedAt  DateTime?
+  notes        String?
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+
+  @@unique([assignmentId, taskId])
 }
