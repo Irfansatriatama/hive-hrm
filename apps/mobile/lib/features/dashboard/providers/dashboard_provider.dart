@@ -32,7 +32,7 @@ class Dashboard extends _$Dashboard {
           'year': now.year.toString(),
         },
       ),
-      ApiClient.instance.get('${ApiEndpoints.leaveRequests}/my'),
+      ApiClient.instance.get(ApiEndpoints.leaveMyRequests),
       ApiClient.instance.get(ApiEndpoints.rewardTransactions),
     ]);
 

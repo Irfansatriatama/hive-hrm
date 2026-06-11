@@ -72,3 +72,22 @@ class LeaveTypeRef {
 
   Map<String, dynamic> toJson() => _$LeaveTypeRefToJson(this);
 }
+
+@JsonSerializable()
+class LeaveTypeModel {
+  final String id;
+  final String name;
+  @JsonKey(name: 'maxDays')
+  final int maxDays;
+
+  const LeaveTypeModel({
+    required this.id,
+    required this.name,
+    required this.maxDays,
+  });
+
+  factory LeaveTypeModel.fromJson(Map<String, dynamic> json) =>
+      _$LeaveTypeModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$LeaveTypeModelToJson(this);
+}

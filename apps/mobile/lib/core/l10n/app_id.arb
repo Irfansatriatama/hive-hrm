@@ -136,5 +136,29 @@
       "hours": { "type": "int" },
       "minutes": { "type": "int" }
     }
-  }
+  },
+  "leaveTypeLabel": "Tipe Cuti",
+  "reasonLabel": "Alasan / Keterangan",
+  "dateRangeLabel": "Tanggal Cuti",
+  "submitLeave": "Kirim Pengajuan",
+  "leaveApplySuccess": "Pengajuan cuti berhasil dikirim",
+  "emptyActiveRequests": "Tidak ada pengajuan aktif",
+  "leaveDaysCount": "{count} hari",
+  "@leaveDaysCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "leaveBalanceRemaining": "{remaining}/{total} hari",
+  "@leaveBalanceRemaining": {
+    "placeholders": {
+      "remaining": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "selectDateRange": "Pilih tanggal",
+  "leaveTypeRequired": "Pilih tipe cuti",
+  "reasonRequired": "Alasan wajib diisi",
+  "dateRequired": "Pilih tanggal cuti",
+  "applyLeaveTitle": "Ajukan Cuti"
 }

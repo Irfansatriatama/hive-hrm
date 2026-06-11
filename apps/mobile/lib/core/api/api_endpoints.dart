@@ -23,6 +23,7 @@ class ApiEndpoints {
   // Leave
   static const String leaveBalances = '/leave/balances';
   static const String leaveRequests = '/leave/requests';
+  static const String leaveMyRequests = '/leave/requests/my';
   static const String leaveCalendar = '/leave/calendar';
   static const String leaveTypes = '/leave/types';
 

@@ -73,6 +73,56 @@ class DashboardSkeleton extends StatelessWidget {
   }
 }
 
+class LeaveSkeleton extends StatelessWidget {
+  const LeaveSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(AppTheme.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SkeletonBox(width: 80, height: 10),
+          const SizedBox(height: AppTheme.sm),
+          GridView.count(
+            crossAxisCount: 3,
+            shrinkWrap: true,
+            crossAxisSpacing: AppTheme.sm,
+            mainAxisSpacing: AppTheme.sm,
+            childAspectRatio: 0.85,
+            physics: const NeverScrollableScrollPhysics(),
+            children: List.generate(
+              3,
+              (_) => const SkeletonBox(height: 100),
+            ),
+          ),
+          const SizedBox(height: AppTheme.md),
+          const SkeletonBox(width: 120, height: 10),
+          const SizedBox(height: AppTheme.sm),
+          ...List.generate(
+            2,
+            (_) => const Padding(
+              padding: EdgeInsets.only(bottom: AppTheme.sm),
+              child: SkeletonBox(height: 96),
+            ),
+          ),
+          const SizedBox(height: AppTheme.md),
+          const SkeletonBox(width: 60, height: 10),
+          const SizedBox(height: AppTheme.sm),
+          ...List.generate(
+            3,
+            (_) => const Padding(
+              padding: EdgeInsets.only(bottom: AppTheme.sm),
+              child: SkeletonBox(height: 96),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class AttendanceSkeleton extends StatelessWidget {
   const AttendanceSkeleton({super.key});
 

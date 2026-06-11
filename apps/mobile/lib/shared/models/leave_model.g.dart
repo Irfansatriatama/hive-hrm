@@ -66,3 +66,17 @@ Map<String, dynamic> _$LeaveTypeRefToJson(LeaveTypeRef instance) =>
       'id': instance.id,
       'name': instance.name,
     };
+
+LeaveTypeModel _$LeaveTypeModelFromJson(Map<String, dynamic> json) =>
+    LeaveTypeModel(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      maxDays: (json['maxDays'] as num).toInt(),
+    );
+
+Map<String, dynamic> _$LeaveTypeModelToJson(LeaveTypeModel instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'maxDays': instance.maxDays,
+    };

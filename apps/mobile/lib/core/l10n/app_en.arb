@@ -136,5 +136,29 @@
       "hours": { "type": "int" },
       "minutes": { "type": "int" }
     }
-  }
+  },
+  "leaveTypeLabel": "Leave Type",
+  "reasonLabel": "Reason",
+  "dateRangeLabel": "Leave Dates",
+  "submitLeave": "Submit Request",
+  "leaveApplySuccess": "Leave request submitted successfully",
+  "emptyActiveRequests": "No active requests",
+  "leaveDaysCount": "{count} days",
+  "@leaveDaysCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "leaveBalanceRemaining": "{remaining}/{total} days",
+  "@leaveBalanceRemaining": {
+    "placeholders": {
+      "remaining": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "selectDateRange": "Select dates",
+  "leaveTypeRequired": "Select a leave type",
+  "reasonRequired": "Reason is required",
+  "dateRequired": "Select leave dates",
+  "applyLeaveTitle": "Apply for Leave"
 }
