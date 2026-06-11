@@ -70,10 +70,10 @@ export class AttendanceController {
   }
 
   @Post('check-out')
-  async checkOut(@Req() req: express.Request) {
+  async checkOut(@Req() req: express.Request, @Body() body: any) {
     const user = await this.getSessionUser(req);
     const emp = await this.getEmployeeByUserId(user.id);
-    return this.service.checkOut(emp.id);
+    return this.service.checkOut(emp.id, body);
   }
 
   @Get('history')

@@ -158,6 +158,11 @@ model Attendance {
   lateMinutes   Int?
   location      String?
   notes         String?
+  latitude      Float?
+  longitude     Float?
+  checkInNote   String?
+  checkOutNote  String?
+  selfieUrl     String?
   createdAt     DateTime  @default(now())
 }
 

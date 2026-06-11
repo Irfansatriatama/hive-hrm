@@ -111,9 +111,24 @@ export default function AttendancePage() {
 
   const handleCheckIn = async () => {
     try {
+      let gpsData: { latitude?: number; longitude?: number } = {};
+      if ('geolocation' in navigator) {
+        try {
+          const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+          });
+          gpsData = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          };
+        } catch {
+          // GPS ditolak atau tidak tersedia — lanjut tanpa koordinat
+        }
+      }
+
       const result = await fetchAPI<any>('/attendance/check-in', {
         method: 'POST',
-        body: JSON.stringify({ location: 'Head Office (Simulated GPS)', notes: '' }),
+        body: JSON.stringify({ ...gpsData }),
       });
       const timeStr = result?.checkIn
         ? formatTime(result.checkIn)
@@ -128,7 +143,25 @@ export default function AttendancePage() {
 
   const handleCheckOut = async () => {
     try {
-      const result = await fetchAPI<any>('/attendance/check-out', { method: 'POST' });
+      let gpsData: { latitude?: number; longitude?: number } = {};
+      if ('geolocation' in navigator) {
+        try {
+          const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+          });
+          gpsData = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+          };
+        } catch {
+          // GPS ditolak atau tidak tersedia — lanjut tanpa koordinat
+        }
+      }
+
+      const result = await fetchAPI<any>('/attendance/check-out', {
+        method: 'POST',
+        body: JSON.stringify({ ...gpsData }),
+      });
       const timeStr = result?.checkOut
         ? formatTime(result.checkOut)
         : new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false });
@@ -299,6 +332,9 @@ export default function AttendancePage() {
                     Durasi
                   </th>
                   <th className="px-6 py-3.5 font-bold text-slate-500 uppercase tracking-wider">
+                    Lokasi
+                  </th>
+                  <th className="px-6 py-3.5 font-bold text-slate-500 uppercase tracking-wider">
                     Status
                   </th>
                 </tr>
@@ -321,6 +357,17 @@ export default function AttendancePage() {
                       </td>
                       <td className="px-6 py-3.5 font-bold text-slate-500 font-mono">
                         {formatDuration(row)}
+                      </td>
+                      <td className="px-6 py-3.5">
+                        {row.latitude != null && row.longitude != null ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100">
+                            GPS
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-50 text-slate-500 border border-slate-100">
+                            Manual
+                          </span>
+                        )}
                       </td>
                       <td className="px-6 py-3.5">
                         <Badge status={row.status?.toLowerCase()} />

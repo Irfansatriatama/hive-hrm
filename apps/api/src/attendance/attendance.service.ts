@@ -42,7 +42,17 @@ export class AttendanceService {
     return record || null;
   }
 
-  async checkIn(employeeId: string, data: { location?: string; notes?: string }) {
+  async checkIn(
+    employeeId: string,
+    data: {
+      location?: string;
+      notes?: string;
+      latitude?: number;
+      longitude?: number;
+      checkInNote?: string;
+      selfieUrl?: string;
+    },
+  ) {
     const todayStatus = await this.getTodayStatus(employeeId);
     if (todayStatus) {
       throw new Error('Karyawan sudah melakukan check-in hari ini');
@@ -72,11 +82,18 @@ export class AttendanceService {
         lateMinutes,
         location: data.location || 'Head Office',
         notes: data.notes || null,
+        latitude: data.latitude ?? null,
+        longitude: data.longitude ?? null,
+        checkInNote: data.checkInNote ?? null,
+        selfieUrl: data.selfieUrl ?? null,
       },
     });
   }
 
-  async checkOut(employeeId: string) {
+  async checkOut(
+    employeeId: string,
+    data?: { latitude?: number; longitude?: number; checkOutNote?: string },
+  ) {
     const record = await this.getTodayStatus(employeeId);
     if (!record) {
       throw new NotFoundException('Karyawan belum melakukan check-in hari ini');
@@ -97,6 +114,9 @@ export class AttendanceService {
       data: {
         checkOut: now,
         workHours,
+        latitude: data?.latitude ?? record.latitude,
+        longitude: data?.longitude ?? record.longitude,
+        checkOutNote: data?.checkOutNote ?? null,
       },
     });
   }
