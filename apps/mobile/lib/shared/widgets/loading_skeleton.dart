@@ -201,6 +201,26 @@ class PayslipSkeleton extends StatelessWidget {
   }
 }
 
+class ApprovalSkeleton extends StatelessWidget {
+  const ApprovalSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(AppTheme.md),
+      child: Column(
+        children: List.generate(
+          3,
+          (_) => const Padding(
+            padding: EdgeInsets.only(bottom: AppTheme.sm),
+            child: SkeletonBox(height: 180),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class AttendanceSkeleton extends StatelessWidget {
   const AttendanceSkeleton({super.key});
 

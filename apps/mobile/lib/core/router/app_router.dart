@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../auth/auth_provider.dart';
 import '../../features/announcement/screens/announcement_screen.dart';
+import '../../features/approval/screens/approval_screen.dart';
 import '../../features/attendance/screens/attendance_screen.dart';
 import '../../features/auth/screens/login_screen.dart';
 import '../../features/dashboard/screens/dashboard_screen.dart';
@@ -93,6 +94,13 @@ GoRouter appRouter(AppRouterRef ref) {
             pageBuilder: (context, state) => _fadeTransitionPage(
               state: state,
               child: const AnnouncementScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/approval',
+            pageBuilder: (context, state) => _fadeTransitionPage(
+              state: state,
+              child: const ApprovalScreen(),
             ),
           ),
           GoRoute(

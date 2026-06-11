@@ -10,6 +10,7 @@ class AuthStorage {
 
   static const _tokenKey = 'auth_token';
   static const _userKey = 'user_id';
+  static const _roleKey = 'user_role';
 
   static Future<void> saveToken(String token) =>
       _storage.write(key: _tokenKey, value: token);
@@ -17,6 +18,13 @@ class AuthStorage {
   static Future<String?> getToken() => _storage.read(key: _tokenKey);
 
   static Future<void> deleteToken() => _storage.delete(key: _tokenKey);
+
+  static Future<void> saveRole(String role) =>
+      _storage.write(key: _roleKey, value: role);
+
+  static Future<String?> getRole() => _storage.read(key: _roleKey);
+
+  static Future<void> deleteRole() => _storage.delete(key: _roleKey);
 
   static Future<bool> hasToken() async => (await getToken()) != null;
 

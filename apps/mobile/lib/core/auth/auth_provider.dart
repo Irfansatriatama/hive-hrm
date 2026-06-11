@@ -1,5 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'auth_storage.dart';
+import 'user_role_provider.dart';
 
 part 'auth_provider.g.dart';
 
@@ -17,6 +18,7 @@ class Auth extends _$Auth {
 
   Future<void> signOut() async {
     await AuthStorage.clear();
+    await ref.read(userRoleProvider.notifier).clear();
     state = const AsyncValue.data(null);
   }
 

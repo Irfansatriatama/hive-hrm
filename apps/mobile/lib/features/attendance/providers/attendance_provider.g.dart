@@ -40,7 +40,7 @@ final attendanceLoadingGpsProvider =
 );
 
 typedef _$AttendanceLoadingGps = AutoDisposeNotifier<bool>;
-String _$attendanceHash() => r'a55eb5104304debde0d0a112b2d6166084efbc6e';
+String _$attendanceHash() => r'9fe86e8f59e4a81980fd9b4802af34792d38497b';
 
 /// See also [Attendance].
 @ProviderFor(Attendance)

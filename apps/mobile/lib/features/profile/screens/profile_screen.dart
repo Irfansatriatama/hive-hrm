@@ -1,7 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import '../../../core/auth/user_role_provider.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_style.dart';
@@ -97,6 +99,7 @@ class ProfileScreen extends ConsumerWidget {
               initials: _initials(value.name),
               statusType: _employeeStatusType(value.status),
               joinDateLabel: _formatJoinDate(context, value.joinDate),
+              showApproval: ref.watch(canApproveProvider),
               onRequestUpdate: () => showProfileUpdateSheet(context, value),
               onSignOut: () => _confirmSignOut(context, ref),
             ),
@@ -112,6 +115,7 @@ class _ProfileContent extends StatelessWidget {
   final String initials;
   final StatusType statusType;
   final String joinDateLabel;
+  final bool showApproval;
   final VoidCallback onRequestUpdate;
   final VoidCallback onSignOut;
 
@@ -120,6 +124,7 @@ class _ProfileContent extends StatelessWidget {
     required this.initials,
     required this.statusType,
     required this.joinDateLabel,
+    required this.showApproval,
     required this.onRequestUpdate,
     required this.onSignOut,
   });
@@ -179,6 +184,14 @@ class _ProfileContent extends StatelessWidget {
             icon: Icons.edit_outlined,
             onTap: onRequestUpdate,
           ),
+          if (showApproval) ...[
+            const SizedBox(height: AppTheme.sm),
+            _ProfileActionTile(
+              label: context.l10n.profileApprovals,
+              icon: Icons.task_alt_rounded,
+              onTap: () => context.go('/approval'),
+            ),
+          ],
           const SizedBox(height: AppTheme.sm),
           _ProfileActionTile(
             label: context.l10n.logout,

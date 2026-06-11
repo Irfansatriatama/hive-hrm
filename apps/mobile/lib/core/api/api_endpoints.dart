@@ -34,6 +34,10 @@ class ApiEndpoints {
   // Payslip
   static const String myPayslips = '/payroll/my-payslips';
 
+  // Approval
+  static const String approvalInbox = '/approval/inbox';
+  static const String approvalAction = '/approval/action';
+
   // Reward
   static const String rewardBalance = '/reward/balance';
   static const String rewardTransactions = '/reward/transactions';

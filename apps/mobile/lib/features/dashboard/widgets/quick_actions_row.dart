@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/auth/user_role_provider.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_style.dart';
 import '../../../core/theme/app_theme.dart';
 
-class QuickActionsRow extends StatelessWidget {
+class QuickActionsRow extends ConsumerWidget {
   const QuickActionsRow({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final canApprove = ref.watch(canApproveProvider);
+
     return Row(
       children: [
         Expanded(
@@ -31,9 +35,13 @@ class QuickActionsRow extends StatelessWidget {
         const SizedBox(width: AppTheme.sm),
         Expanded(
           child: _QuickAction(
-            icon: Icons.receipt_long_rounded,
-            label: context.l10n.quickActionPayslip,
-            onTap: () => context.go('/payslip'),
+            icon: canApprove
+                ? Icons.task_alt_rounded
+                : Icons.notifications_rounded,
+            label: canApprove
+                ? context.l10n.quickActionApproval
+                : context.l10n.quickActionAnnouncement,
+            onTap: () => context.go(canApprove ? '/approval' : '/announcement'),
           ),
         ),
       ],

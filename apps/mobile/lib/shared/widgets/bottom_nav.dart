@@ -16,7 +16,7 @@ class HiveBottomNavShell extends StatelessWidget {
       (path: '/dashboard', label: l10n.navHome, icon: Icons.home_rounded),
       (path: '/attendance', label: l10n.navAttendance, icon: Icons.fingerprint_rounded),
       (path: '/leave', label: l10n.navLeave, icon: Icons.beach_access_rounded),
-      (path: '/announcement', label: l10n.navNotification, icon: Icons.notifications_rounded),
+      (path: '/payslip', label: l10n.navPayslip, icon: Icons.receipt_long_rounded),
       (path: '/profile', label: l10n.navProfile, icon: Icons.person_rounded),
     ];
 
