@@ -72,3 +72,61 @@ class DashboardSkeleton extends StatelessWidget {
     );
   }
 }
+
+class AttendanceSkeleton extends StatelessWidget {
+  const AttendanceSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(AppTheme.md),
+      child: Column(
+        children: [
+          const SkeletonBox(width: 120, height: 12),
+          const SizedBox(height: AppTheme.sm + AppTheme.xs),
+          const SkeletonBox(
+            width: AppTheme.tapMin * 2 + AppTheme.sm,
+            height: AppTheme.tapMin * 2 + AppTheme.sm,
+            radius: AppTheme.tapMin + AppTheme.sm,
+          ),
+          const SizedBox(height: AppTheme.lg),
+          Row(
+            children: List.generate(
+              3,
+              (_) => const Expanded(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: AppTheme.xs),
+                  child: SkeletonBox(height: 72),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: AppTheme.md),
+          const SkeletonBox(width: 80, height: 10),
+          const SizedBox(height: AppTheme.sm),
+          Row(
+            children: List.generate(
+              5,
+              (_) => const Expanded(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: AppTheme.xs),
+                  child: SkeletonBox(height: 48, radius: AppTheme.lg),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: AppTheme.md),
+          const SkeletonBox(width: 60, height: 10),
+          const SizedBox(height: AppTheme.sm),
+          ...List.generate(
+            3,
+            (_) => const Padding(
+              padding: EdgeInsets.only(bottom: AppTheme.sm),
+              child: SkeletonBox(height: 96),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

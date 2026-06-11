@@ -119,5 +119,22 @@
     "placeholders": {
       "count": { "type": "int" }
     }
+  },
+  "timeIn": "In",
+  "timeOut": "Out",
+  "tapToCheckIn": "Tap to check in",
+  "tapToCheckOut": "Tap to check out",
+  "checkOutError": "Check-out failed. Please try again.",
+  "weekMon": "Mon",
+  "weekTue": "Tue",
+  "weekWed": "Wed",
+  "weekThu": "Thu",
+  "weekFri": "Fri",
+  "durationHoursMinutes": "{hours}h {minutes}m",
+  "@durationHoursMinutes": {
+    "placeholders": {
+      "hours": { "type": "int" },
+      "minutes": { "type": "int" }
+    }
   }
 }

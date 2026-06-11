@@ -119,5 +119,22 @@
     "placeholders": {
       "count": { "type": "int" }
     }
+  },
+  "timeIn": "Masuk",
+  "timeOut": "Keluar",
+  "tapToCheckIn": "Ketuk untuk check-in",
+  "tapToCheckOut": "Ketuk untuk check-out",
+  "checkOutError": "Gagal check-out. Coba lagi.",
+  "weekMon": "Sen",
+  "weekTue": "Sel",
+  "weekWed": "Rab",
+  "weekThu": "Kam",
+  "weekFri": "Jum",
+  "durationHoursMinutes": "{hours}j {minutes}m",
+  "@durationHoursMinutes": {
+    "placeholders": {
+      "hours": { "type": "int" },
+      "minutes": { "type": "int" }
+    }
   }
 }

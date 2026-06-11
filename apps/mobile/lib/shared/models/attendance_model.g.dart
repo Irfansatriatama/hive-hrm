@@ -9,6 +9,8 @@ part of 'attendance_model.dart';
 AttendanceModel _$AttendanceModelFromJson(Map<String, dynamic> json) =>
     AttendanceModel(
       id: json['id'] as String,
+      date:
+          json['date'] == null ? null : DateTime.parse(json['date'] as String),
       checkIn: json['checkIn'] == null
           ? null
           : DateTime.parse(json['checkIn'] as String),
@@ -17,6 +19,7 @@ AttendanceModel _$AttendanceModelFromJson(Map<String, dynamic> json) =>
           : DateTime.parse(json['checkOut'] as String),
       status: json['status'] as String?,
       workHours: (json['workHours'] as num?)?.toDouble(),
+      location: json['location'] as String?,
       latitude: (json['latitude'] as num?)?.toDouble(),
       longitude: (json['longitude'] as num?)?.toDouble(),
       selfieUrl: json['selfieUrl'] as String?,
@@ -25,10 +28,12 @@ AttendanceModel _$AttendanceModelFromJson(Map<String, dynamic> json) =>
 Map<String, dynamic> _$AttendanceModelToJson(AttendanceModel instance) =>
     <String, dynamic>{
       'id': instance.id,
+      'date': instance.date?.toIso8601String(),
       'checkIn': instance.checkIn?.toIso8601String(),
       'checkOut': instance.checkOut?.toIso8601String(),
       'status': instance.status,
       'workHours': instance.workHours,
+      'location': instance.location,
       'latitude': instance.latitude,
       'longitude': instance.longitude,
       'selfieUrl': instance.selfieUrl,
