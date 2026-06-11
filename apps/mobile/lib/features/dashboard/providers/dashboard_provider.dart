@@ -40,10 +40,8 @@ class Dashboard extends _$Dashboard {
       responses[0].data as Map<String, dynamic>,
     );
 
-    final todayData = responses[1].data;
-    final AttendanceModel? todayAttendance = todayData == null
-        ? null
-        : AttendanceModel.fromJson(todayData as Map<String, dynamic>);
+    final AttendanceModel? todayAttendance =
+        AttendanceModel.fromJsonOrNull(responses[1].data);
 
     final leaveBalances = (responses[2].data as List<dynamic>)
         .map((e) => LeaveBalanceModel.fromJson(e as Map<String, dynamic>))

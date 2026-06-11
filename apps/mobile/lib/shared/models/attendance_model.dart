@@ -31,5 +31,11 @@ class AttendanceModel {
   factory AttendanceModel.fromJson(Map<String, dynamic> json) =>
       _$AttendanceModelFromJson(json);
 
+  /// Handles API responses where no attendance record exists yet (empty body).
+  static AttendanceModel? fromJsonOrNull(dynamic json) {
+    if (json == null || json is! Map<String, dynamic>) return null;
+    return AttendanceModel.fromJson(json);
+  }
+
   Map<String, dynamic> toJson() => _$AttendanceModelToJson(this);
 }

@@ -5,6 +5,7 @@ import {
   Put,
   Body,
   Req,
+  Res,
   Query,
   UnauthorizedException,
   NotFoundException,
@@ -63,10 +64,11 @@ export class AttendanceController {
   }
 
   @Get('today')
-  async getTodayStatus(@Req() req: express.Request) {
+  async getTodayStatus(@Req() req: express.Request, @Res() res: express.Response) {
     const user = await this.getSessionUser(req);
     const emp = await this.getEmployeeByUserId(user.id);
-    return this.service.getTodayStatus(emp.id);
+    const record = await this.service.getTodayStatus(emp.id);
+    return res.status(200).json(record);
   }
 
   @Post('check-in')

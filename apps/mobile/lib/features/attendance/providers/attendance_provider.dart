@@ -38,10 +38,8 @@ class Attendance extends _$Attendance {
       ApiClient.instance.get(ApiEndpoints.attendanceHistory),
     ]);
 
-    final todayData = responses[0].data;
-    final AttendanceModel? today = todayData == null
-        ? null
-        : AttendanceModel.fromJson(todayData as Map<String, dynamic>);
+    final AttendanceModel? today =
+        AttendanceModel.fromJsonOrNull(responses[0].data);
 
     final historyRaw = responses[1].data;
     final history = historyRaw is List
