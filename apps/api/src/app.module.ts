@@ -20,6 +20,7 @@ import { OnboardingModule } from './onboarding/onboarding.module';
 import { ExpenseModule } from './expense/expense.module';
 import { ResourcesModule } from './resources/resources.module';
 import { PollsModule } from './polls/polls.module';
+import { LicensesModule } from './licenses/licenses.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { PollsModule } from './polls/polls.module';
     ExpenseModule,
     ResourcesModule,
     PollsModule,
+    LicensesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -22,4 +22,5 @@ export const DEFAULT_SYSTEM_MODULES = [
   { key: 'expense', name: 'Expense & Klaim', description: 'Pengajuan klaim pengeluaran, approval, dan reimbursement karyawan.', icon: 'receipt', isCore: false, sortOrder: 21 },
   { key: 'resources', name: 'Pemesanan Sumber Daya', description: 'Booking ruang rapat, kendaraan, dan peralatan kantor.', icon: 'calendar-range', isCore: false, sortOrder: 22 },
   { key: 'polls', name: 'Polling & Survei', description: 'Buat polling internal dan lihat hasil suara karyawan.', icon: 'bar-chart', isCore: false, sortOrder: 23 },
+  { key: 'licenses', name: 'Lisensi & Sertifikasi', description: 'Kelola lisensi, sertifikat, dan notifikasi kadaluarsa karyawan.', icon: 'file-badge', isCore: false, sortOrder: 24 },
 ] as const;

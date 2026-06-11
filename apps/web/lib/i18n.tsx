@@ -76,6 +76,10 @@ const translations = {
     polls_manage: "Kelola",
     polls_vote: "Vote",
     polls_results: "Hasil",
+    licenses: "Lisensi & Sertifikasi",
+    licenses_expiring: "Hampir Kadaluarsa",
+    licenses_types: "Tipe Lisensi",
+    licenses_my: "Lisensi Saya",
 
     // Sidebar sections
     sidebar_main: "Utama",
@@ -214,6 +218,10 @@ const translations = {
     polls_manage: "Manage",
     polls_vote: "Vote",
     polls_results: "Results",
+    licenses: "Licenses & Certifications",
+    licenses_expiring: "Expiring Soon",
+    licenses_types: "License Types",
+    licenses_my: "My Licenses",
 
     // Sidebar sections
     sidebar_main: "Main",

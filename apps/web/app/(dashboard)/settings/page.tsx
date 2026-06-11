@@ -56,6 +56,13 @@ const settingsTiles = [
     color: 'rose',
   },
   {
+    href: '/licenses',
+    icon: Lucide.FileBadge,
+    title: 'Tipe Lisensi',
+    desc: 'Kelola tipe lisensi, sertifikat karyawan, dan pantau tanggal kadaluarsa.',
+    color: 'orange',
+  },
+  {
     href: '/settings/others',
     icon: Lucide.SlidersHorizontal,
     title: 'Preferensi Umum & Sesi',
@@ -73,6 +80,7 @@ const colorMap: Record<string, { bg: string; hover: string }> = {
   indigo: { bg: 'bg-indigo-50 text-indigo-600 border-indigo-100', hover: 'hover:border-indigo-200' },
   emerald: { bg: 'bg-emerald-50 text-emerald-600 border-emerald-100', hover: 'hover:border-emerald-200' },
   rose: { bg: 'bg-rose-50 text-rose-600 border-rose-100', hover: 'hover:border-rose-200' },
+  orange: { bg: 'bg-orange-50 text-orange-600 border-orange-100', hover: 'hover:border-orange-200' },
 };
 
 export default function SettingsPage() {
