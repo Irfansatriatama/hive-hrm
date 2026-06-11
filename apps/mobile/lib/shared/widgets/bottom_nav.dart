@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/l10n/l10n.dart';
+import 'offline_banner.dart';
 
 class HiveBottomNavShell extends StatelessWidget {
   final Widget child;
@@ -22,7 +23,7 @@ class HiveBottomNavShell extends StatelessWidget {
     final currentIndex = tabs.indexWhere((t) => location.startsWith(t.path));
 
     return Scaffold(
-      body: child,
+      body: OfflineBanner(child: child),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex < 0 ? 0 : currentIndex,
         onTap: (i) => context.go(tabs[i].path),

@@ -172,5 +172,12 @@
   "profileUpdateReason": "Personal data update request from mobile app",
   "nameRequired": "Name is required",
   "phoneRequired": "Phone number is required",
-  "addressRequired": "Address is required"
+  "addressRequired": "Address is required",
+  "grossSalary": "Gross Salary",
+  "totalDeduction": "Deductions",
+  "netSalary": "Net Salary",
+  "earningsSection": "EARNINGS",
+  "deductionsSection": "DEDUCTIONS",
+  "statusDraft": "DRAFT",
+  "statusPaid": "PAID"
 }

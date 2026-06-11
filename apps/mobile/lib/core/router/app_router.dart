@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../auth/auth_provider.dart';
@@ -11,6 +12,34 @@ import '../../features/profile/screens/profile_screen.dart';
 import '../../shared/widgets/bottom_nav.dart';
 
 part 'app_router.g.dart';
+
+CustomTransitionPage<void> _fadeTransitionPage({
+  required GoRouterState state,
+  required Widget child,
+}) {
+  return CustomTransitionPage<void>(
+    key: state.pageKey,
+    child: child,
+    transitionDuration: const Duration(milliseconds: 250),
+    reverseTransitionDuration: const Duration(milliseconds: 200),
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      final curved = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeInOut,
+      );
+      return FadeTransition(
+        opacity: curved,
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0, 0.02),
+            end: Offset.zero,
+          ).animate(curved),
+          child: child,
+        ),
+      );
+    },
+  );
+}
 
 @Riverpod(keepAlive: true)
 GoRouter appRouter(AppRouterRef ref) {
@@ -30,34 +59,55 @@ GoRouter appRouter(AppRouterRef ref) {
     routes: [
       GoRoute(
         path: '/login',
-        builder: (context, state) => const LoginScreen(),
+        pageBuilder: (context, state) => _fadeTransitionPage(
+          state: state,
+          child: const LoginScreen(),
+        ),
       ),
       ShellRoute(
         builder: (context, state, child) => HiveBottomNavShell(child: child),
         routes: [
           GoRoute(
             path: '/dashboard',
-            builder: (_, __) => const DashboardScreen(),
+            pageBuilder: (context, state) => _fadeTransitionPage(
+              state: state,
+              child: const DashboardScreen(),
+            ),
           ),
           GoRoute(
             path: '/attendance',
-            builder: (_, __) => const AttendanceScreen(),
+            pageBuilder: (context, state) => _fadeTransitionPage(
+              state: state,
+              child: const AttendanceScreen(),
+            ),
           ),
           GoRoute(
             path: '/leave',
-            builder: (_, __) => const LeaveScreen(),
+            pageBuilder: (context, state) => _fadeTransitionPage(
+              state: state,
+              child: const LeaveScreen(),
+            ),
           ),
           GoRoute(
             path: '/announcement',
-            builder: (_, __) => const AnnouncementScreen(),
+            pageBuilder: (context, state) => _fadeTransitionPage(
+              state: state,
+              child: const AnnouncementScreen(),
+            ),
           ),
           GoRoute(
             path: '/payslip',
-            builder: (_, __) => const PayslipScreen(),
+            pageBuilder: (context, state) => _fadeTransitionPage(
+              state: state,
+              child: const PayslipScreen(),
+            ),
           ),
           GoRoute(
             path: '/profile',
-            builder: (_, __) => const ProfileScreen(),
+            pageBuilder: (context, state) => _fadeTransitionPage(
+              state: state,
+              child: const ProfileScreen(),
+            ),
           ),
         ],
       ),

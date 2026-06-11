@@ -5,6 +5,7 @@ import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_style.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../shared/widgets/offline_banner.dart';
 import '../providers/login_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -74,7 +75,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.primaryNavy,
-      body: SingleChildScrollView(
+      body: OfflineBanner(
+        child: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(AppTheme.md),
           child: Form(
@@ -191,6 +193,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             ),
           ),
         ),
+      ),
       ),
     );
   }

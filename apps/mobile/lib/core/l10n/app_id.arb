@@ -172,5 +172,12 @@
   "profileUpdateReason": "Permintaan update data pribadi dari aplikasi mobile",
   "nameRequired": "Nama wajib diisi",
   "phoneRequired": "Nomor HP wajib diisi",
-  "addressRequired": "Alamat wajib diisi"
+  "addressRequired": "Alamat wajib diisi",
+  "grossSalary": "Gaji Kotor",
+  "totalDeduction": "Potongan",
+  "netSalary": "Gaji Bersih",
+  "earningsSection": "PENDAPATAN",
+  "deductionsSection": "POTONGAN",
+  "statusDraft": "DRAFT",
+  "statusPaid": "DIBAYAR"
 }
