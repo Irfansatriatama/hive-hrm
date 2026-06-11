@@ -374,14 +374,14 @@ export default function DashboardPage() {
             </span>
           </Link>
           <Link
-            href="/attendance/report"
+            href="/attendance"
             className="p-3 bg-slate-50 hover:bg-green-50 border border-slate-200 hover:border-green-200 rounded-xl transition flex items-center gap-3 group"
           >
             <div className="w-8 h-8 rounded-lg bg-green-100 text-green-600 flex items-center justify-center shrink-0 group-hover:bg-green-600 group-hover:text-white transition">
               <Lucide.CalendarCheck className="w-4 h-4" />
             </div>
             <span className="text-xs font-semibold text-slate-700">
-              {lang === 'id' ? 'Laporan Absensi' : 'Attendance Report'}
+              {lang === 'id' ? 'Absensi Hari Ini' : 'Check In Today'}
             </span>
           </Link>
           <Link

@@ -77,6 +77,7 @@ const MENU_SECTIONS: MenuSection[] = [
         path: '/attendance',
         icon: 'clock',
         sub: [
+          { key: 'attendance_today', path: '/attendance' },
           { key: 'attendance_report', path: '/attendance/report' },
           { key: 'attendance_settings', path: '/attendance/settings' },
         ],
@@ -86,6 +87,7 @@ const MENU_SECTIONS: MenuSection[] = [
         path: '/leave',
         icon: 'calendar',
         sub: [
+          { key: 'leave_overview', path: '/leave' },
           { key: 'leave_apply', path: '/leave/apply' },
           { key: 'leave_summary', path: '/leave/summary' },
           { key: 'leave_balance', path: '/leave/balance' },
@@ -97,6 +99,7 @@ const MENU_SECTIONS: MenuSection[] = [
         path: '/approval',
         icon: 'check-square',
         sub: [
+          { key: 'approval_inbox', path: '/approval' },
           { key: 'approval_rules', path: '/approval/rules' },
           { key: 'approval_settings', path: '/approval/settings' },
         ],
@@ -114,6 +117,7 @@ const MENU_SECTIONS: MenuSection[] = [
         path: '/reward',
         icon: 'award',
         sub: [
+          { key: 'reward_home', path: '/reward' },
           { key: 'reward_hashtag', path: '/reward/hashtag' },
           { key: 'reward_manage', path: '/reward/manage' },
           { key: 'reward_approval', path: '/reward/approval' },
@@ -179,6 +183,7 @@ const MENU_SECTIONS: MenuSection[] = [
         path: '/procurement',
         icon: 'shopping-cart',
         sub: [
+          { key: 'procurement_dashboard', path: '/procurement' },
           { key: 'procurement_po', path: '/procurement/po' },
           { key: 'procurement_report', path: '/procurement/report' },
         ],
@@ -203,11 +208,14 @@ const MENU_SECTIONS: MenuSection[] = [
         path: '/settings',
         icon: 'settings',
         sub: [
+          { key: 'settings_overview', path: '/settings' },
           { key: 'settings_hiring', path: '/settings/hiring' },
           { key: 'settings_procurement', path: '/settings/procurement' },
           { key: 'settings_custom_form', path: '/settings/custom-form' },
           { key: 'settings_leave', path: '/settings/leave' },
           { key: 'settings_assets', path: '/settings/assets' },
+          { key: 'settings_payroll', path: '/settings/payroll' },
+          { key: 'settings_expense', path: '/settings/expense' },
           { key: 'settings_others', path: '/settings/others' },
         ],
       },
@@ -278,21 +286,38 @@ export default function Sidebar() {
     return (
       <div key={item.key} className="space-y-1">
         {hasSub ? (
-          <button
-            onClick={() => toggleSubmenu(item.key, sectionKey)}
-            className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-all duration-150 text-sm group ${activeClass}`}
-            title={isCollapsed ? t(item.key) : ''}
-          >
-            <div className="flex items-center gap-3">
+          isCollapsed ? (
+            <Link
+              href={item.path}
+              onClick={closeMobile}
+              className={`flex items-center justify-center px-3 py-2 rounded-lg transition-all duration-150 text-sm group ${activeClass}`}
+              title={t(item.key)}
+            >
               <MenuIcon className="w-4 h-4 shrink-0" />
-              {!isCollapsed && <span className="truncate">{t(item.key)}</span>}
+            </Link>
+          ) : (
+            <div className={`flex items-center rounded-lg transition-all duration-150 text-sm group ${activeClass}`}>
+              <Link
+                href={item.path}
+                onClick={closeMobile}
+                className="flex flex-1 items-center gap-3 px-3 py-2 min-w-0"
+                title={t(item.key)}
+              >
+                <MenuIcon className="w-4 h-4 shrink-0" />
+                <span className="truncate">{t(item.key)}</span>
+              </Link>
+              <button
+                type="button"
+                onClick={() => toggleSubmenu(item.key, sectionKey)}
+                className="px-2 py-2 shrink-0 hover:text-slate-200 cursor-pointer"
+                aria-label={`Toggle ${t(item.key)} submenu`}
+              >
+                <Lucide.ChevronDown
+                  className={`w-3.5 h-3.5 transition-transform duration-200 ${isSubOpen ? 'rotate-180' : ''}`}
+                />
+              </button>
             </div>
-            {!isCollapsed && (
-              <Lucide.ChevronDown
-                className={`w-3.5 h-3.5 transition-transform duration-200 shrink-0 ${isSubOpen ? 'rotate-180' : ''}`}
-              />
-            )}
-          </button>
+          )
         ) : (
           <Link
             href={item.path}
