@@ -45,7 +45,7 @@ class _ClockInOutButtonState extends ConsumerState<ClockInOutButton>
     final String successMessage;
 
     if (isCheckedIn) {
-      error = await notifier.checkOut();
+      error = await notifier.checkOut(context);
       successMessage = l10n.checkOutSuccess;
     } else {
       error = await notifier.checkIn(context);
