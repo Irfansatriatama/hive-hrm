@@ -8,7 +8,14 @@ import {
   Param,
   Req,
   UnauthorizedException,
+  BadRequestException,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { existsSync, mkdirSync } from 'fs';
+import { extname, join } from 'path';
 import * as express from 'express';
 import { CoreService } from './core.service';
 import { auth } from '../auth/auth.service';
@@ -296,6 +303,47 @@ export class CoreController {
   async getDocuments(@Req() req: express.Request) {
     await this.getSessionUser(req);
     return this.service.getDocuments();
+  }
+
+  @Post('documents/upload')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: (_req, _file, cb) => {
+          const dir = join(process.cwd(), 'uploads', 'documents');
+          if (!existsSync(dir)) {
+            mkdirSync(dir, { recursive: true });
+          }
+          cb(null, dir);
+        },
+        filename: (_req, file, cb) => {
+          const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}${extname(file.originalname) || '.pdf'}`;
+          cb(null, unique);
+        },
+      }),
+      limits: { fileSize: 10 * 1024 * 1024 },
+      fileFilter: (_req, file, cb) => {
+        const allowed =
+          file.mimetype.match(/\/(pdf|msword|vnd\.openxmlformats-officedocument\.wordprocessingml\.document|vnd\.ms-excel|vnd\.openxmlformats-officedocument\.spreadsheetml\.sheet|jpeg|jpg|png|webp)$/) ||
+          file.originalname.match(/\.(pdf|doc|docx|xls|xlsx|jpg|jpeg|png|webp)$/i);
+        if (!allowed) {
+          cb(new BadRequestException('File type not allowed') as unknown as Error, false);
+          return;
+        }
+        cb(null, true);
+      },
+    }),
+  )
+  async uploadDocument(
+    @Req() req: express.Request,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    await this.getSessionUser(req);
+    if (!file) {
+      throw new BadRequestException('No file uploaded');
+    }
+    const baseUrl = process.env.API_PUBLIC_URL || `http://localhost:${process.env.PORT || 4000}`;
+    return { url: `${baseUrl}/uploads/documents/${file.filename}` };
   }
 
   @Post('documents')

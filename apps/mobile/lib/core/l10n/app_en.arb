@@ -342,5 +342,55 @@
   "visitorCheckInSuccess": "Visitor checked in successfully",
   "visitorNameLabel": "Visitor Name",
   "visitorCompanyLabel": "Company",
-  "visitorIdLabel": "ID Number"
+  "visitorIdLabel": "ID Number",
+  "homeFeedTitle": "TODAY'S ACTIVITY",
+  "homeFeedBooking": "Booking {time} · {title} ({room})",
+  "@homeFeedBooking": {
+    "placeholders": {
+      "time": { "type": "String" },
+      "title": { "type": "String" },
+      "room": { "type": "String" }
+    }
+  },
+  "homeFeedVisitorsActive": "{count} active visitors today",
+  "@homeFeedVisitorsActive": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "homeFeedVisitorSingle": "Visitor: {name} · {purpose}",
+  "@homeFeedVisitorSingle": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "purpose": { "type": "String" }
+    }
+  },
+  "homeFeedApproval": "{requester}: {summary}",
+  "@homeFeedApproval": {
+    "placeholders": {
+      "requester": { "type": "String" },
+      "summary": { "type": "String" }
+    }
+  },
+  "homeFeedLeavePending": "Leave pending: {detail}",
+  "@homeFeedLeavePending": {
+    "placeholders": { "detail": { "type": "String" } }
+  },
+  "homeFeedBookingApprove": "Approve booking: {title} ({employee})",
+  "@homeFeedBookingApprove": {
+    "placeholders": {
+      "title": { "type": "String" },
+      "employee": { "type": "String" }
+    }
+  },
+  "resourcesTabApproval": "Approvals",
+  "emptyResourceApprovals": "No bookings awaiting approval",
+  "resourcesApproveSuccess": "Booking approved successfully",
+  "visitorTabMine": "My Guests",
+  "visitorTabAll": "All Guests",
+  "documentUploadTitle": "Upload Document",
+  "documentUploadNameLabel": "Document Name",
+  "documentUploadFolderLabel": "Folder",
+  "documentUploadSelectFile": "Select File",
+  "documentUploadIncomplete": "Document name is required",
+  "documentUploadSuccess": "Document uploaded successfully",
+  "documentUploadFailed": "Failed to upload file"
 }

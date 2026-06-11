@@ -9,6 +9,7 @@ import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_skeleton.dart';
 import '../../../shared/widgets/section_label.dart';
 import '../widgets/announcement_carousel.dart';
+import '../widgets/home_feed_section.dart';
 import '../widgets/home_header.dart';
 import '../widgets/home_menu_grid.dart';
 
@@ -57,6 +58,8 @@ class HomeScreen extends ConsumerWidget {
                   AnnouncementCarousel(announcements: value.announcements),
                   const SizedBox(height: AppTheme.md),
                   const HomeMenuGrid(),
+                  const SizedBox(height: AppTheme.md),
+                  const HomeFeedSection(),
                   const SizedBox(height: AppTheme.md),
                   SectionLabel(context.l10n.homeSummaryTitle),
                   const SizedBox(height: AppTheme.sm),

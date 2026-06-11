@@ -26,4 +26,30 @@ class Documents extends _$Documents {
 
     return DocumentsData(documents: documents, folders: folders);
   }
+
+  Future<String?> createDocument({
+    required String name,
+    required String fileUrl,
+    required String fileType,
+    String? size,
+    String? folder,
+  }) async {
+    try {
+      await ApiClient.instance.post(
+        ApiEndpoints.documents,
+        data: {
+          'name': name,
+          'fileUrl': fileUrl,
+          'fileType': fileType,
+          if (size != null) 'size': size,
+          if (folder != null) 'folder': folder,
+        },
+      );
+      ref.invalidateSelf();
+      await future;
+      return null;
+    } catch (e) {
+      return e.toString();
+    }
+  }
 }

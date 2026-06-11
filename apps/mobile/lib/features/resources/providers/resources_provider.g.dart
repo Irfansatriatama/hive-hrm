@@ -23,7 +23,7 @@ final resourcesSubmittingProvider =
 );
 
 typedef _$ResourcesSubmitting = AutoDisposeNotifier<bool>;
-String _$resourcesHash() => r'c5a873a966cf863e83e707e90cb41892e4998d60';
+String _$resourcesHash() => r'4979cbc628014ad09ede245b48c08980d1ccdea2';
 
 /// See also [Resources].
 @ProviderFor(Resources)

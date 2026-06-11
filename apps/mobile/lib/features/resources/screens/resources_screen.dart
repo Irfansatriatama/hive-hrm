@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/auth/user_role_provider.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_style.dart';
@@ -11,6 +12,7 @@ import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/hive_card.dart';
 import '../../../shared/widgets/loading_skeleton.dart';
 import '../../../shared/widgets/status_badge.dart';
+import '../../profile/providers/profile_provider.dart';
 import '../providers/resources_provider.dart';
 import 'resource_booking_sheet.dart';
 
@@ -23,23 +25,26 @@ class ResourcesScreen extends ConsumerStatefulWidget {
 
 class _ResourcesScreenState extends ConsumerState<ResourcesScreen>
     with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-  }
+  TabController? _tabController;
 
   @override
   void dispose() {
-    _tabController.dispose();
+    _tabController?.dispose();
     super.dispose();
+  }
+
+  void _ensureTabController(int length) {
+    if (_tabController?.length == length) return;
+    _tabController?.dispose();
+    _tabController = TabController(length: length, vsync: this);
   }
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(resourcesProvider);
+    final canApprove = ref.watch(canApproveResourcesProvider);
+    final tabCount = canApprove ? 3 : 2;
+    _ensureTabController(tabCount);
 
     return Scaffold(
       backgroundColor: AppColors.primaryNavy,
@@ -53,6 +58,7 @@ class _ResourcesScreenState extends ConsumerState<ResourcesScreen>
           tabs: [
             Tab(text: context.l10n.resourcesTabRooms),
             Tab(text: context.l10n.resourcesTabBookings),
+            if (canApprove) Tab(text: context.l10n.resourcesTabApproval),
           ],
         ),
         actions: [
@@ -93,7 +99,15 @@ class _ResourcesScreenState extends ConsumerState<ResourcesScreen>
               controller: _tabController,
               children: [
                 _ResourcesList(resources: value.resources),
-                _BookingsList(bookings: value.bookings),
+                _BookingsList(
+                  bookings: value.bookings,
+                  profileId: ref.watch(profileProvider).valueOrNull?.id,
+                ),
+                if (canApprove)
+                  _ApprovalList(
+                    bookings: value.bookings,
+                    profileId: ref.watch(profileProvider).valueOrNull?.id,
+                  ),
               ],
             ),
           _ => const SizedBox.shrink(),
@@ -154,8 +168,9 @@ class _ResourcesList extends StatelessWidget {
 
 class _BookingsList extends ConsumerWidget {
   final List<ResourceBookingModel> bookings;
+  final String? profileId;
 
-  const _BookingsList({required this.bookings});
+  const _BookingsList({required this.bookings, this.profileId});
 
   StatusType _status(String status) => switch (status) {
         'approved' => StatusType.approved,
@@ -165,7 +180,11 @@ class _BookingsList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (bookings.isEmpty) {
+    final mine = profileId == null
+        ? bookings
+        : bookings.where((b) => b.employeeId == profileId).toList();
+
+    if (mine.isEmpty) {
       return ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         children: [
@@ -181,12 +200,12 @@ class _BookingsList extends ConsumerWidget {
     return ListView.separated(
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.all(AppTheme.md),
-      itemCount: bookings.length,
+      itemCount: mine.length,
       separatorBuilder: (_, __) => const SizedBox(height: AppTheme.sm),
       itemBuilder: (context, index) {
-        final booking = bookings[index];
-        final canCancel =
-            booking.status == 'pending' || booking.status == 'approved';
+        final booking = mine[index];
+        final canCancel = booking.employeeId == profileId &&
+            (booking.status == 'pending' || booking.status == 'approved');
 
         return HiveCard(
           child: Column(
@@ -201,10 +220,7 @@ class _BookingsList extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: AppTheme.xs),
-              Text(
-                booking.resource?.name ?? '—',
-                style: AppTextStyle.body2,
-              ),
+              Text(booking.resource?.name ?? '—', style: AppTextStyle.body2),
               Text(
                 '${DateTimeFormatter.formatDate(booking.startTime, pattern: 'd MMM yyyy HH:mm')} – ${DateTimeFormatter.formatTime(booking.endTime)}',
                 style: AppTextStyle.caption,
@@ -232,6 +248,111 @@ class _BookingsList extends ConsumerWidget {
                   ),
                 ),
               ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _ApprovalList extends ConsumerWidget {
+  final List<ResourceBookingModel> bookings;
+  final String? profileId;
+
+  const _ApprovalList({required this.bookings, this.profileId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final pending = bookings
+        .where((b) => b.status == 'pending' && b.employeeId != profileId)
+        .toList();
+
+    if (pending.isEmpty) {
+      return ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        children: [
+          SizedBox(height: MediaQuery.sizeOf(context).height * 0.2),
+          EmptyView(
+            icon: Icons.pending_actions_rounded,
+            title: context.l10n.emptyResourceApprovals,
+          ),
+        ],
+      );
+    }
+
+    return ListView.separated(
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(AppTheme.md),
+      itemCount: pending.length,
+      separatorBuilder: (_, __) => const SizedBox(height: AppTheme.sm),
+      itemBuilder: (context, index) {
+        final booking = pending[index];
+        return HiveCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(booking.title, style: AppTextStyle.h3),
+              Text(
+                booking.employeeName ?? '—',
+                style: AppTextStyle.body2,
+              ),
+              Text(
+                booking.resource?.name ?? '—',
+                style: AppTextStyle.caption,
+              ),
+              Text(
+                '${DateTimeFormatter.formatDate(booking.startTime, pattern: 'd MMM yyyy HH:mm')} – ${DateTimeFormatter.formatTime(booking.endTime)}',
+                style: AppTextStyle.caption,
+              ),
+              const SizedBox(height: AppTheme.sm),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () async {
+                      final error = await ref
+                          .read(resourcesProvider.notifier)
+                          .rejectBooking(booking.id);
+                      if (!context.mounted) return;
+                      if (error != null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(error),
+                            backgroundColor: AppColors.errorRed,
+                          ),
+                        );
+                      }
+                    },
+                    child: Text(context.l10n.reject),
+                  ),
+                  const SizedBox(width: AppTheme.sm),
+                  ElevatedButton(
+                    onPressed: () async {
+                      final error = await ref
+                          .read(resourcesProvider.notifier)
+                          .approveBooking(booking.id);
+                      if (!context.mounted) return;
+                      if (error != null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(error),
+                            backgroundColor: AppColors.errorRed,
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(context.l10n.resourcesApproveSuccess),
+                            backgroundColor: AppColors.successGreen,
+                          ),
+                        );
+                      }
+                    },
+                    child: Text(context.l10n.approve),
+                  ),
+                ],
+              ),
             ],
           ),
         );

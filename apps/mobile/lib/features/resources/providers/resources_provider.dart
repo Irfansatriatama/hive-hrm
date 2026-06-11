@@ -79,6 +79,33 @@ class Resources extends _$Resources {
     }
   }
 
+  Future<String?> approveBooking(String id) async {
+    try {
+      await ApiClient.instance.post(
+        '${ApiEndpoints.resourceBookings}/$id/approve',
+      );
+      ref.invalidateSelf();
+      await future;
+      return null;
+    } catch (e) {
+      return _extractError(e);
+    }
+  }
+
+  Future<String?> rejectBooking(String id, {String? reason}) async {
+    try {
+      await ApiClient.instance.post(
+        '${ApiEndpoints.resourceBookings}/$id/reject',
+        data: {if (reason != null && reason.isNotEmpty) 'reason': reason},
+      );
+      ref.invalidateSelf();
+      await future;
+      return null;
+    } catch (e) {
+      return _extractError(e);
+    }
+  }
+
   String _extractError(Object error) {
     if (error is DioException) {
       final data = error.response?.data;

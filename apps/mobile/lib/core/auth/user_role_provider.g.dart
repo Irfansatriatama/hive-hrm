@@ -22,6 +22,42 @@ final canApproveProvider = AutoDisposeProvider<bool>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef CanApproveRef = AutoDisposeProviderRef<bool>;
+String _$canApproveResourcesHash() =>
+    r'd997bfae7968d32723284550b153d04406bf771d';
+
+/// See also [canApproveResources].
+@ProviderFor(canApproveResources)
+final canApproveResourcesProvider = AutoDisposeProvider<bool>.internal(
+  canApproveResources,
+  name: r'canApproveResourcesProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$canApproveResourcesHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef CanApproveResourcesRef = AutoDisposeProviderRef<bool>;
+String _$canViewAllVisitorsHash() =>
+    r'f91912e37c787e62fe72770d2a4f38750c7d1742';
+
+/// See also [canViewAllVisitors].
+@ProviderFor(canViewAllVisitors)
+final canViewAllVisitorsProvider = AutoDisposeProvider<bool>.internal(
+  canViewAllVisitors,
+  name: r'canViewAllVisitorsProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$canViewAllVisitorsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+typedef CanViewAllVisitorsRef = AutoDisposeProviderRef<bool>;
 String _$userRoleHash() => r'48386561434be37a9a09c795022779614b65fe41';
 
 /// See also [UserRole].

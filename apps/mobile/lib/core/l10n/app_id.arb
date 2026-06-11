@@ -342,5 +342,55 @@
   "visitorCheckInSuccess": "Tamu berhasil check-in",
   "visitorNameLabel": "Nama Tamu",
   "visitorCompanyLabel": "Perusahaan",
-  "visitorIdLabel": "Nomor Identitas"
+  "visitorIdLabel": "Nomor Identitas",
+  "homeFeedTitle": "AKTIVITAS HARI INI",
+  "homeFeedBooking": "Booking {time} · {title} ({room})",
+  "@homeFeedBooking": {
+    "placeholders": {
+      "time": { "type": "String" },
+      "title": { "type": "String" },
+      "room": { "type": "String" }
+    }
+  },
+  "homeFeedVisitorsActive": "{count} tamu aktif hari ini",
+  "@homeFeedVisitorsActive": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "homeFeedVisitorSingle": "Tamu: {name} · {purpose}",
+  "@homeFeedVisitorSingle": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "purpose": { "type": "String" }
+    }
+  },
+  "homeFeedApproval": "{requester}: {summary}",
+  "@homeFeedApproval": {
+    "placeholders": {
+      "requester": { "type": "String" },
+      "summary": { "type": "String" }
+    }
+  },
+  "homeFeedLeavePending": "Cuti menunggu: {detail}",
+  "@homeFeedLeavePending": {
+    "placeholders": { "detail": { "type": "String" } }
+  },
+  "homeFeedBookingApprove": "Setujui booking: {title} ({employee})",
+  "@homeFeedBookingApprove": {
+    "placeholders": {
+      "title": { "type": "String" },
+      "employee": { "type": "String" }
+    }
+  },
+  "resourcesTabApproval": "Persetujuan",
+  "emptyResourceApprovals": "Tidak ada booking menunggu persetujuan",
+  "resourcesApproveSuccess": "Booking berhasil disetujui",
+  "visitorTabMine": "Tamu Saya",
+  "visitorTabAll": "Semua Tamu",
+  "documentUploadTitle": "Unggah Dokumen",
+  "documentUploadNameLabel": "Nama Dokumen",
+  "documentUploadFolderLabel": "Folder",
+  "documentUploadSelectFile": "Pilih File",
+  "documentUploadIncomplete": "Nama dokumen wajib diisi",
+  "documentUploadSuccess": "Dokumen berhasil diunggah",
+  "documentUploadFailed": "Gagal mengunggah file"
 }

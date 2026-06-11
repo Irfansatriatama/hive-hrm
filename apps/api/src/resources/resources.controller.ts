@@ -56,6 +56,14 @@ export class ResourcesController {
     return role === 'SUPER_ADMIN' || role === 'HR_ADMIN';
   }
 
+  private canApproveBooking(role: string) {
+    return role === 'SUPER_ADMIN' || role === 'HR_ADMIN' || role === 'MANAGER';
+  }
+
+  private canViewAllBookings(role: string) {
+    return this.canApproveBooking(role);
+  }
+
   @Get()
   async findResources(@Req() req: express.Request, @Query('all') all?: string) {
     const user = await this.getSessionUser(req);
@@ -95,7 +103,7 @@ export class ResourcesController {
     const user = await this.getSessionUser(req);
     const role = (user as any).role;
 
-    if (this.isAdmin(role)) {
+    if (this.canViewAllBookings(role)) {
       return this.service.findBookings();
     }
 
@@ -132,7 +140,7 @@ export class ResourcesController {
   async approveBooking(@Req() req: express.Request, @Param('id') id: string) {
     const user = await this.getSessionUser(req);
     const role = (user as any).role;
-    if (!this.isAdmin(role)) {
+    if (!this.canApproveBooking(role)) {
       throw new UnauthorizedException('Access denied');
     }
     return this.service.approveBooking(id, user.id);
@@ -146,7 +154,7 @@ export class ResourcesController {
   ) {
     const user = await this.getSessionUser(req);
     const role = (user as any).role;
-    if (!this.isAdmin(role)) {
+    if (!this.canApproveBooking(role)) {
       throw new UnauthorizedException('Access denied');
     }
     return this.service.rejectBooking(id, user.id, body.reason);

@@ -11,6 +11,7 @@ import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/hive_card.dart';
 import '../../../shared/widgets/loading_skeleton.dart';
 import '../providers/documents_provider.dart';
+import 'document_upload_sheet.dart';
 
 class DocumentsScreen extends ConsumerStatefulWidget {
   const DocumentsScreen({super.key});
@@ -37,6 +38,17 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
       backgroundColor: AppColors.primaryNavy,
       appBar: AppBar(
         title: Text(context.l10n.documentsTitle, style: AppTextStyle.h1),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.upload_file_rounded),
+            onPressed: state.valueOrNull == null
+                ? null
+                : () => showDocumentUploadSheet(
+                      context,
+                      folders: state.value!.folders,
+                    ),
+          ),
+        ],
       ),
       body: RefreshIndicator(
         color: AppColors.amberAccent,

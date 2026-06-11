@@ -72,6 +72,7 @@ class ApiEndpoints {
   // Documents & Assets & Visitors (core)
   static const String documents = '/core/documents';
   static const String documentFolders = '/core/documents/folders';
+  static const String documentUpload = '/core/documents/upload';
   static const String assets = '/core/assets';
   static const String assetRequests = '/core/assets/requests';
   static const String assetRequestsList = '/core/assets/requests/list';

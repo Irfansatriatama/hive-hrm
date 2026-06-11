@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/auth/user_role_provider.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_style.dart';
@@ -14,8 +15,28 @@ import '../../profile/providers/profile_provider.dart';
 import '../providers/visitor_provider.dart';
 import 'visitor_checkin_sheet.dart';
 
-class VisitorScreen extends ConsumerWidget {
+class VisitorScreen extends ConsumerStatefulWidget {
   const VisitorScreen({super.key});
+
+  @override
+  ConsumerState<VisitorScreen> createState() => _VisitorScreenState();
+}
+
+class _VisitorScreenState extends ConsumerState<VisitorScreen>
+    with SingleTickerProviderStateMixin {
+  TabController? _tabController;
+
+  @override
+  void dispose() {
+    _tabController?.dispose();
+    super.dispose();
+  }
+
+  void _ensureTabController(int length) {
+    if (_tabController?.length == length) return;
+    _tabController?.dispose();
+    _tabController = TabController(length: length, vsync: this);
+  }
 
   bool _isToday(DateTime date) {
     final now = DateTime.now();
@@ -25,14 +46,29 @@ class VisitorScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final visitorState = ref.watch(visitorProvider);
     final profileId = ref.watch(profileProvider).valueOrNull?.id;
+    final canViewAll = ref.watch(canViewAllVisitorsProvider);
+    final tabCount = canViewAll ? 2 : 1;
+    _ensureTabController(tabCount);
 
     return Scaffold(
       backgroundColor: AppColors.primaryNavy,
       appBar: AppBar(
         title: Text(context.l10n.visitorTitle, style: AppTextStyle.h1),
+        bottom: canViewAll
+            ? TabBar(
+                controller: _tabController,
+                indicatorColor: AppColors.amberAccent,
+                labelColor: AppColors.amberAccent,
+                unselectedLabelColor: AppColors.textSubtle,
+                tabs: [
+                  Tab(text: context.l10n.visitorTabMine),
+                  Tab(text: context.l10n.visitorTabAll),
+                ],
+              )
+            : null,
         actions: [
           IconButton(
             icon: const Icon(Icons.person_add_rounded),
@@ -62,11 +98,30 @@ class VisitorScreen extends ConsumerWidget {
                 ),
               ),
             ),
-          AsyncData(:final value) => _VisitorListBody(
-              visitors: value,
-              profileId: profileId,
-              isToday: _isToday,
-            ),
+          AsyncData(:final value) => canViewAll
+              ? TabBarView(
+                  controller: _tabController,
+                  children: [
+                    _VisitorListBody(
+                      visitors: value,
+                      profileId: profileId,
+                      isToday: _isToday,
+                      mineOnly: true,
+                    ),
+                    _VisitorListBody(
+                      visitors: value,
+                      profileId: profileId,
+                      isToday: _isToday,
+                      mineOnly: false,
+                    ),
+                  ],
+                )
+              : _VisitorListBody(
+                  visitors: value,
+                  profileId: profileId,
+                  isToday: _isToday,
+                  mineOnly: true,
+                ),
           _ => const SizedBox.shrink(),
         },
       ),
@@ -78,20 +133,23 @@ class _VisitorListBody extends StatelessWidget {
   final List<VisitorModel> visitors;
   final String? profileId;
   final bool Function(DateTime date) isToday;
+  final bool mineOnly;
 
   const _VisitorListBody({
     required this.visitors,
     required this.profileId,
     required this.isToday,
+    required this.mineOnly,
   });
 
   @override
   Widget build(BuildContext context) {
-    final myVisitors = profileId == null
-        ? visitors
-        : visitors.where((v) => v.hostEmployeeId == profileId).toList();
+    final filtered = mineOnly && profileId != null
+        ? visitors.where((v) => v.hostEmployeeId == profileId).toList()
+        : visitors;
+
     final todayActive =
-        myVisitors.where((v) => v.isActive && isToday(v.checkIn)).toList();
+        filtered.where((v) => v.isActive && isToday(v.checkIn)).toList();
 
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
@@ -107,7 +165,7 @@ class _VisitorListBody extends StatelessWidget {
         ],
         Text(context.l10n.visitorHistory, style: AppTextStyle.overline),
         const SizedBox(height: AppTheme.sm),
-        if (myVisitors.isEmpty)
+        if (filtered.isEmpty)
           SizedBox(
             height: MediaQuery.sizeOf(context).height * 0.35,
             child: EmptyView(
@@ -120,7 +178,7 @@ class _VisitorListBody extends StatelessWidget {
             ),
           )
         else
-          ...myVisitors.map(
+          ...filtered.map(
             (visitor) => Padding(
               padding: const EdgeInsets.only(bottom: AppTheme.sm),
               child: _VisitorTile(visitor: visitor),

@@ -288,6 +288,8 @@ class BookableResourceModel {
 class ResourceBookingModel {
   final String id;
   final String resourceId;
+  final String? employeeId;
+  final String? employeeName;
   final String title;
   final String? purpose;
   final DateTime startTime;
@@ -298,6 +300,8 @@ class ResourceBookingModel {
   const ResourceBookingModel({
     required this.id,
     required this.resourceId,
+    this.employeeId,
+    this.employeeName,
     required this.title,
     this.purpose,
     required this.startTime,
@@ -307,9 +311,12 @@ class ResourceBookingModel {
   });
 
   factory ResourceBookingModel.fromJson(Map<String, dynamic> json) {
+    final employee = json['employee'] as Map<String, dynamic>?;
     return ResourceBookingModel(
       id: json['id'] as String,
       resourceId: json['resourceId'] as String,
+      employeeId: json['employeeId'] as String? ?? employee?['id'] as String?,
+      employeeName: employee?['fullName'] as String?,
       title: json['title'] as String,
       purpose: json['purpose'] as String?,
       startTime: DateTime.parse(json['startTime'] as String),
@@ -321,6 +328,13 @@ class ResourceBookingModel {
             )
           : null,
     );
+  }
+
+  bool isTodayOrUpcoming() {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final end = DateTime(endTime.year, endTime.month, endTime.day);
+    return !end.isBefore(today);
   }
 }
 
@@ -510,5 +524,12 @@ class VisitorModel {
   }
 
   bool get isActive => status == 'checked_in';
+
+  bool isToday() {
+    final now = DateTime.now();
+    return checkIn.year == now.year &&
+        checkIn.month == now.month &&
+        checkIn.day == now.day;
+  }
 }
 
