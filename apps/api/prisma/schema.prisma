@@ -72,17 +72,19 @@ model Department {
   employees      Employee[]
   positions      Position[]
   purchaseOrders PurchaseOrder[]
+  jobPostings    JobPosting[]
 }
 
 model Position {
-  id           String     @id @default(cuid())
+  id           String       @id @default(cuid())
   name         String
   grade        String
   salaryMin    Int
   salaryMax    Int
   departmentId String?
-  department   Department? @relation(fields: [departmentId], references: [id])
+  department   Department?  @relation(fields: [departmentId], references: [id])
   employees    Employee[]
+  jobPostings  JobPosting[]
 }
 
 model Employee {
@@ -527,6 +529,59 @@ model ApplicationFormField {
   sortOrder Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model JobPosting {
+  id             String           @id @default(cuid())
+  title          String
+  departmentId   String?
+  department     Department?      @relation(fields: [departmentId], references: [id])
+  positionId     String?
+  position       Position?        @relation(fields: [positionId], references: [id])
+  description    String
+  requirements   String?
+  benefits       String?
+  employmentType String           @default("full_time")
+  location       String?
+  salaryMin      Int?
+  salaryMax      Int?
+  status         String           @default("draft")
+  deadline       DateTime?
+  openings       Int              @default(1)
+  applications   JobApplication[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+}
+
+model JobApplication {
+  id             String                    @id @default(cuid())
+  jobId          String
+  job            JobPosting                @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  applicantName  String
+  email          String
+  phone          String?
+  resumeUrl      String?
+  coverLetter    String?
+  source         String?
+  currentStage   String                    @default("applied")
+  rating         Int?
+  notes          String?
+  rejectedAt     DateTime?
+  rejectedReason String?
+  hiredAt        DateTime?
+  stageHistory   ApplicationStageHistory[]
+  createdAt      DateTime                  @default(now())
+  updatedAt      DateTime                  @updatedAt
+}
+
+model ApplicationStageHistory {
+  id            String         @id @default(cuid())
+  applicationId String
+  application   JobApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  stage         String
+  notes         String?
+  movedBy       String?
+  movedAt       DateTime       @default(now())
 }
 
 // === REWARDS & GAMIFICATION ===

@@ -80,6 +80,10 @@ const translations = {
     licenses_expiring: "Hampir Kadaluarsa",
     licenses_types: "Tipe Lisensi",
     licenses_my: "Lisensi Saya",
+    hiring: "Rekrutmen",
+    hiring_jobs: "Lowongan",
+    hiring_pipeline: "Pipeline Kanban",
+    hiring_applications: "Pelamar",
 
     // Sidebar sections
     sidebar_main: "Utama",
@@ -222,6 +226,10 @@ const translations = {
     licenses_expiring: "Expiring Soon",
     licenses_types: "License Types",
     licenses_my: "My Licenses",
+    hiring: "Hiring",
+    hiring_jobs: "Job Postings",
+    hiring_pipeline: "Kanban Pipeline",
+    hiring_applications: "Applicants",
 
     // Sidebar sections
     sidebar_main: "Main",

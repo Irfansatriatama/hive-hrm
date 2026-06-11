@@ -119,4 +119,76 @@ export class HiringController {
     await this.assertHRAdmin(req);
     return this.service.updateFormFields(body.fields || []);
   }
+
+  @Get('jobs')
+  async findAllJobs(@Req() req: express.Request) {
+    await this.getSessionUser(req);
+    return this.service.findAllJobs();
+  }
+
+  @Post('jobs')
+  async createJob(@Req() req: express.Request, @Body() body: any) {
+    await this.assertHRAdmin(req);
+    return this.service.createJob(body);
+  }
+
+  @Put('jobs/:id')
+  async updateJob(@Req() req: express.Request, @Param('id') id: string, @Body() body: any) {
+    await this.assertHRAdmin(req);
+    return this.service.updateJob(id, body);
+  }
+
+  @Post('jobs/:id/open')
+  async openJob(@Req() req: express.Request, @Param('id') id: string) {
+    await this.assertHRAdmin(req);
+    return this.service.openJob(id);
+  }
+
+  @Post('jobs/:id/close')
+  async closeJob(@Req() req: express.Request, @Param('id') id: string) {
+    await this.assertHRAdmin(req);
+    return this.service.closeJob(id);
+  }
+
+  @Get('jobs/:id/applications')
+  async findApplicationsByJob(@Req() req: express.Request, @Param('id') id: string) {
+    await this.assertHRAdmin(req);
+    return this.service.findApplicationsByJob(id);
+  }
+
+  @Get('applications/:id')
+  async findApplicationById(@Req() req: express.Request, @Param('id') id: string) {
+    await this.assertHRAdmin(req);
+    return this.service.findApplicationById(id);
+  }
+
+  @Post('jobs/:id/applications')
+  async createApplication(@Req() req: express.Request, @Param('id') id: string, @Body() body: any) {
+    await this.assertHRAdmin(req);
+    return this.service.createApplication(id, body);
+  }
+
+  @Put('applications/:id/stage')
+  async moveApplicationStage(@Req() req: express.Request, @Param('id') id: string, @Body() body: any) {
+    const user = await this.assertHRAdmin(req);
+    return this.service.moveApplicationStage(id, body.stage, body.notes, user.id);
+  }
+
+  @Put('applications/:id')
+  async updateApplication(@Req() req: express.Request, @Param('id') id: string, @Body() body: any) {
+    await this.assertHRAdmin(req);
+    return this.service.updateApplication(id, body);
+  }
+
+  @Post('applications/:id/hire')
+  async hireApplication(@Req() req: express.Request, @Param('id') id: string) {
+    const user = await this.assertHRAdmin(req);
+    return this.service.hireApplication(id, user.id);
+  }
+
+  @Post('applications/:id/reject')
+  async rejectApplication(@Req() req: express.Request, @Param('id') id: string, @Body() body: any) {
+    const user = await this.assertHRAdmin(req);
+    return this.service.rejectApplication(id, body.reason || body.rejectedReason || '', user.id);
+  }
 }

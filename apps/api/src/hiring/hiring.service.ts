@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 const DEFAULT_STAGES = [
@@ -188,5 +188,216 @@ export class HiringService {
       });
     }
     return this.getFormFields();
+  }
+
+  async findAllJobs() {
+    return this.prisma.jobPosting.findMany({
+      include: {
+        department: true,
+        position: true,
+        _count: { select: { applications: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async createJob(data: any) {
+    return this.prisma.jobPosting.create({
+      data: {
+        title: data.title?.trim(),
+        departmentId: data.departmentId || null,
+        positionId: data.positionId || null,
+        description: data.description?.trim(),
+        requirements: data.requirements?.trim() || null,
+        benefits: data.benefits?.trim() || null,
+        employmentType: data.employmentType || 'full_time',
+        location: data.location?.trim() || null,
+        salaryMin: data.salaryMin != null ? parseInt(String(data.salaryMin)) : null,
+        salaryMax: data.salaryMax != null ? parseInt(String(data.salaryMax)) : null,
+        status: data.status || 'draft',
+        deadline: data.deadline ? new Date(data.deadline) : null,
+        openings: parseInt(String(data.openings)) || 1,
+      },
+      include: { department: true, position: true, _count: { select: { applications: true } } },
+    });
+  }
+
+  async updateJob(id: string, data: any) {
+    const existing = await this.prisma.jobPosting.findUnique({ where: { id } });
+    if (!existing) throw new NotFoundException('Lowongan tidak ditemukan');
+
+    return this.prisma.jobPosting.update({
+      where: { id },
+      data: {
+        title: data.title?.trim() ?? existing.title,
+        departmentId: data.departmentId !== undefined ? (data.departmentId || null) : existing.departmentId,
+        positionId: data.positionId !== undefined ? (data.positionId || null) : existing.positionId,
+        description: data.description?.trim() ?? existing.description,
+        requirements: data.requirements !== undefined ? (data.requirements?.trim() || null) : existing.requirements,
+        benefits: data.benefits !== undefined ? (data.benefits?.trim() || null) : existing.benefits,
+        employmentType: data.employmentType ?? existing.employmentType,
+        location: data.location !== undefined ? (data.location?.trim() || null) : existing.location,
+        salaryMin: data.salaryMin !== undefined ? (data.salaryMin != null ? parseInt(String(data.salaryMin)) : null) : existing.salaryMin,
+        salaryMax: data.salaryMax !== undefined ? (data.salaryMax != null ? parseInt(String(data.salaryMax)) : null) : existing.salaryMax,
+        deadline: data.deadline !== undefined ? (data.deadline ? new Date(data.deadline) : null) : existing.deadline,
+        openings: data.openings !== undefined ? (parseInt(String(data.openings)) || 1) : existing.openings,
+      },
+      include: { department: true, position: true, _count: { select: { applications: true } } },
+    });
+  }
+
+  async openJob(id: string) {
+    const existing = await this.prisma.jobPosting.findUnique({ where: { id } });
+    if (!existing) throw new NotFoundException('Lowongan tidak ditemukan');
+    return this.prisma.jobPosting.update({
+      where: { id },
+      data: { status: 'open' },
+      include: { department: true, position: true, _count: { select: { applications: true } } },
+    });
+  }
+
+  async closeJob(id: string) {
+    const existing = await this.prisma.jobPosting.findUnique({ where: { id } });
+    if (!existing) throw new NotFoundException('Lowongan tidak ditemukan');
+    return this.prisma.jobPosting.update({
+      where: { id },
+      data: { status: 'closed' },
+      include: { department: true, position: true, _count: { select: { applications: true } } },
+    });
+  }
+
+  async findApplicationsByJob(jobId: string) {
+    const job = await this.prisma.jobPosting.findUnique({ where: { id: jobId } });
+    if (!job) throw new NotFoundException('Lowongan tidak ditemukan');
+
+    return this.prisma.jobApplication.findMany({
+      where: { jobId },
+      include: {
+        stageHistory: { orderBy: { movedAt: 'desc' } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async findApplicationById(id: string) {
+    const app = await this.prisma.jobApplication.findUnique({
+      where: { id },
+      include: {
+        job: { include: { department: true, position: true } },
+        stageHistory: { orderBy: { movedAt: 'desc' } },
+      },
+    });
+    if (!app) throw new NotFoundException('Pelamar tidak ditemukan');
+    return app;
+  }
+
+  async createApplication(jobId: string, data: any) {
+    const job = await this.prisma.jobPosting.findUnique({ where: { id: jobId } });
+    if (!job) throw new NotFoundException('Lowongan tidak ditemukan');
+
+    return this.prisma.jobApplication.create({
+      data: {
+        jobId,
+        applicantName: data.applicantName?.trim(),
+        email: data.email?.trim(),
+        phone: data.phone?.trim() || null,
+        resumeUrl: data.resumeUrl?.trim() || null,
+        coverLetter: data.coverLetter?.trim() || null,
+        source: data.source?.trim() || null,
+        currentStage: 'applied',
+        stageHistory: {
+          create: { stage: 'applied', notes: 'Lamaran masuk' },
+        },
+      },
+      include: {
+        stageHistory: { orderBy: { movedAt: 'desc' } },
+      },
+    });
+  }
+
+  async moveApplicationStage(id: string, stage: string, notes?: string, movedBy?: string) {
+    const app = await this.prisma.jobApplication.findUnique({ where: { id } });
+    if (!app) throw new NotFoundException('Pelamar tidak ditemukan');
+    if (app.hiredAt || app.rejectedAt) {
+      throw new BadRequestException('Pelamar sudah di-hire atau ditolak');
+    }
+
+    return this.prisma.jobApplication.update({
+      where: { id },
+      data: {
+        currentStage: stage,
+        stageHistory: {
+          create: { stage, notes: notes?.trim() || null, movedBy: movedBy || null },
+        },
+      },
+      include: {
+        job: { include: { department: true, position: true } },
+        stageHistory: { orderBy: { movedAt: 'desc' } },
+      },
+    });
+  }
+
+  async updateApplication(id: string, data: { rating?: number; notes?: string }) {
+    const app = await this.prisma.jobApplication.findUnique({ where: { id } });
+    if (!app) throw new NotFoundException('Pelamar tidak ditemukan');
+
+    return this.prisma.jobApplication.update({
+      where: { id },
+      data: {
+        rating: data.rating !== undefined ? (data.rating != null ? parseInt(String(data.rating)) : null) : app.rating,
+        notes: data.notes !== undefined ? (data.notes?.trim() || null) : app.notes,
+      },
+      include: {
+        job: { include: { department: true, position: true } },
+        stageHistory: { orderBy: { movedAt: 'desc' } },
+      },
+    });
+  }
+
+  async hireApplication(id: string, movedBy?: string) {
+    const app = await this.prisma.jobApplication.findUnique({ where: { id } });
+    if (!app) throw new NotFoundException('Pelamar tidak ditemukan');
+    if (app.hiredAt) throw new BadRequestException('Pelamar sudah di-hire');
+
+    return this.prisma.jobApplication.update({
+      where: { id },
+      data: {
+        hiredAt: new Date(),
+        currentStage: 'hired',
+        stageHistory: {
+          create: { stage: 'hired', notes: 'Kandidat diterima', movedBy: movedBy || null },
+        },
+      },
+      include: {
+        job: { include: { department: true, position: true } },
+        stageHistory: { orderBy: { movedAt: 'desc' } },
+      },
+    });
+  }
+
+  async rejectApplication(id: string, reason: string, movedBy?: string) {
+    const app = await this.prisma.jobApplication.findUnique({ where: { id } });
+    if (!app) throw new NotFoundException('Pelamar tidak ditemukan');
+    if (app.rejectedAt) throw new BadRequestException('Pelamar sudah ditolak');
+
+    return this.prisma.jobApplication.update({
+      where: { id },
+      data: {
+        rejectedAt: new Date(),
+        rejectedReason: reason?.trim() || null,
+        currentStage: 'rejected',
+        stageHistory: {
+          create: {
+            stage: 'rejected',
+            notes: reason?.trim() || 'Ditolak',
+            movedBy: movedBy || null,
+          },
+        },
+      },
+      include: {
+        job: { include: { department: true, position: true } },
+        stageHistory: { orderBy: { movedAt: 'desc' } },
+      },
+    });
   }
 }
