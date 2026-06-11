@@ -249,5 +249,47 @@
   "expenseSubmit": "Ajukan Klaim",
   "expenseSubmitSuccess": "Klaim reimbursement berhasil diajukan",
   "expenseStatusPaid": "Dibayar",
-  "emptyExpense": "Belum ada klaim reimbursement"
+  "emptyExpense": "Belum ada klaim reimbursement",
+  "onboardingTitle": "Onboarding",
+  "onboardingInProgress": "Berlangsung",
+  "onboardingStartDate": "Mulai",
+  "onboardingProgress": "Progress",
+  "onboardingProgressCount": "{done}/{total} task · {percent}%",
+  "@onboardingProgressCount": {
+    "placeholders": {
+      "done": { "type": "int" },
+      "total": { "type": "int" },
+      "percent": { "type": "int" }
+    }
+  },
+  "onboardingTasks": "CHECKLIST TUGAS",
+  "onboardingMarkDone": "Selesai",
+  "onboardingTaskDone": "Task ditandai selesai",
+  "emptyOnboarding": "Tidak ada proses onboarding aktif",
+  "leaveCalendarTitle": "Kalender Cuti",
+  "leaveCalendarAllDepts": "Semua Departemen",
+  "leaveCalendarDayDetail": "Cuti {date} ({count} orang)",
+  "@leaveCalendarDayDetail": {
+    "placeholders": {
+      "date": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "shiftTitle": "Jadwal Shift",
+  "shiftTabSchedule": "Jadwal Saya",
+  "shiftTabSwaps": "Tukar Shift",
+  "shiftMySchedule": "JADWAL MINGGU INI",
+  "shiftNoAssignment": "Tidak ada shift",
+  "shiftToday": "Hari Ini",
+  "shiftRequestSwap": "Ajukan Tukar Shift",
+  "shiftSwapTitle": "Ajukan Tukar Shift",
+  "shiftSwapPartner": "Rekan Shift",
+  "shiftSwapDate": "Tanggal",
+  "shiftSwapDetails": "Detail shift",
+  "shiftSwapIncomplete": "Lengkapi rekan dan tanggal",
+  "shiftSwapDetailsRequired": "Detail shift wajib diisi",
+  "shiftSwapSuccess": "Permintaan tukar shift berhasil diajukan",
+  "emptyShiftSwaps": "Belum ada permintaan tukar shift",
+  "orgChartTitle": "Struktur Organisasi",
+  "emptyOrgChart": "Data struktur organisasi tidak tersedia"
 }

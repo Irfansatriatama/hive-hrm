@@ -249,5 +249,47 @@
   "expenseSubmit": "Submit Claim",
   "expenseSubmitSuccess": "Reimbursement claim submitted successfully",
   "expenseStatusPaid": "Paid",
-  "emptyExpense": "No reimbursement claims yet"
+  "emptyExpense": "No reimbursement claims yet",
+  "onboardingTitle": "Onboarding",
+  "onboardingInProgress": "In Progress",
+  "onboardingStartDate": "Started",
+  "onboardingProgress": "Progress",
+  "onboardingProgressCount": "{done}/{total} tasks · {percent}%",
+  "@onboardingProgressCount": {
+    "placeholders": {
+      "done": { "type": "int" },
+      "total": { "type": "int" },
+      "percent": { "type": "int" }
+    }
+  },
+  "onboardingTasks": "TASK CHECKLIST",
+  "onboardingMarkDone": "Done",
+  "onboardingTaskDone": "Task marked as done",
+  "emptyOnboarding": "No active onboarding process",
+  "leaveCalendarTitle": "Leave Calendar",
+  "leaveCalendarAllDepts": "All Departments",
+  "leaveCalendarDayDetail": "Leave on {date} ({count} people)",
+  "@leaveCalendarDayDetail": {
+    "placeholders": {
+      "date": { "type": "String" },
+      "count": { "type": "int" }
+    }
+  },
+  "shiftTitle": "Shift Schedule",
+  "shiftTabSchedule": "My Schedule",
+  "shiftTabSwaps": "Shift Swaps",
+  "shiftMySchedule": "THIS WEEK",
+  "shiftNoAssignment": "No shift assigned",
+  "shiftToday": "Today",
+  "shiftRequestSwap": "Request Shift Swap",
+  "shiftSwapTitle": "Request Shift Swap",
+  "shiftSwapPartner": "Shift Partner",
+  "shiftSwapDate": "Date",
+  "shiftSwapDetails": "Shift details",
+  "shiftSwapIncomplete": "Complete partner and date fields",
+  "shiftSwapDetailsRequired": "Shift details are required",
+  "shiftSwapSuccess": "Shift swap request submitted",
+  "emptyShiftSwaps": "No shift swap requests yet",
+  "orgChartTitle": "Organization Chart",
+  "emptyOrgChart": "Organization chart data unavailable"
 }

@@ -54,4 +54,14 @@ class ApiEndpoints {
 
   // Employees
   static const String employees = '/employees';
+  static const String orgChart = '/employees/org-chart';
+  static const String departments = '/employees/departments';
+
+  // Onboarding
+  static const String onboardingMy = '/onboarding/my';
+
+  // Shift
+  static const String shiftTypes = '/shift/types';
+  static const String shiftSchedules = '/shift/schedules';
+  static const String shiftSwaps = '/shift/swaps';
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_style.dart';
@@ -26,6 +27,11 @@ class LeaveScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(context.l10n.leaveTitle, style: AppTextStyle.h1),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.calendar_month_rounded),
+            tooltip: context.l10n.leaveCalendarTitle,
+            onPressed: () => context.go('/leave/calendar'),
+          ),
           Padding(
             padding: const EdgeInsets.only(right: AppTheme.sm),
             child: ElevatedButton(
