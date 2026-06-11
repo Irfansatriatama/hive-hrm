@@ -21,6 +21,7 @@ export const MODULE_PERMISSIONS: Record<string, UserRole[]> = {
   procurement: ['SUPER_ADMIN', 'HR_ADMIN', 'MANAGER', 'FINANCE'],
   payroll: ['SUPER_ADMIN', 'HR_ADMIN', 'FINANCE'],
   onboarding: ['SUPER_ADMIN', 'HR_ADMIN', 'MANAGER', 'EMPLOYEE'],
+  expense: ['SUPER_ADMIN', 'HR_ADMIN', 'MANAGER', 'EMPLOYEE', 'FINANCE'],
   modules:     ['SUPER_ADMIN'],
 };
 
@@ -53,6 +54,7 @@ export const DEFAULT_SYSTEM_MODULES = [
   { key: 'billing', name: 'Billing / Subscription Tiers', description: 'Manage payment credentials cards and upgrade storage limits.', icon: 'credit-card', isCore: false, sortOrder: 18 },
   { key: 'payroll', name: 'Payroll & Penggajian', description: 'Pengelolaan periode gaji, slip gaji karyawan, dan komponen tunjangan.', icon: 'banknote', isCore: false, sortOrder: 19 },
   { key: 'onboarding', name: 'Employee Onboarding', description: 'Template task onboarding dan tracking progress karyawan baru.', icon: 'clipboard-check', isCore: false, sortOrder: 20 },
+  { key: 'expense', name: 'Expense & Klaim', description: 'Pengajuan klaim pengeluaran, approval, dan reimbursement karyawan.', icon: 'receipt', isCore: false, sortOrder: 21 },
 ] as const;
 
 export function getModuleKeyFromPath(pathname: string): string {

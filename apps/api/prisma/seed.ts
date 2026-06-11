@@ -51,6 +51,9 @@ async function main() {
   await prisma.onboardingAssignment.deleteMany();
   await prisma.onboardingTemplateTask.deleteMany();
   await prisma.onboardingTemplate.deleteMany();
+  await prisma.expenseClaimItem.deleteMany();
+  await prisma.expenseClaim.deleteMany();
+  await prisma.expenseCategory.deleteMany();
   await prisma.employee.deleteMany();
   await prisma.position.deleteMany();
   await prisma.department.deleteMany();
@@ -213,6 +216,19 @@ async function main() {
       { name: 'Tunjangan Makan', type: 'earning', category: 'allowance', isDefault: true, isFixed: true, taxable: false, sortOrder: 2 },
       { name: 'BPJS Ketenagakerjaan', type: 'deduction', category: 'bpjs', isDefault: true, isFixed: false, taxable: false, sortOrder: 10 },
       { name: 'BPJS Kesehatan', type: 'deduction', category: 'bpjs', isDefault: true, isFixed: false, taxable: false, sortOrder: 11 },
+    ],
+    skipDuplicates: true,
+  });
+
+  console.log('Seeding expense categories...');
+  await prisma.expenseCategory.createMany({
+    data: [
+      { name: 'Transportasi', code: 'TRANS', requireReceipt: true },
+      { name: 'Akomodasi', code: 'HOTEL', requireReceipt: true },
+      { name: 'Makan & Entertain', code: 'MEAL', requireReceipt: false, maxAmount: 500000 },
+      { name: 'Perlengkapan Kantor', code: 'OFFICE', requireReceipt: true },
+      { name: 'Komunikasi', code: 'COMM', requireReceipt: false },
+      { name: 'Lain-lain', code: 'OTHER', requireReceipt: false },
     ],
     skipDuplicates: true,
   });

@@ -60,6 +60,13 @@ const translations = {
     onboarding_templates: "Template Onboarding",
     onboarding_tasks: "Daftar Tugas",
     onboarding_my: "Onboarding Saya",
+    expense: "Klaim Pengeluaran",
+    expense_claims: "Daftar Klaim",
+    expense_categories: "Kategori Pengeluaran",
+    expense_my: "Klaim Saya",
+    expense_submit: "Ajukan Klaim",
+    expense_approve: "Setujui",
+    expense_reject: "Tolak",
 
     // Sidebar sections
     sidebar_main: "Utama",
@@ -182,6 +189,13 @@ const translations = {
     onboarding_templates: "Templates",
     onboarding_tasks: "Task List",
     onboarding_my: "My Onboarding",
+    expense: "Expense Claims",
+    expense_claims: "Claim List",
+    expense_categories: "Expense Categories",
+    expense_my: "My Claims",
+    expense_submit: "Submit Claim",
+    expense_approve: "Approve",
+    expense_reject: "Reject",
 
     // Sidebar sections
     sidebar_main: "Main",

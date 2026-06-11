@@ -49,6 +49,13 @@ const settingsTiles = [
     color: 'emerald',
   },
   {
+    href: '/settings/expense',
+    icon: Lucide.Receipt,
+    title: 'Kategori Pengeluaran',
+    desc: 'Kelola kategori klaim pengeluaran, batas maksimum, dan aturan bukti struk.',
+    color: 'rose',
+  },
+  {
     href: '/settings/others',
     icon: Lucide.SlidersHorizontal,
     title: 'Preferensi Umum & Sesi',
@@ -65,6 +72,7 @@ const colorMap: Record<string, { bg: string; hover: string }> = {
   cyan: { bg: 'bg-cyan-50 text-cyan-600 border-cyan-100', hover: 'hover:border-cyan-200' },
   indigo: { bg: 'bg-indigo-50 text-indigo-600 border-indigo-100', hover: 'hover:border-indigo-200' },
   emerald: { bg: 'bg-emerald-50 text-emerald-600 border-emerald-100', hover: 'hover:border-emerald-200' },
+  rose: { bg: 'bg-rose-50 text-rose-600 border-rose-100', hover: 'hover:border-rose-200' },
 };
 
 export default function SettingsPage() {
