@@ -94,7 +94,7 @@ class Dashboard extends _$Dashboard {
       if (item is! Map<String, dynamic>) continue;
       final type = item['type'] as String?;
       final points = item['points'];
-      final createdAtRaw = item['createdAt'] ?? item['created_at'];
+      final createdAtRaw = item['date'] ?? item['createdAt'] ?? item['created_at'];
       if (type != 'received' || points is! num || createdAtRaw == null) {
         continue;
       }

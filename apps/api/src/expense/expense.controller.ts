@@ -7,8 +7,15 @@ import {
   Body,
   Param,
   Req,
+  UploadedFile,
+  UseInterceptors,
   UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { existsSync, mkdirSync } from 'fs';
+import { extname, join } from 'path';
 import * as express from 'express';
 import { ExpenseService } from './expense.service';
 import { PrismaService } from '../prisma/prisma.service';
@@ -203,6 +210,44 @@ export class ExpenseController {
       throw new UnauthorizedException('Employee profile not found');
     }
     return this.service.submitClaim(id, emp.id);
+  }
+
+  @Post('receipt-upload')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: (_req, _file, cb) => {
+          const dir = join(process.cwd(), 'uploads', 'receipts');
+          if (!existsSync(dir)) {
+            mkdirSync(dir, { recursive: true });
+          }
+          cb(null, dir);
+        },
+        filename: (_req, file, cb) => {
+          const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}${extname(file.originalname) || '.jpg'}`;
+          cb(null, unique);
+        },
+      }),
+      limits: { fileSize: 5 * 1024 * 1024 },
+      fileFilter: (_req, file, cb) => {
+        if (!file.mimetype.match(/\/(jpg|jpeg|png|webp)$/)) {
+          cb(new BadRequestException('Only image files are allowed') as unknown as Error, false);
+          return;
+        }
+        cb(null, true);
+      },
+    }),
+  )
+  async uploadReceipt(
+    @Req() req: express.Request,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    await this.getSessionUser(req);
+    if (!file) {
+      throw new BadRequestException('No file uploaded');
+    }
+    const baseUrl = process.env.API_PUBLIC_URL || `http://localhost:${process.env.PORT || 4000}`;
+    return { url: `${baseUrl}/uploads/receipts/${file.filename}` };
   }
 
   @Post('claims/:id/approve')

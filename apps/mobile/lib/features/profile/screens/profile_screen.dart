@@ -194,6 +194,12 @@ class _ProfileContent extends StatelessWidget {
           ],
           const SizedBox(height: AppTheme.sm),
           _ProfileActionTile(
+            label: context.l10n.expenseTitle,
+            icon: Icons.receipt_rounded,
+            onTap: () => context.go('/expense'),
+          ),
+          const SizedBox(height: AppTheme.sm),
+          _ProfileActionTile(
             label: context.l10n.logout,
             icon: Icons.logout_rounded,
             color: AppColors.errorRed,

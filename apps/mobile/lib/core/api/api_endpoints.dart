@@ -41,4 +41,17 @@ class ApiEndpoints {
   // Reward
   static const String rewardBalance = '/reward/balance';
   static const String rewardTransactions = '/reward/transactions';
+  static const String rewardCatalog = '/reward/catalog';
+  static const String rewardHashtags = '/reward/hashtags';
+  static const String rewardFeed = '/reward/feed';
+  static const String rewardAppreciation = '/reward/appreciation';
+  static const String rewardRedeem = '/reward/redeem';
+
+  // Expense
+  static const String expenseCategories = '/expense/categories';
+  static const String expenseClaims = '/expense/claims';
+  static const String expenseReceiptUpload = '/expense/receipt-upload';
+
+  // Employees
+  static const String employees = '/employees';
 }

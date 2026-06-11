@@ -8,6 +8,8 @@ import '../../features/attendance/screens/attendance_screen.dart';
 import '../../features/auth/screens/login_screen.dart';
 import '../../features/dashboard/screens/dashboard_screen.dart';
 import '../../features/leave/screens/leave_screen.dart';
+import '../../features/expense/screens/expense_screen.dart';
+import '../../features/reward/screens/reward_screen.dart';
 import '../../features/payslip/screens/payslip_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
 import '../../shared/widgets/bottom_nav.dart';
@@ -101,6 +103,20 @@ GoRouter appRouter(AppRouterRef ref) {
             pageBuilder: (context, state) => _fadeTransitionPage(
               state: state,
               child: const ApprovalScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/reward',
+            pageBuilder: (context, state) => _fadeTransitionPage(
+              state: state,
+              child: const RewardScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/expense',
+            pageBuilder: (context, state) => _fadeTransitionPage(
+              state: state,
+              child: const ExpenseScreen(),
             ),
           ),
           GoRoute(

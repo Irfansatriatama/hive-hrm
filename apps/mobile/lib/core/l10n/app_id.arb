@@ -195,5 +195,59 @@
   "approvalTypeProfileUpdate": "Update Data",
   "profileApprovals": "Persetujuan Pengajuan",
   "approve": "Setujui",
-  "reject": "Tolak"
+  "reject": "Tolak",
+  "rewardTitle": "Reward",
+  "rewardTabCatalog": "Katalog",
+  "rewardTabAppreciation": "Apresiasi",
+  "rewardTabActivity": "Aktivitas",
+  "rewardMyPoints": "Poin Saya",
+  "rewardPointsCount": "{count} Poin",
+  "@rewardPointsCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "rewardStockCount": "Stok: {count}",
+  "@rewardStockCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "rewardRedeem": "Tukar",
+  "rewardRedeemConfirm": "Tukar {name} dengan {points} poin?",
+  "@rewardRedeemConfirm": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "points": { "type": "int" }
+    }
+  },
+  "rewardRedeemSuccess": "Permohonan penukaran dikirim. Menunggu persetujuan HR.",
+  "rewardSendAppreciation": "Kirim Apresiasi",
+  "rewardRecipientLabel": "Rekan",
+  "rewardHashtagLabel": "Hashtag",
+  "rewardPointsLabel": "Poin",
+  "rewardAppreciationIncomplete": "Lengkapi semua field apresiasi",
+  "rewardAppreciationSuccess": "Apresiasi berhasil dikirim",
+  "rewardCompanyFeed": "AKTIVITAS PERUSAHAAN",
+  "rewardMyHistory": "RIWAYAT SAYA",
+  "emptyRewardCatalog": "Belum ada item katalog",
+  "emptyRewardFeed": "Belum ada aktivitas",
+  "emptyRewardHistory": "Belum ada riwayat poin",
+  "expenseTitle": "Reimbursement",
+  "expenseCreate": "+ Ajukan",
+  "expenseCreateTitle": "Ajukan Reimbursement",
+  "expenseTitleLabel": "Judul Klaim",
+  "expenseTitleRequired": "Judul wajib diisi",
+  "expenseDescriptionLabel": "Deskripsi",
+  "expenseItemSection": "Detail Item",
+  "expenseCategoryLabel": "Kategori",
+  "expenseItemDescriptionLabel": "Keterangan",
+  "expenseItemDescriptionRequired": "Keterangan wajib diisi",
+  "expenseAmountLabel": "Nominal (IDR)",
+  "expenseAmountRequired": "Nominal tidak valid",
+  "expenseDateLabel": "Tanggal Transaksi",
+  "expenseAttachReceipt": "Lampirkan Foto Struk",
+  "expenseReceiptAttached": "Struk terlampir",
+  "expenseReceiptRequired": "Bukti struk wajib untuk kategori ini",
+  "expenseNotesLabel": "Catatan",
+  "expenseSubmit": "Ajukan Klaim",
+  "expenseSubmitSuccess": "Klaim reimbursement berhasil diajukan",
+  "expenseStatusPaid": "Dibayar",
+  "emptyExpense": "Belum ada klaim reimbursement"
 }

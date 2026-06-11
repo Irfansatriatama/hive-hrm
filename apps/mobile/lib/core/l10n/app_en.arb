@@ -195,5 +195,59 @@
   "approvalTypeProfileUpdate": "Profile Update",
   "profileApprovals": "Pending Approvals",
   "approve": "Approve",
-  "reject": "Reject"
+  "reject": "Reject",
+  "rewardTitle": "Rewards",
+  "rewardTabCatalog": "Catalog",
+  "rewardTabAppreciation": "Appreciation",
+  "rewardTabActivity": "Activity",
+  "rewardMyPoints": "My Points",
+  "rewardPointsCount": "{count} Pts",
+  "@rewardPointsCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "rewardStockCount": "Stock: {count}",
+  "@rewardStockCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "rewardRedeem": "Redeem",
+  "rewardRedeemConfirm": "Redeem {name} for {points} points?",
+  "@rewardRedeemConfirm": {
+    "placeholders": {
+      "name": { "type": "String" },
+      "points": { "type": "int" }
+    }
+  },
+  "rewardRedeemSuccess": "Redemption request submitted. Awaiting HR approval.",
+  "rewardSendAppreciation": "Send Appreciation",
+  "rewardRecipientLabel": "Colleague",
+  "rewardHashtagLabel": "Hashtag",
+  "rewardPointsLabel": "Points",
+  "rewardAppreciationIncomplete": "Please complete all appreciation fields",
+  "rewardAppreciationSuccess": "Appreciation sent successfully",
+  "rewardCompanyFeed": "COMPANY FEED",
+  "rewardMyHistory": "MY HISTORY",
+  "emptyRewardCatalog": "No catalog items yet",
+  "emptyRewardFeed": "No activity yet",
+  "emptyRewardHistory": "No point history yet",
+  "expenseTitle": "Reimbursement",
+  "expenseCreate": "+ Claim",
+  "expenseCreateTitle": "Submit Reimbursement",
+  "expenseTitleLabel": "Claim Title",
+  "expenseTitleRequired": "Title is required",
+  "expenseDescriptionLabel": "Description",
+  "expenseItemSection": "Item Details",
+  "expenseCategoryLabel": "Category",
+  "expenseItemDescriptionLabel": "Description",
+  "expenseItemDescriptionRequired": "Description is required",
+  "expenseAmountLabel": "Amount (IDR)",
+  "expenseAmountRequired": "Invalid amount",
+  "expenseDateLabel": "Transaction Date",
+  "expenseAttachReceipt": "Attach Receipt Photo",
+  "expenseReceiptAttached": "Receipt attached",
+  "expenseReceiptRequired": "Receipt is required for this category",
+  "expenseNotesLabel": "Notes",
+  "expenseSubmit": "Submit Claim",
+  "expenseSubmitSuccess": "Reimbursement claim submitted successfully",
+  "expenseStatusPaid": "Paid",
+  "emptyExpense": "No reimbursement claims yet"
 }
