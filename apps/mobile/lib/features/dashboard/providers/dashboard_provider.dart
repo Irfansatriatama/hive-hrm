@@ -49,7 +49,7 @@ class Dashboard extends _$Dashboard {
 
     final announcements = (responses[3].data as List<dynamic>)
         .map((e) => AnnouncementModel.fromJson(e as Map<String, dynamic>))
-        .take(3)
+        .take(5)
         .toList();
 
     final rewardPoints = _parseRewardBalance(responses[4].data);

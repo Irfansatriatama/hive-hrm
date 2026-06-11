@@ -6,7 +6,8 @@ import '../../features/announcement/screens/announcement_screen.dart';
 import '../../features/approval/screens/approval_screen.dart';
 import '../../features/attendance/screens/attendance_screen.dart';
 import '../../features/auth/screens/login_screen.dart';
-import '../../features/dashboard/screens/dashboard_screen.dart';
+import '../../features/home/screens/home_screen.dart';
+import '../../features/home/screens/more_screen.dart';
 import '../../features/leave/screens/leave_calendar_screen.dart';
 import '../../features/leave/screens/leave_screen.dart';
 import '../../features/expense/screens/expense_screen.dart';
@@ -16,7 +17,11 @@ import '../../features/onboarding/screens/onboarding_screen.dart';
 import '../../features/org_chart/screens/org_chart_screen.dart';
 import '../../features/shift/screens/shift_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
-import '../../shared/widgets/bottom_nav.dart';
+import '../../features/resources/screens/resources_screen.dart';
+import '../../features/documents/screens/documents_screen.dart';
+import '../../features/assets/screens/assets_screen.dart';
+import '../../features/visitor/screens/visitor_screen.dart';
+import '../../shared/widgets/app_shell.dart';
 
 part 'app_router.g.dart';
 
@@ -53,14 +58,16 @@ GoRouter appRouter(AppRouterRef ref) {
   final authState = ref.watch(authProvider);
 
   return GoRouter(
-    initialLocation: '/dashboard',
+    initialLocation: '/home',
     redirect: (context, state) {
       final token = authState.valueOrNull;
       final isLoggedIn = token != null;
       final isLoginRoute = state.matchedLocation == '/login';
+      final location = state.matchedLocation;
 
       if (!isLoggedIn && !isLoginRoute) return '/login';
-      if (isLoggedIn && isLoginRoute) return '/dashboard';
+      if (isLoggedIn && isLoginRoute) return '/home';
+      if (isLoggedIn && location == '/dashboard') return '/home';
       return null;
     },
     routes: [
@@ -72,13 +79,24 @@ GoRouter appRouter(AppRouterRef ref) {
         ),
       ),
       ShellRoute(
-        builder: (context, state, child) => HiveBottomNavShell(child: child),
+        builder: (context, state, child) => HiveAppShell(child: child),
         routes: [
           GoRoute(
-            path: '/dashboard',
+            path: '/home',
             pageBuilder: (context, state) => _fadeTransitionPage(
               state: state,
-              child: const DashboardScreen(),
+              child: const HomeScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/dashboard',
+            redirect: (_, __) => '/home',
+          ),
+          GoRoute(
+            path: '/more',
+            pageBuilder: (context, state) => _fadeTransitionPage(
+              state: state,
+              child: const MoreScreen(),
             ),
           ),
           GoRoute(
@@ -156,6 +174,34 @@ GoRouter appRouter(AppRouterRef ref) {
             pageBuilder: (context, state) => _fadeTransitionPage(
               state: state,
               child: const OrgChartScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/resources',
+            pageBuilder: (context, state) => _fadeTransitionPage(
+              state: state,
+              child: const ResourcesScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/documents',
+            pageBuilder: (context, state) => _fadeTransitionPage(
+              state: state,
+              child: const DocumentsScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/assets',
+            pageBuilder: (context, state) => _fadeTransitionPage(
+              state: state,
+              child: const AssetsScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/visitor',
+            pageBuilder: (context, state) => _fadeTransitionPage(
+              state: state,
+              child: const VisitorScreen(),
             ),
           ),
           GoRoute(

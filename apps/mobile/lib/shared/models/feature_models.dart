@@ -255,3 +255,260 @@ class OrgChartData {
     required this.departments,
   });
 }
+
+class BookableResourceModel {
+  final String id;
+  final String name;
+  final String code;
+  final String type;
+  final String? location;
+  final int? capacity;
+
+  const BookableResourceModel({
+    required this.id,
+    required this.name,
+    required this.code,
+    required this.type,
+    this.location,
+    this.capacity,
+  });
+
+  factory BookableResourceModel.fromJson(Map<String, dynamic> json) {
+    return BookableResourceModel(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      code: json['code'] as String? ?? '',
+      type: json['type'] as String? ?? 'room',
+      location: json['location'] as String?,
+      capacity: (json['capacity'] as num?)?.toInt(),
+    );
+  }
+}
+
+class ResourceBookingModel {
+  final String id;
+  final String resourceId;
+  final String title;
+  final String? purpose;
+  final DateTime startTime;
+  final DateTime endTime;
+  final String status;
+  final BookableResourceModel? resource;
+
+  const ResourceBookingModel({
+    required this.id,
+    required this.resourceId,
+    required this.title,
+    this.purpose,
+    required this.startTime,
+    required this.endTime,
+    required this.status,
+    this.resource,
+  });
+
+  factory ResourceBookingModel.fromJson(Map<String, dynamic> json) {
+    return ResourceBookingModel(
+      id: json['id'] as String,
+      resourceId: json['resourceId'] as String,
+      title: json['title'] as String,
+      purpose: json['purpose'] as String?,
+      startTime: DateTime.parse(json['startTime'] as String),
+      endTime: DateTime.parse(json['endTime'] as String),
+      status: json['status'] as String? ?? 'pending',
+      resource: json['resource'] != null
+          ? BookableResourceModel.fromJson(
+              json['resource'] as Map<String, dynamic>,
+            )
+          : null,
+    );
+  }
+}
+
+class ResourcesData {
+  final List<BookableResourceModel> resources;
+  final List<ResourceBookingModel> bookings;
+
+  const ResourcesData({
+    required this.resources,
+    required this.bookings,
+  });
+}
+
+class DocumentFolderModel {
+  final String id;
+  final String name;
+
+  const DocumentFolderModel({required this.id, required this.name});
+
+  factory DocumentFolderModel.fromJson(Map<String, dynamic> json) {
+    return DocumentFolderModel(
+      id: json['id'] as String,
+      name: json['name'] as String,
+    );
+  }
+}
+
+class DocumentModel {
+  final String id;
+  final String name;
+  final String category;
+  final String fileType;
+  final String? fileUrl;
+  final String? size;
+  final DateTime createdAt;
+
+  const DocumentModel({
+    required this.id,
+    required this.name,
+    required this.category,
+    required this.fileType,
+    this.fileUrl,
+    this.size,
+    required this.createdAt,
+  });
+
+  factory DocumentModel.fromJson(Map<String, dynamic> json) {
+    return DocumentModel(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      category: (json['category'] ?? json['folder'] ?? '') as String,
+      fileType: (json['fileType'] ?? json['type'] ?? 'PDF') as String,
+      fileUrl: json['fileUrl'] as String?,
+      size: json['size'] as String?,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+    );
+  }
+}
+
+class DocumentsData {
+  final List<DocumentModel> documents;
+  final List<DocumentFolderModel> folders;
+
+  const DocumentsData({
+    required this.documents,
+    required this.folders,
+  });
+}
+
+class AssetModel {
+  final String id;
+  final String assetCode;
+  final String name;
+  final String category;
+  final String condition;
+  final String status;
+  final String? location;
+  final DateTime? assignedDate;
+
+  const AssetModel({
+    required this.id,
+    required this.assetCode,
+    required this.name,
+    required this.category,
+    required this.condition,
+    required this.status,
+    this.location,
+    this.assignedDate,
+  });
+
+  factory AssetModel.fromJson(Map<String, dynamic> json) {
+    return AssetModel(
+      id: json['id'] as String,
+      assetCode: json['assetCode'] as String? ?? '',
+      name: json['name'] as String,
+      category: json['category'] as String? ?? '',
+      condition: json['condition'] as String? ?? '',
+      status: json['status'] as String? ?? '',
+      location: json['location'] as String?,
+      assignedDate: json['assignedDate'] != null
+          ? DateTime.tryParse(json['assignedDate'] as String)
+          : null,
+    );
+  }
+}
+
+class AssetRequestModel {
+  final String id;
+  final String requestCode;
+  final String assetName;
+  final String reason;
+  final int duration;
+  final String status;
+  final DateTime dateRequested;
+
+  const AssetRequestModel({
+    required this.id,
+    required this.requestCode,
+    required this.assetName,
+    required this.reason,
+    required this.duration,
+    required this.status,
+    required this.dateRequested,
+  });
+
+  factory AssetRequestModel.fromJson(Map<String, dynamic> json) {
+    return AssetRequestModel(
+      id: json['id'] as String,
+      requestCode: json['requestCode'] as String? ?? '',
+      assetName: json['assetName'] as String,
+      reason: json['reason'] as String,
+      duration: (json['duration'] as num?)?.toInt() ?? 0,
+      status: json['status'] as String? ?? 'pending',
+      dateRequested: DateTime.parse(json['dateRequested'] as String),
+    );
+  }
+}
+
+class AssetsData {
+  final List<AssetModel> assets;
+  final List<AssetRequestModel> requests;
+
+  const AssetsData({required this.assets, required this.requests});
+}
+
+class VisitorModel {
+  final String id;
+  final String? badgeNumber;
+  final String visitorName;
+  final String? company;
+  final String purpose;
+  final String? hostName;
+  final String? hostEmployeeId;
+  final DateTime checkIn;
+  final DateTime? checkOut;
+  final String status;
+
+  const VisitorModel({
+    required this.id,
+    this.badgeNumber,
+    required this.visitorName,
+    this.company,
+    required this.purpose,
+    this.hostName,
+    this.hostEmployeeId,
+    required this.checkIn,
+    this.checkOut,
+    required this.status,
+  });
+
+  factory VisitorModel.fromJson(Map<String, dynamic> json) {
+    return VisitorModel(
+      id: json['id'] as String,
+      badgeNumber: json['badgeNumber'] as String? ?? json['badge_number'] as String?,
+      visitorName: (json['visitorName'] ?? json['visitor_name'] ?? '') as String,
+      company: json['company'] as String?,
+      purpose: json['purpose'] as String? ?? '',
+      hostName: json['hostName'] as String? ?? json['host_name'] as String?,
+      hostEmployeeId: json['hostEmployeeId'] as String? ??
+          json['host_employee_id'] as String?,
+      checkIn: DateTime.parse(json['checkIn'] as String),
+      checkOut: json['checkOut'] != null
+          ? DateTime.tryParse(json['checkOut'] as String)
+          : null,
+      status: json['status'] as String? ?? 'checked_in',
+    );
+  }
+
+  bool get isActive => status == 'checked_in';
+}
+

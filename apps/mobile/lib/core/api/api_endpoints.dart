@@ -64,4 +64,16 @@ class ApiEndpoints {
   static const String shiftTypes = '/shift/types';
   static const String shiftSchedules = '/shift/schedules';
   static const String shiftSwaps = '/shift/swaps';
+
+  // Resources
+  static const String resources = '/resources';
+  static const String resourceBookings = '/resources/bookings';
+
+  // Documents & Assets & Visitors (core)
+  static const String documents = '/core/documents';
+  static const String documentFolders = '/core/documents/folders';
+  static const String assets = '/core/assets';
+  static const String assetRequests = '/core/assets/requests';
+  static const String assetRequestsList = '/core/assets/requests/list';
+  static const String visitors = '/core/visitors';
 }

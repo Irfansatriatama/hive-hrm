@@ -194,30 +194,6 @@ class _ProfileContent extends StatelessWidget {
           ],
           const SizedBox(height: AppTheme.sm),
           _ProfileActionTile(
-            label: context.l10n.onboardingTitle,
-            icon: Icons.checklist_rounded,
-            onTap: () => context.go('/onboarding'),
-          ),
-          const SizedBox(height: AppTheme.sm),
-          _ProfileActionTile(
-            label: context.l10n.shiftTitle,
-            icon: Icons.schedule_rounded,
-            onTap: () => context.go('/shift'),
-          ),
-          const SizedBox(height: AppTheme.sm),
-          _ProfileActionTile(
-            label: context.l10n.orgChartTitle,
-            icon: Icons.account_tree_rounded,
-            onTap: () => context.go('/org-chart'),
-          ),
-          const SizedBox(height: AppTheme.sm),
-          _ProfileActionTile(
-            label: context.l10n.expenseTitle,
-            icon: Icons.receipt_rounded,
-            onTap: () => context.go('/expense'),
-          ),
-          const SizedBox(height: AppTheme.sm),
-          _ProfileActionTile(
             label: context.l10n.logout,
             icon: Icons.logout_rounded,
             color: AppColors.errorRed,

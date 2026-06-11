@@ -1,26 +1,25 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'app_router.dart';
+part of 'documents_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$appRouterHash() => r'6286ac51774abef57140313f9e04a024bf4e96e5';
+String _$documentsHash() => r'0bc005bc35a7a0f892b7f917b7a740c407f99dab';
 
-/// See also [appRouter].
-@ProviderFor(appRouter)
-final appRouterProvider = Provider<GoRouter>.internal(
-  appRouter,
-  name: r'appRouterProvider',
+/// See also [Documents].
+@ProviderFor(Documents)
+final documentsProvider =
+    AutoDisposeAsyncNotifierProvider<Documents, DocumentsData>.internal(
+  Documents.new,
+  name: r'documentsProvider',
   debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$appRouterHash,
+      const bool.fromEnvironment('dart.vm.product') ? null : _$documentsHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef AppRouterRef = ProviderRef<GoRouter>;
+typedef _$Documents = AutoDisposeAsyncNotifier<DocumentsData>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
