@@ -11,6 +11,7 @@ import '../../../shared/widgets/section_label.dart';
 import '../models/attendance_data.dart';
 import '../providers/attendance_provider.dart';
 import '../widgets/attendance_history_list.dart';
+import '../widgets/attendance_location_row.dart';
 import '../widgets/clock_in_out_button.dart';
 import '../widgets/time_summary_cards.dart';
 import '../widgets/week_dots_view.dart';
@@ -81,6 +82,10 @@ class AttendanceScreen extends ConsumerWidget {
                   const SizedBox(height: AppTheme.sm + AppTheme.xs),
                   const SizedBox(height: AppTheme.md),
                   TimeSummaryCards(today: value.today),
+                  if (value.today?.displayLocation != null) ...[
+                    const SizedBox(height: AppTheme.sm),
+                    AttendanceLocationRow(record: value.today!),
+                  ],
                   const SizedBox(height: AppTheme.md),
                   SectionLabel(context.l10n.thisWeek),
                   WeekDotsView(weekDays: value.weekDays),

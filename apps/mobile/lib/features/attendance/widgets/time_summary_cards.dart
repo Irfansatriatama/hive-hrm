@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_style.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/models/attendance_model.dart';
+import '../../../shared/utils/datetime_formatter.dart';
 import '../../../shared/widgets/hive_card.dart';
 
 class TimeSummaryCards extends StatelessWidget {
@@ -12,10 +12,7 @@ class TimeSummaryCards extends StatelessWidget {
 
   const TimeSummaryCards({super.key, required this.today});
 
-  String _formatTime(DateTime? time) {
-    if (time == null) return '—';
-    return DateFormat('HH:mm').format(time);
-  }
+  String _formatTime(DateTime? time) => DateTimeFormatter.formatTime(time);
 
   String _formatDuration(BuildContext context, AttendanceModel? attendance) {
     if (attendance?.checkIn == null) return '—';

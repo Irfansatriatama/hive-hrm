@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_text_style.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/models/attendance_model.dart';
+import '../../../shared/utils/datetime_formatter.dart';
 import '../../../shared/widgets/hive_card.dart';
 import '../../../shared/widgets/status_badge.dart';
 
@@ -48,11 +48,10 @@ class TodayStatusCard extends StatelessWidget {
 
   String _timeSubtitle() {
     if (attendance?.checkIn == null) return '—';
-    final timeFormat = DateFormat('HH:mm');
     if (attendance!.checkOut != null) {
-      return '${timeFormat.format(attendance!.checkIn!)} – ${timeFormat.format(attendance!.checkOut!)}';
+      return '${DateTimeFormatter.formatTime(attendance!.checkIn)} – ${DateTimeFormatter.formatTime(attendance!.checkOut)}';
     }
-    return timeFormat.format(attendance!.checkIn!);
+    return DateTimeFormatter.formatTime(attendance!.checkIn);
   }
 
   String _badgeLabel(BuildContext context) {

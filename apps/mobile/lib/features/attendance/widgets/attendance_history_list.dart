@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_style.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../shared/models/attendance_model.dart';
+import '../../../shared/utils/datetime_formatter.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/hive_card.dart';
 import '../../../shared/widgets/status_badge.dart';
+import 'attendance_location_row.dart';
 
 class AttendanceHistoryList extends StatelessWidget {
   final List<AttendanceModel> history;
@@ -40,14 +41,10 @@ class AttendanceHistoryTile extends StatelessWidget {
 
   const AttendanceHistoryTile({super.key, required this.record});
 
-  String _formatTime(DateTime? time) {
-    if (time == null) return '—';
-    return DateFormat('HH:mm').format(time);
-  }
+  String _formatTime(DateTime? time) => DateTimeFormatter.formatTime(time);
 
-  String _formatDate(DateTime date) {
-    return DateFormat('EEE, d MMM yyyy', 'id_ID').format(date);
-  }
+  String _formatDate(DateTime date) =>
+      DateTimeFormatter.formatDate(date, locale: 'id_ID');
 
   String _formatDuration(BuildContext context) {
     if (record.workHours != null && record.workHours! > 0) {
@@ -88,20 +85,9 @@ class AttendanceHistoryTile extends StatelessWidget {
     };
   }
 
-  String? _locationText() {
-    if (record.latitude != null && record.longitude != null) {
-      return '${record.latitude!.toStringAsFixed(5)}, ${record.longitude!.toStringAsFixed(5)}';
-    }
-    if (record.location != null && record.location!.isNotEmpty) {
-      return record.location;
-    }
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
     final recordDate = record.date ?? record.checkIn ?? DateTime.now();
-    final location = _locationText();
 
     return HiveCard(
       child: Column(
@@ -145,26 +131,9 @@ class AttendanceHistoryTile extends StatelessWidget {
               ),
             ],
           ),
-          if (location != null) ...[
+          if (record.displayLocation != null) ...[
             const SizedBox(height: AppTheme.sm),
-            Row(
-              children: [
-                Icon(
-                  Icons.location_on_outlined,
-                  size: AppTheme.md,
-                  color: AppColors.textSubtle,
-                ),
-                const SizedBox(width: AppTheme.xs),
-                Expanded(
-                  child: Text(
-                    location,
-                    style: AppTextStyle.caption,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
+            AttendanceLocationRow(record: record),
           ],
         ],
       ),

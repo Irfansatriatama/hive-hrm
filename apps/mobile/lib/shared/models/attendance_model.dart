@@ -37,5 +37,17 @@ class AttendanceModel {
     return AttendanceModel.fromJson(json);
   }
 
+  bool get hasGps => latitude != null && longitude != null;
+
+  String? get displayLocation {
+    if (hasGps) {
+      return '${latitude!.toStringAsFixed(5)}, ${longitude!.toStringAsFixed(5)}';
+    }
+    if (location != null && location!.isNotEmpty) {
+      return location;
+    }
+    return null;
+  }
+
   Map<String, dynamic> toJson() => _$AttendanceModelToJson(this);
 }
