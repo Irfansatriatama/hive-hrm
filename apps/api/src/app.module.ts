@@ -19,6 +19,7 @@ import { PayrollModule } from './payroll/payroll.module';
 import { OnboardingModule } from './onboarding/onboarding.module';
 import { ExpenseModule } from './expense/expense.module';
 import { ResourcesModule } from './resources/resources.module';
+import { PollsModule } from './polls/polls.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { ResourcesModule } from './resources/resources.module';
     OnboardingModule,
     ExpenseModule,
     ResourcesModule,
+    PollsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

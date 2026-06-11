@@ -133,6 +133,7 @@ model Employee {
   onboardingAssignments   OnboardingAssignment[]
   expenseClaims           ExpenseClaim[]
   resourceBookings        ResourceBooking[]
+  pollResponses           PollResponse[]
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 }
@@ -834,4 +835,44 @@ model ResourceBooking {
   notes          String?
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
+}
+
+model Poll {
+  id          String         @id @default(cuid())
+  title       String
+  description String?
+  type        String         @default("single") // single | multiple
+  target      String         @default("all")    // all | department:<id>
+  status      String         @default("draft")  // draft | active | closed
+  isAnonymous Boolean        @default(false)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdBy   String?
+  options     PollOption[]
+  responses   PollResponse[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model PollOption {
+  id        String         @id @default(cuid())
+  pollId    String
+  poll      Poll           @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  text      String
+  sortOrder Int            @default(0)
+  responses PollResponse[]
+  createdAt DateTime       @default(now())
+}
+
+model PollResponse {
+  id         String     @id @default(cuid())
+  pollId     String
+  poll       Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  optionId   String
+  option     PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  employeeId String?
+  employee   Employee?  @relation(fields: [employeeId], references: [id])
+  createdAt  DateTime   @default(now())
+
+  @@unique([pollId, optionId, employeeId])
 }

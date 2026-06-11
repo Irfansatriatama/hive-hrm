@@ -35,6 +35,7 @@ const IconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   'clipboard-check': Lucide.ClipboardCheck,
   'receipt': Lucide.Receipt,
   'calendar-range': Lucide.CalendarRange,
+  'bar-chart': Lucide.BarChart,
 };
 
 interface SubMenuItem {
@@ -144,6 +145,11 @@ const MENU_SECTIONS: MenuSection[] = [
         key: 'resources',
         path: '/resources',
         icon: 'calendar-range',
+      },
+      {
+        key: 'polls',
+        path: '/polls',
+        icon: 'bar-chart',
       },
     ],
   },

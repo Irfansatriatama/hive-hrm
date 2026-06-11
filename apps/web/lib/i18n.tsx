@@ -71,6 +71,11 @@ const translations = {
     resources_booking: "Kalender Booking",
     resources_calendar: "Kalender",
     resources_manage: "Sumber Daya",
+    polls: "Polling & Survei",
+    polls_active: "Polling Aktif",
+    polls_manage: "Kelola",
+    polls_vote: "Vote",
+    polls_results: "Hasil",
 
     // Sidebar sections
     sidebar_main: "Utama",
@@ -204,6 +209,11 @@ const translations = {
     resources_booking: "Booking Calendar",
     resources_calendar: "Calendar",
     resources_manage: "Resources",
+    polls: "Polling & Survey",
+    polls_active: "Active Polls",
+    polls_manage: "Manage",
+    polls_vote: "Vote",
+    polls_results: "Results",
 
     // Sidebar sections
     sidebar_main: "Main",

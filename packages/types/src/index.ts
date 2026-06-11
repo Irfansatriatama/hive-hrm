@@ -23,6 +23,7 @@ export const MODULE_PERMISSIONS: Record<string, UserRole[]> = {
   onboarding: ['SUPER_ADMIN', 'HR_ADMIN', 'MANAGER', 'EMPLOYEE'],
   expense: ['SUPER_ADMIN', 'HR_ADMIN', 'MANAGER', 'EMPLOYEE', 'FINANCE'],
   resources: ['SUPER_ADMIN', 'HR_ADMIN', 'MANAGER', 'EMPLOYEE'],
+  polls: ['SUPER_ADMIN', 'HR_ADMIN', 'MANAGER', 'EMPLOYEE'],
   modules:     ['SUPER_ADMIN'],
 };
 
@@ -57,6 +58,7 @@ export const DEFAULT_SYSTEM_MODULES = [
   { key: 'onboarding', name: 'Employee Onboarding', description: 'Template task onboarding dan tracking progress karyawan baru.', icon: 'clipboard-check', isCore: false, sortOrder: 20 },
   { key: 'expense', name: 'Expense & Klaim', description: 'Pengajuan klaim pengeluaran, approval, dan reimbursement karyawan.', icon: 'receipt', isCore: false, sortOrder: 21 },
   { key: 'resources', name: 'Pemesanan Sumber Daya', description: 'Booking ruang rapat, kendaraan, dan peralatan kantor.', icon: 'calendar-range', isCore: false, sortOrder: 22 },
+  { key: 'polls', name: 'Polling & Survei', description: 'Buat polling internal dan lihat hasil suara karyawan.', icon: 'bar-chart', isCore: false, sortOrder: 23 },
 ] as const;
 
 export function getModuleKeyFromPath(pathname: string): string {

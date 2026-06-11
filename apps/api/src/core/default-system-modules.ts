@@ -17,4 +17,9 @@ export const DEFAULT_SYSTEM_MODULES = [
   { key: 'procurement', name: 'Procurement Purchases PO', description: 'Purchase requests, order items lines, and vendor logs.', icon: 'shopping-cart', isCore: false, sortOrder: 16 },
   { key: 'reporting', name: 'Analytical Reports Center', description: 'Preview payroll summaries, asset stats, and export CSV files.', icon: 'bar-chart-2', isCore: false, sortOrder: 17 },
   { key: 'billing', name: 'Billing / Subscription Tiers', description: 'Manage payment credentials cards and upgrade storage limits.', icon: 'credit-card', isCore: false, sortOrder: 18 },
+  { key: 'payroll', name: 'Payroll & Penggajian', description: 'Pengelolaan periode gaji, slip gaji karyawan, dan komponen tunjangan.', icon: 'banknote', isCore: false, sortOrder: 19 },
+  { key: 'onboarding', name: 'Employee Onboarding', description: 'Template task onboarding dan tracking progress karyawan baru.', icon: 'clipboard-check', isCore: false, sortOrder: 20 },
+  { key: 'expense', name: 'Expense & Klaim', description: 'Pengajuan klaim pengeluaran, approval, dan reimbursement karyawan.', icon: 'receipt', isCore: false, sortOrder: 21 },
+  { key: 'resources', name: 'Pemesanan Sumber Daya', description: 'Booking ruang rapat, kendaraan, dan peralatan kantor.', icon: 'calendar-range', isCore: false, sortOrder: 22 },
+  { key: 'polls', name: 'Polling & Survei', description: 'Buat polling internal dan lihat hasil suara karyawan.', icon: 'bar-chart', isCore: false, sortOrder: 23 },
 ] as const;
