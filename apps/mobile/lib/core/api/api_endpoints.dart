@@ -31,4 +31,8 @@ class ApiEndpoints {
 
   // Payslip
   static const String myPayslips = '/payroll/my-payslips';
+
+  // Reward
+  static const String rewardBalance = '/reward/balance';
+  static const String rewardTransactions = '/reward/transactions';
 }

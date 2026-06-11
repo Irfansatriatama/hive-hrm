@@ -75,5 +75,49 @@
   "navAttendance": "Absensi",
   "navLeave": "Cuti",
   "navNotification": "Notif",
-  "navProfile": "Profil"
+  "navProfile": "Profil",
+  "statLeaveRemaining": "Cuti Sisa",
+  "statLeaveFromTotal": "dari {total} hari",
+  "@statLeaveFromTotal": {
+    "placeholders": {
+      "total": { "type": "int" }
+    }
+  },
+  "statAttendance": "Kehadiran",
+  "statAttendanceSub": "bulan ini",
+  "statPendingRequests": "Pengajuan",
+  "statPendingSub": "menunggu acc",
+  "statRewardPoints": "Poin Reward",
+  "statRewardToday": "+ {points} hari ini",
+  "@statRewardToday": {
+    "placeholders": {
+      "points": { "type": "int" }
+    }
+  },
+  "quickActionAttendance": "Absensi",
+  "quickActionApplyLeave": "Ajukan Cuti",
+  "quickActionPayslip": "Slip Gaji",
+  "notCheckedIn": "Belum absen",
+  "checkedOut": "Sudah pulang",
+  "durationLabel": "Durasi",
+  "viewAllAnnouncements": "Lihat Semua",
+  "minutesAgo": "{count} menit lalu",
+  "@minutesAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "hoursAgo": "{count} jam lalu",
+  "@hoursAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "yesterday": "Kemarin",
+  "daysAgo": "{count} hari lalu",
+  "@daysAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  }
 }

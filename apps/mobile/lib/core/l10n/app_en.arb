@@ -75,5 +75,49 @@
   "navAttendance": "Attendance",
   "navLeave": "Leave",
   "navNotification": "Notif",
-  "navProfile": "Profile"
+  "navProfile": "Profile",
+  "statLeaveRemaining": "Leave Left",
+  "statLeaveFromTotal": "of {total} days",
+  "@statLeaveFromTotal": {
+    "placeholders": {
+      "total": { "type": "int" }
+    }
+  },
+  "statAttendance": "Attendance",
+  "statAttendanceSub": "this month",
+  "statPendingRequests": "Requests",
+  "statPendingSub": "awaiting approval",
+  "statRewardPoints": "Reward Points",
+  "statRewardToday": "+ {points} today",
+  "@statRewardToday": {
+    "placeholders": {
+      "points": { "type": "int" }
+    }
+  },
+  "quickActionAttendance": "Attendance",
+  "quickActionApplyLeave": "Apply Leave",
+  "quickActionPayslip": "Payslip",
+  "notCheckedIn": "Not checked in",
+  "checkedOut": "Checked out",
+  "durationLabel": "Duration",
+  "viewAllAnnouncements": "View All",
+  "minutesAgo": "{count} min ago",
+  "@minutesAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "hoursAgo": "{count} hours ago",
+  "@hoursAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "yesterday": "Yesterday",
+  "daysAgo": "{count} days ago",
+  "@daysAgo": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  }
 }
