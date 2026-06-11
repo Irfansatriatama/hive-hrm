@@ -67,6 +67,10 @@ const translations = {
     expense_submit: "Ajukan Klaim",
     expense_approve: "Setujui",
     expense_reject: "Tolak",
+    resources: "Pemesanan Sumber Daya",
+    resources_booking: "Kalender Booking",
+    resources_calendar: "Kalender",
+    resources_manage: "Sumber Daya",
 
     // Sidebar sections
     sidebar_main: "Utama",
@@ -196,6 +200,10 @@ const translations = {
     expense_submit: "Submit Claim",
     expense_approve: "Approve",
     expense_reject: "Reject",
+    resources: "Resource Booking",
+    resources_booking: "Booking Calendar",
+    resources_calendar: "Calendar",
+    resources_manage: "Resources",
 
     // Sidebar sections
     sidebar_main: "Main",

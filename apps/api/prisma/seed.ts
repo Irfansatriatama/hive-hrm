@@ -54,6 +54,8 @@ async function main() {
   await prisma.expenseClaimItem.deleteMany();
   await prisma.expenseClaim.deleteMany();
   await prisma.expenseCategory.deleteMany();
+  await prisma.resourceBooking.deleteMany();
+  await prisma.bookableResource.deleteMany();
   await prisma.employee.deleteMany();
   await prisma.position.deleteMany();
   await prisma.department.deleteMany();
@@ -229,6 +231,17 @@ async function main() {
       { name: 'Perlengkapan Kantor', code: 'OFFICE', requireReceipt: true },
       { name: 'Komunikasi', code: 'COMM', requireReceipt: false },
       { name: 'Lain-lain', code: 'OTHER', requireReceipt: false },
+    ],
+    skipDuplicates: true,
+  });
+
+  console.log('Seeding bookable resources...');
+  await prisma.bookableResource.createMany({
+    data: [
+      { name: 'Ruang Rapat A', code: 'RR-A', type: 'room', location: 'Lantai 2', capacity: 10 },
+      { name: 'Ruang Rapat B', code: 'RR-B', type: 'room', location: 'Lantai 3', capacity: 20 },
+      { name: 'Mobil Operasional 1', code: 'MOB-01', type: 'vehicle' },
+      { name: 'Proyektor Portable', code: 'PROJ-01', type: 'equipment' },
     ],
     skipDuplicates: true,
   });

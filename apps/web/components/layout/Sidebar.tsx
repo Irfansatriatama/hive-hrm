@@ -34,6 +34,7 @@ const IconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   'banknote': Lucide.Banknote,
   'clipboard-check': Lucide.ClipboardCheck,
   'receipt': Lucide.Receipt,
+  'calendar-range': Lucide.CalendarRange,
 };
 
 interface SubMenuItem {
@@ -138,6 +139,11 @@ const MENU_SECTIONS: MenuSection[] = [
         key: 'expense',
         path: '/expense',
         icon: 'receipt',
+      },
+      {
+        key: 'resources',
+        path: '/resources',
+        icon: 'calendar-range',
       },
     ],
   },

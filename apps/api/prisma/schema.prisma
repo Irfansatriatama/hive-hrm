@@ -132,6 +132,7 @@ model Employee {
   payrollRecords          PayrollRecord[]
   onboardingAssignments   OnboardingAssignment[]
   expenseClaims           ExpenseClaim[]
+  resourceBookings        ResourceBooking[]
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 }
@@ -797,4 +798,40 @@ model ExpenseClaimItem {
   receiptUrl   String?
   notes        String?
   createdAt    DateTime         @default(now())
+}
+
+// === RESOURCE BOOKING ===
+model BookableResource {
+  id          String            @id @default(cuid())
+  name        String
+  code        String            @unique
+  type        String            // room | vehicle | equipment | other
+  description String?
+  location    String?
+  capacity    Int?
+  imageUrl    String?
+  isActive    Boolean           @default(true)
+  bookings    ResourceBooking[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+}
+
+model ResourceBooking {
+  id             String           @id @default(cuid())
+  resourceId     String
+  resource       BookableResource @relation(fields: [resourceId], references: [id])
+  employeeId     String
+  employee       Employee         @relation(fields: [employeeId], references: [id])
+  title          String
+  purpose        String?
+  startTime      DateTime
+  endTime        DateTime
+  attendees      Int?
+  status         String           @default("pending") // pending | approved | rejected | cancelled
+  approvedBy     String?
+  approvedAt     DateTime?
+  rejectedReason String?
+  notes          String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 }

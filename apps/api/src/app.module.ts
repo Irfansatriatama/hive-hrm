@@ -18,6 +18,7 @@ import { ReportingModule } from './reporting/reporting.module';
 import { PayrollModule } from './payroll/payroll.module';
 import { OnboardingModule } from './onboarding/onboarding.module';
 import { ExpenseModule } from './expense/expense.module';
+import { ResourcesModule } from './resources/resources.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { ExpenseModule } from './expense/expense.module';
     PayrollModule,
     OnboardingModule,
     ExpenseModule,
+    ResourcesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
