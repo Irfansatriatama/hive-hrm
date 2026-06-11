@@ -19,6 +19,7 @@ export const MODULE_PERMISSIONS: Record<string, UserRole[]> = {
   shift:       ['SUPER_ADMIN', 'HR_ADMIN', 'MANAGER', 'EMPLOYEE'],
   visitor:     ['SUPER_ADMIN', 'HR_ADMIN'],
   procurement: ['SUPER_ADMIN', 'HR_ADMIN', 'MANAGER', 'FINANCE'],
+  payroll: ['SUPER_ADMIN', 'HR_ADMIN', 'FINANCE'],
   modules:     ['SUPER_ADMIN'],
 };
 
@@ -49,6 +50,7 @@ export const DEFAULT_SYSTEM_MODULES = [
   { key: 'procurement', name: 'Procurement Purchases PO', description: 'Purchase requests, order items lines, and vendor logs.', icon: 'shopping-cart', isCore: false, sortOrder: 16 },
   { key: 'reporting', name: 'Analytical Reports Center', description: 'Preview payroll summaries, asset stats, and export CSV files.', icon: 'bar-chart-2', isCore: false, sortOrder: 17 },
   { key: 'billing', name: 'Billing / Subscription Tiers', description: 'Manage payment credentials cards and upgrade storage limits.', icon: 'credit-card', isCore: false, sortOrder: 18 },
+  { key: 'payroll', name: 'Payroll & Penggajian', description: 'Pengelolaan periode gaji, slip gaji karyawan, dan komponen tunjangan.', icon: 'banknote', isCore: false, sortOrder: 19 },
 ] as const;
 
 export function getModuleKeyFromPath(pathname: string): string {

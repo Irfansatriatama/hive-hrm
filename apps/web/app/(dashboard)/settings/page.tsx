@@ -42,6 +42,13 @@ const settingsTiles = [
     color: 'cyan',
   },
   {
+    href: '/settings/payroll',
+    icon: Lucide.Banknote,
+    title: 'Komponen Gaji',
+    desc: 'Kelola komponen tunjangan, potongan, dan aturan kalkulasi gaji karyawan.',
+    color: 'emerald',
+  },
+  {
     href: '/settings/others',
     icon: Lucide.SlidersHorizontal,
     title: 'Preferensi Umum & Sesi',
@@ -57,6 +64,7 @@ const colorMap: Record<string, { bg: string; hover: string }> = {
   amber: { bg: 'bg-amber-50 text-amber-600 border-amber-100', hover: 'hover:border-amber-200' },
   cyan: { bg: 'bg-cyan-50 text-cyan-600 border-cyan-100', hover: 'hover:border-cyan-200' },
   indigo: { bg: 'bg-indigo-50 text-indigo-600 border-indigo-100', hover: 'hover:border-indigo-200' },
+  emerald: { bg: 'bg-emerald-50 text-emerald-600 border-emerald-100', hover: 'hover:border-emerald-200' },
 };
 
 export default function SettingsPage() {

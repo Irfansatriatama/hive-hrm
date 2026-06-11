@@ -43,6 +43,10 @@ async function main() {
   await prisma.attendance.deleteMany();
   await prisma.shiftSwap.deleteMany();
   await prisma.employeeShiftSchedule.deleteMany();
+  await prisma.payrollItem.deleteMany();
+  await prisma.payrollRecord.deleteMany();
+  await prisma.payrollPeriod.deleteMany();
+  await prisma.payrollComponent.deleteMany();
   await prisma.employee.deleteMany();
   await prisma.position.deleteMany();
   await prisma.department.deleteMany();
@@ -178,6 +182,17 @@ async function main() {
       },
     });
   }
+
+  console.log('Seeding payroll components...');
+  await prisma.payrollComponent.createMany({
+    data: [
+      { name: 'Gaji Pokok', type: 'earning', category: 'basic', isDefault: true, isFixed: true, taxable: true, sortOrder: 1 },
+      { name: 'Tunjangan Makan', type: 'earning', category: 'allowance', isDefault: true, isFixed: true, taxable: false, sortOrder: 2 },
+      { name: 'BPJS Ketenagakerjaan', type: 'deduction', category: 'bpjs', isDefault: true, isFixed: false, taxable: false, sortOrder: 10 },
+      { name: 'BPJS Kesehatan', type: 'deduction', category: 'bpjs', isDefault: true, isFixed: false, taxable: false, sortOrder: 11 },
+    ],
+    skipDuplicates: true,
+  });
 
   console.log('Seeding superadmin account...');
   const superAdminUser = await prisma.user.create({

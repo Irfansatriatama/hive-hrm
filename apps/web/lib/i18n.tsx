@@ -49,6 +49,12 @@ const translations = {
     procurement: "Pengadaan PO",
     procurement_po: "Purchase Order",
     procurement_report: "Analisis PO",
+    payroll: "Penggajian",
+    payroll_periods: "Periode Gaji",
+    payroll_my_payslips: "Slip Gaji Saya",
+    payroll_components: "Komponen Gaji",
+    payroll_process: "Proses Gaji",
+    payroll_finalize: "Finalisasi",
 
     // Sidebar sections
     sidebar_main: "Utama",
@@ -160,6 +166,12 @@ const translations = {
     procurement: "Procurement",
     procurement_po: "Purchase Orders",
     procurement_report: "Purchase Analytics",
+    payroll: "Payroll",
+    payroll_periods: "Pay Periods",
+    payroll_my_payslips: "My Payslips",
+    payroll_components: "Salary Components",
+    payroll_process: "Process Payroll",
+    payroll_finalize: "Finalize",
 
     // Sidebar sections
     sidebar_main: "Main",

@@ -31,6 +31,7 @@ const IconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   'shield': Lucide.Shield,
   'layout-grid': Lucide.LayoutGrid,
   'settings': Lucide.Settings,
+  'banknote': Lucide.Banknote,
 };
 
 interface SubMenuItem {
@@ -111,6 +112,15 @@ const MENU_SECTIONS: MenuSection[] = [
           { key: 'reward_manage', path: '/reward/manage' },
           { key: 'reward_approval', path: '/reward/approval' },
           { key: 'reward_transactions', path: '/reward/transactions' },
+        ],
+      },
+      {
+        key: 'payroll',
+        path: '/payroll',
+        icon: 'banknote',
+        sub: [
+          { key: 'payroll_periods', path: '/payroll' },
+          { key: 'payroll_my_payslips', path: '/payroll/my-payslips' },
         ],
       },
     ],

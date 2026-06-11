@@ -129,6 +129,7 @@ model Employee {
   shiftSwapsRequested  ShiftSwap[]             @relation("ShiftSwapRequester")
   shiftSwapsPartner    ShiftSwap[]             @relation("ShiftSwapPartner")
   announcementReads    AnnouncementRead[]
+  payrollRecords       PayrollRecord[]
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 }
@@ -630,4 +631,64 @@ model CustomForm {
   status    String   @default("active")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// === PAYROLL ===
+model PayrollPeriod {
+  id        String          @id @default(cuid())
+  name      String
+  month     Int
+  year      Int
+  status    String          @default("draft") // draft | processing | finalized | paid
+  startDate DateTime
+  endDate   DateTime
+  payDate   DateTime?
+  notes     String?
+  records   PayrollRecord[]
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+}
+
+model PayrollComponent {
+  id        String   @id @default(cuid())
+  name      String
+  type      String   // earning | deduction | benefit
+  category  String   // basic | allowance | overtime | bpjs | tax | other
+  isDefault Boolean  @default(false)
+  isFixed   Boolean  @default(true)
+  taxable   Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PayrollRecord {
+  id          String        @id @default(cuid())
+  periodId    String
+  period      PayrollPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
+  employeeId  String
+  employee    Employee      @relation(fields: [employeeId], references: [id])
+  basicSalary Int           @default(0)
+  grossSalary Int           @default(0)
+  totalDeduct Int           @default(0)
+  netSalary   Int           @default(0)
+  status      String        @default("draft") // draft | approved | paid
+  notes       String?
+  items       PayrollItem[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@unique([periodId, employeeId])
+}
+
+model PayrollItem {
+  id        String        @id @default(cuid())
+  recordId  String
+  record    PayrollRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
+  name      String
+  type      String        // earning | deduction
+  category  String        // basic | allowance | overtime | bpjs | tax | other
+  amount    Int
+  notes     String?
+  createdAt DateTime      @default(now())
 }
