@@ -360,9 +360,20 @@ export default function AttendancePage() {
                       </td>
                       <td className="px-6 py-3.5">
                         {row.latitude != null && row.longitude != null ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100">
-                            GPS
-                          </span>
+                          <a
+                            href={`https://maps.google.com/?q=${row.latitude},${row.longitude}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex flex-col gap-0.5 group"
+                            title="Buka di Google Maps"
+                          >
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 w-fit">
+                              GPS
+                            </span>
+                            <span className="text-[10px] font-mono text-slate-500 group-hover:text-primary transition">
+                              {Number(row.latitude).toFixed(5)}, {Number(row.longitude).toFixed(5)}
+                            </span>
+                          </a>
                         ) : (
                           <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-50 text-slate-500 border border-slate-100">
                             Manual

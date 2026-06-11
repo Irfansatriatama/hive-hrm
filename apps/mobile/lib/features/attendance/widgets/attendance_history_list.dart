@@ -89,11 +89,11 @@ class AttendanceHistoryTile extends StatelessWidget {
   }
 
   String? _locationText() {
+    if (record.latitude != null && record.longitude != null) {
+      return '${record.latitude!.toStringAsFixed(5)}, ${record.longitude!.toStringAsFixed(5)}';
+    }
     if (record.location != null && record.location!.isNotEmpty) {
       return record.location;
-    }
-    if (record.latitude != null && record.longitude != null) {
-      return '${record.latitude!.toStringAsFixed(4)}, ${record.longitude!.toStringAsFixed(4)}';
     }
     return null;
   }

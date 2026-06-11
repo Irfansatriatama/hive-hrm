@@ -80,7 +80,11 @@ export class AttendanceService {
         checkIn: now,
         status,
         lateMinutes,
-        location: data.location || 'Head Office',
+        location:
+          data.location ||
+          (data.latitude != null && data.longitude != null
+            ? `${data.latitude}, ${data.longitude}`
+            : 'Head Office'),
         notes: data.notes || null,
         latitude: data.latitude ?? null,
         longitude: data.longitude ?? null,
