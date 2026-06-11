@@ -1,9 +1,13 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/widgets.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/api/api_client.dart';
 import '../../../core/api/api_endpoints.dart';
 import '../../../shared/models/attendance_model.dart';
 import '../models/attendance_data.dart';
+import '../services/selfie_upload_service.dart';
+import '../widgets/selfie_prompt_sheet.dart';
 
 part 'attendance_provider.g.dart';
 
@@ -13,6 +17,14 @@ class AttendanceSubmitting extends _$AttendanceSubmitting {
   bool build() => false;
 
   void setSubmitting(bool value) => state = value;
+}
+
+@riverpod
+class AttendanceLoadingGps extends _$AttendanceLoadingGps {
+  @override
+  bool build() => false;
+
+  void setLoading(bool value) => state = value;
 }
 
 @riverpod
@@ -41,10 +53,49 @@ class Attendance extends _$Attendance {
     return AttendanceData(today: today, history: history);
   }
 
-  Future<String?> checkIn() async {
+  Future<String?> checkIn(BuildContext context) async {
+    double? lat;
+    double? lng;
+
+    ref.read(attendanceLoadingGpsProvider.notifier).setLoading(true);
+    try {
+      final locationPermission = await Geolocator.requestPermission();
+      if (locationPermission == LocationPermission.whileInUse ||
+          locationPermission == LocationPermission.always) {
+        Position? position;
+        try {
+          position = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high,
+            timeLimit: const Duration(seconds: 10),
+          );
+        } catch (_) {
+          position = null;
+        }
+        lat = position?.latitude;
+        lng = position?.longitude;
+      }
+    } finally {
+      ref.read(attendanceLoadingGpsProvider.notifier).setLoading(false);
+    }
+
+    String? selfieUrl;
+    if (context.mounted) {
+      final photo = await showSelfiePromptSheet(context);
+      if (photo != null) {
+        selfieUrl = await SelfieUploadService.upload(photo);
+      }
+    }
+
     ref.read(attendanceSubmittingProvider.notifier).setSubmitting(true);
     try {
-      await ApiClient.instance.post(ApiEndpoints.checkIn, data: {});
+      await ApiClient.instance.post(
+        ApiEndpoints.checkIn,
+        data: {
+          if (lat != null) 'latitude': lat,
+          if (lng != null) 'longitude': lng,
+          if (selfieUrl != null) 'selfieUrl': selfieUrl,
+        },
+      );
       ref.invalidateSelf();
       await future;
       return null;

@@ -71,8 +71,7 @@ Map<String, dynamic> _$PositionModelToJson(PositionModel instance) =>
       'name': instance.name,
     };
 
-ManagerModel _$ManagerModelFromJson(Map<String, dynamic> json) =>
-    ManagerModel(
+ManagerModel _$ManagerModelFromJson(Map<String, dynamic> json) => ManagerModel(
       id: json['id'] as String,
       fullName: json['full_name'] as String?,
       fullNameCamel: json['fullName'] as String?,

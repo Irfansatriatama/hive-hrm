@@ -23,7 +23,24 @@ final attendanceSubmittingProvider =
 );
 
 typedef _$AttendanceSubmitting = AutoDisposeNotifier<bool>;
-String _$attendanceHash() => r'feeab8703f23911c95dcfdf349c26f7875effd7e';
+String _$attendanceLoadingGpsHash() =>
+    r'32da7cf26ff050a589de8eaa231cba3ac7ae54c6';
+
+/// See also [AttendanceLoadingGps].
+@ProviderFor(AttendanceLoadingGps)
+final attendanceLoadingGpsProvider =
+    AutoDisposeNotifierProvider<AttendanceLoadingGps, bool>.internal(
+  AttendanceLoadingGps.new,
+  name: r'attendanceLoadingGpsProvider',
+  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
+      ? null
+      : _$attendanceLoadingGpsHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$AttendanceLoadingGps = AutoDisposeNotifier<bool>;
+String _$attendanceHash() => r'20fab9683e237d848a021fd0de6373ac3ac000e1';
 
 /// See also [Attendance].
 @ProviderFor(Attendance)

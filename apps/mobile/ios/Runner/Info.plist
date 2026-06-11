@@ -59,6 +59,12 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Diperlukan untuk mencatat lokasi absensi Anda</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Diperlukan untuk foto selfie absensi</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Diperlukan untuk mengakses galeri foto</string>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

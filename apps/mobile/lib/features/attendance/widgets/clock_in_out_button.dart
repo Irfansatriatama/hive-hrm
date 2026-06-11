@@ -48,7 +48,7 @@ class _ClockInOutButtonState extends ConsumerState<ClockInOutButton>
       error = await notifier.checkOut();
       successMessage = l10n.checkOutSuccess;
     } else {
-      error = await notifier.checkIn();
+      error = await notifier.checkIn(context);
       successMessage = l10n.checkInSuccess;
     }
 
@@ -73,7 +73,9 @@ class _ClockInOutButtonState extends ConsumerState<ClockInOutButton>
 
   @override
   Widget build(BuildContext context) {
+    final isLoadingGps = ref.watch(attendanceLoadingGpsProvider);
     final isSubmitting = ref.watch(attendanceSubmittingProvider);
+    final showLoading = isLoadingGps || isSubmitting;
     final today = ref.watch(attendanceProvider).valueOrNull?.today;
     final isCheckedIn =
         today?.checkIn != null && today?.checkOut == null;
@@ -85,14 +87,14 @@ class _ClockInOutButtonState extends ConsumerState<ClockInOutButton>
 
     return Semantics(
       button: true,
-      enabled: !isSubmitting && !isCheckedOut,
+      enabled: !showLoading && !isCheckedOut,
       label: isCheckedOut
           ? context.l10n.checkedOut
           : isCheckedIn
               ? context.l10n.tapToCheckOut
               : context.l10n.tapToCheckIn,
       child: GestureDetector(
-        onTap: isSubmitting || isCheckedOut ? null : _handleTap,
+        onTap: showLoading || isCheckedOut ? null : _handleTap,
         child: Container(
           width: AppTheme.tapMin * 2 + AppTheme.sm,
           height: AppTheme.tapMin * 2 + AppTheme.sm,
@@ -112,7 +114,7 @@ class _ClockInOutButtonState extends ConsumerState<ClockInOutButton>
             ),
           ),
           child: ClipOval(
-            child: isSubmitting
+            child: showLoading
                 ? const Center(
                     child: SizedBox(
                       width: AppTheme.lg,

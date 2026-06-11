@@ -19,6 +19,7 @@ class ApiEndpoints {
   static const String checkIn = '/attendance/check-in';
   static const String checkOut = '/attendance/check-out';
   static const String attendanceHistory = '/attendance/history';
+  static const String selfieUpload = '/attendance/selfie-upload';
 
   // Leave
   static const String leaveBalances = '/leave/balances';
