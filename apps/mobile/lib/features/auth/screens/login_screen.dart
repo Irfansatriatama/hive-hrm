@@ -1,6 +1,6 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/api/api_client.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_style.dart';
@@ -54,15 +54,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   String _resolveErrorMessage(Object? error) {
     final l10n = context.l10n;
-    if (error is DioException) {
-      final data = error.response?.data;
-      if (data is Map && data['message'] != null) {
-        final message = data['message'];
-        if (message is String) return message;
-        if (message is List && message.isNotEmpty) {
-          return message.first.toString();
-        }
-      }
+    if (error != null) {
+      final message = ApiClient.friendlyMessage(error);
+      if (message.isNotEmpty) return message;
     }
     return l10n.loginFailed;
   }

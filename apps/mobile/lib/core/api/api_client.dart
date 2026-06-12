@@ -28,9 +28,13 @@ class ApiClient {
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          final token = await AuthStorage.getToken();
-          if (token != null) {
-            options.headers['Authorization'] = 'Bearer $token';
+          final path = options.path;
+          final isAuthRoute = path.contains('/auth/');
+          if (!isAuthRoute) {
+            final token = await AuthStorage.getToken();
+            if (token != null) {
+              options.headers['Authorization'] = 'Bearer $token';
+            }
           }
           handler.next(options);
         },
@@ -47,12 +51,28 @@ class ApiClient {
     return dio;
   }
 
+  /// GET that returns null when the endpoint is missing (404).
+  static Future<Response<dynamic>?> getOptional(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    try {
+      return await instance.get(path, queryParameters: queryParameters);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) return null;
+      rethrow;
+    }
+  }
+
   /// Converts Dio errors into user-friendly messages.
   static String friendlyMessage(Object error) {
     if (error is DioException) {
       final status = error.response?.statusCode;
       if (status == 401) {
         return 'Sesi login telah berakhir. Silakan login kembali.';
+      }
+      if (status == 404) {
+        return 'Fitur belum tersedia di server. Hubungi admin untuk update API.';
       }
       final data = error.response?.data;
       if (data is Map && data['message'] != null) {

@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/api/api_client.dart';
 import '../../../core/api/api_endpoints.dart';
@@ -143,18 +142,5 @@ class Resources extends _$Resources {
     }
   }
 
-  String _extractError(Object error) {
-    if (error is DioException) {
-      final data = error.response?.data;
-      if (data is Map && data['message'] != null) {
-        final message = data['message'];
-        if (message is String) return message;
-        if (message is List && message.isNotEmpty) {
-          return message.first.toString();
-        }
-      }
-      return error.message ?? error.toString();
-    }
-    return error.toString();
-  }
+  String _extractError(Object error) => ApiClient.friendlyMessage(error);
 }

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/api/api_client.dart';
@@ -7,6 +8,7 @@ import '../../../shared/models/attendance_model.dart';
 import '../models/attendance_data.dart';
 import '../services/gps_service.dart';
 import '../services/selfie_upload_service.dart';
+import '../utils/attendance_summary_utils.dart';
 import '../widgets/selfie_prompt_sheet.dart';
 
 part 'attendance_provider.g.dart';
@@ -32,6 +34,7 @@ class Attendance extends _$Attendance {
   int? _month;
   int? _year;
   bool _yearlyView = false;
+  List<AttendanceModel> _cachedHistory = [];
 
   @override
   Future<AttendanceData> build() async {
@@ -59,40 +62,33 @@ class Attendance extends _$Attendance {
     int year, {
     required bool yearly,
   }) async {
-    final summaryParams = yearly
-        ? {'year': year.toString()}
-        : {'month': month.toString(), 'year': year.toString()};
-
     final historyParams = {'month': month.toString(), 'year': year.toString()};
 
-    final responses = await Future.wait([
-      ApiClient.instance.get(ApiEndpoints.attendanceToday),
-      ApiClient.instance.get(
-        ApiEndpoints.attendanceHistory,
-        queryParameters: historyParams,
-      ),
-      ApiClient.instance.get(
-        ApiEndpoints.attendanceSummary,
-        queryParameters: summaryParams,
-      ),
-    ]);
+    final todayResponse = await ApiClient.instance.get(
+      ApiEndpoints.attendanceToday,
+    );
+    final historyResponse = await ApiClient.instance.get(
+      ApiEndpoints.attendanceHistory,
+      queryParameters: historyParams,
+    );
 
     final AttendanceModel? today =
-        AttendanceModel.fromJsonOrNull(responses[0].data);
+        AttendanceModel.fromJsonOrNull(todayResponse.data);
 
-    final historyRaw = responses[1].data;
+    final historyRaw = historyResponse.data;
     final history = historyRaw is List
         ? historyRaw
             .map((e) => AttendanceModel.fromJson(e as Map<String, dynamic>))
             .toList()
         : <AttendanceModel>[];
+    _cachedHistory = history;
 
-    AttendanceSummaryModel? summary;
-    if (responses[2].data is Map<String, dynamic>) {
-      summary = AttendanceSummaryModel.fromJson(
-        responses[2].data as Map<String, dynamic>,
-      );
-    }
+    final summary = await _fetchSummary(
+      month: month,
+      year: year,
+      yearly: yearly,
+      history: history,
+    );
 
     return AttendanceData(
       today: today,
@@ -101,11 +97,82 @@ class Attendance extends _$Attendance {
     );
   }
 
-  Future<AttendanceModel?> fetchRecordDetail(String id) async {
-    final response = await ApiClient.instance.get(
-      '${ApiEndpoints.attendanceRecord}/$id',
+  Future<AttendanceSummaryModel?> _fetchSummary({
+    required int month,
+    required int year,
+    required bool yearly,
+    required List<AttendanceModel> history,
+  }) async {
+    final summaryParams = yearly
+        ? {'year': year.toString()}
+        : {'month': month.toString(), 'year': year.toString()};
+
+    final summaryResponse = await ApiClient.getOptional(
+      ApiEndpoints.attendanceSummary,
+      queryParameters: summaryParams,
     );
-    return AttendanceModel.fromJson(response.data as Map<String, dynamic>);
+
+    if (summaryResponse?.data is Map<String, dynamic>) {
+      return AttendanceSummaryModel.fromJson(
+        summaryResponse!.data as Map<String, dynamic>,
+      );
+    }
+
+    if (yearly) {
+      final yearRecords = await _fetchYearHistory(year);
+      return computeAttendanceSummary(
+        records: yearRecords,
+        year: year,
+      );
+    }
+
+    return computeAttendanceSummary(
+      records: history,
+      month: month,
+      year: year,
+    );
+  }
+
+  Future<List<AttendanceModel>> _fetchYearHistory(int year) async {
+    final responses = await Future.wait(
+      List.generate(
+        12,
+        (index) => ApiClient.instance.get(
+          ApiEndpoints.attendanceHistory,
+          queryParameters: {
+            'month': (index + 1).toString(),
+            'year': year.toString(),
+          },
+        ),
+      ),
+    );
+
+    final records = <AttendanceModel>[];
+    for (final response in responses) {
+      final raw = response.data;
+      if (raw is! List) continue;
+      records.addAll(
+        raw.map(
+          (item) => AttendanceModel.fromJson(item as Map<String, dynamic>),
+        ),
+      );
+    }
+    return records;
+  }
+
+  Future<AttendanceModel?> fetchRecordDetail(String id) async {
+    try {
+      final response = await ApiClient.instance.get(
+        '${ApiEndpoints.attendanceRecord}/$id',
+      );
+      return AttendanceModel.fromJson(response.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      if (e.response?.statusCode != 404) rethrow;
+      for (final record in _cachedHistory) {
+        if (record.id == id) return record;
+      }
+      return null;
+    }
   }
 
   Future<String?> checkIn(BuildContext context) async {
