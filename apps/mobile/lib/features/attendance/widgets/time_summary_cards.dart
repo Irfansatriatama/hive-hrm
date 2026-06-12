@@ -39,38 +39,76 @@ class TimeSummaryCards extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: _TimeCard(
-            label: context.l10n.timeIn,
-            value: _formatTime(today?.checkIn),
-            valueColor: today?.checkIn != null
-                ? AppColors.successGreen
-                : AppColors.textSubtle,
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: _TimeCard(
+                label: context.l10n.timeIn,
+                value: _formatTime(today?.checkIn),
+                valueColor: today?.checkIn != null
+                    ? AppColors.successGreen
+                    : AppColors.textSubtle,
+              ),
+            ),
+            const SizedBox(width: AppTheme.sm),
+            Expanded(
+              child: _TimeCard(
+                label: context.l10n.timeOut,
+                value: _formatTime(today?.checkOut),
+                valueColor: today?.checkOut != null
+                    ? AppColors.textPrimary
+                    : AppColors.textSubtle,
+              ),
+            ),
+            const SizedBox(width: AppTheme.sm),
+            Expanded(
+              child: _TimeCard(
+                label: context.l10n.durationLabel,
+                value: _formatDuration(context, today),
+                valueColor: today?.checkIn != null
+                    ? AppColors.amberAccent
+                    : AppColors.textSubtle,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(width: AppTheme.sm),
-        Expanded(
-          child: _TimeCard(
-            label: context.l10n.timeOut,
-            value: _formatTime(today?.checkOut),
-            valueColor: today?.checkOut != null
-                ? AppColors.textPrimary
-                : AppColors.textSubtle,
-          ),
-        ),
-        const SizedBox(width: AppTheme.sm),
-        Expanded(
-          child: _TimeCard(
-            label: context.l10n.durationLabel,
-            value: _formatDuration(context, today),
-            valueColor: today?.checkIn != null
-                ? AppColors.amberAccent
-                : AppColors.textSubtle,
-          ),
-        ),
+        _OvertimeRow(today: today),
       ],
+    );
+  }
+}
+
+class _OvertimeRow extends StatelessWidget {
+  final AttendanceModel? today;
+
+  const _OvertimeRow({required this.today});
+
+  @override
+  Widget build(BuildContext context) {
+    final mins = today?.overtimeMinutes ?? 0;
+    if (mins <= 0) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(top: AppTheme.sm),
+      child: HiveCard(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppTheme.sm,
+          vertical: AppTheme.sm,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.more_time_rounded, size: 18, color: AppColors.amberAccent),
+            const SizedBox(width: AppTheme.xs),
+            Text(
+              '${context.l10n.attendanceOvertimeLabel}: ${context.l10n.durationHoursMinutes(mins ~/ 60, mins % 60)}',
+              style: AppTextStyle.body2.copyWith(color: AppColors.amberAccent),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

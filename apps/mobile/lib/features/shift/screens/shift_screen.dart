@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../shared/widgets/hive_fab.dart';
+import '../../../shared/widgets/hive_app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../core/l10n/l10n.dart';
@@ -26,15 +28,23 @@ class ShiftScreen extends ConsumerStatefulWidget {
 class _ShiftScreenState extends ConsumerState<ShiftScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  int _currentTab = 0;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(_onTabChanged);
+  }
+
+  void _onTabChanged() {
+    if (_tabController.indexIsChanging) return;
+    setState(() => _currentTab = _tabController.index);
   }
 
   @override
   void dispose() {
+    _tabController.removeListener(_onTabChanged);
     _tabController.dispose();
     super.dispose();
   }
@@ -50,7 +60,7 @@ class _ShiftScreenState extends ConsumerState<ShiftScreen>
 
     return Scaffold(
       backgroundColor: AppColors.primaryNavy,
-      appBar: AppBar(
+      appBar: HiveAppBar(
         title: Text(context.l10n.shiftTitle, style: AppTextStyle.h1),
         bottom: TabBar(
           controller: _tabController,
@@ -62,15 +72,18 @@ class _ShiftScreenState extends ConsumerState<ShiftScreen>
             Tab(text: context.l10n.shiftTabSwaps),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add_rounded),
-            onPressed: colleagues.isEmpty
-                ? null
-                : () => _openSwapSheet(colleagues),
-          ),
-        ],
       ),
+      floatingActionButton: _currentTab == 1
+          ? HiveFab.wrap(
+              context,
+              HiveFab(
+                tooltip: context.l10n.shiftRequestSwap,
+                onPressed: colleagues.isEmpty
+                    ? null
+                    : () => _openSwapSheet(colleagues),
+              ),
+            )
+          : null,
       body: RefreshIndicator(
         color: AppColors.amberAccent,
         backgroundColor: AppColors.surfaceBlue,
@@ -97,10 +110,7 @@ class _ShiftScreenState extends ConsumerState<ShiftScreen>
               controller: _tabController,
               children: [
                 _ScheduleTab(data: value),
-                _SwapsTab(
-                  swaps: value.swaps,
-                  onCreate: () => _openSwapSheet(value.colleagues),
-                ),
+                _SwapsTab(swaps: value.swaps),
               ],
             ),
           _ => const SizedBox.shrink(),
@@ -253,9 +263,8 @@ class _ScheduleTab extends ConsumerWidget {
 
 class _SwapsTab extends StatelessWidget {
   final List<ShiftSwapModel> swaps;
-  final VoidCallback onCreate;
 
-  const _SwapsTab({required this.swaps, required this.onCreate});
+  const _SwapsTab({required this.swaps});
 
   @override
   Widget build(BuildContext context) {
@@ -267,10 +276,6 @@ class _SwapsTab extends StatelessWidget {
           EmptyView(
             icon: Icons.swap_horiz_rounded,
             title: context.l10n.emptyShiftSwaps,
-            action: ElevatedButton(
-              onPressed: onCreate,
-              child: Text(context.l10n.shiftRequestSwap),
-            ),
           ),
         ],
       );

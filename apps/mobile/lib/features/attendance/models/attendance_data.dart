@@ -3,13 +3,14 @@ import '../../../shared/models/attendance_model.dart';
 class AttendanceData {
   final AttendanceModel? today;
   final List<AttendanceModel> history;
+  final AttendanceSummaryModel? summary;
 
   const AttendanceData({
     required this.today,
     required this.history,
+    this.summary,
   });
 
-  /// Returns Mon–Fri of the current week with attendance status.
   List<WeekDayStatus> get weekDays {
     final now = DateTime.now();
     final monday = DateTime(now.year, now.month, now.day)

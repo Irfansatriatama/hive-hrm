@@ -158,10 +158,14 @@ model Attendance {
   status        String    // hadir, izin, sakit, alpha, dll
   workHours     Float?
   lateMinutes   Int?
+  overtimeMinutes Int?
+  earlyLeaveMinutes Int?
   location      String?
   notes         String?
   latitude      Float?
   longitude     Float?
+  checkOutLatitude  Float?
+  checkOutLongitude Float?
   checkInNote   String?
   checkOutNote  String?
   selfieUrl     String?
@@ -889,7 +893,9 @@ model ResourceBooking {
   startTime      DateTime
   endTime        DateTime
   attendees      Int?
-  status         String           @default("pending") // pending | approved | rejected | cancelled
+  status         String           @default("pending") // pending | approved | rejected | cancelled | in_progress | completed | expired
+  confirmedAt    DateTime?
+  completedAt    DateTime?
   approvedBy     String?
   approvedAt     DateTime?
   rejectedReason String?

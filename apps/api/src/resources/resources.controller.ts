@@ -176,6 +176,26 @@ export class ResourcesController {
     return this.service.cancelBooking(id);
   }
 
+  @Post('bookings/:id/confirm')
+  async confirmBooking(@Req() req: express.Request, @Param('id') id: string) {
+    const user = await this.getSessionUser(req);
+    const emp = await this.getLinkedEmployee(user.id, user.email);
+    if (!emp) {
+      throw new UnauthorizedException('Employee profile not found');
+    }
+    return this.service.confirmBooking(id, emp.id);
+  }
+
+  @Post('bookings/:id/complete')
+  async completeBooking(@Req() req: express.Request, @Param('id') id: string) {
+    const user = await this.getSessionUser(req);
+    const emp = await this.getLinkedEmployee(user.id, user.email);
+    if (!emp) {
+      throw new UnauthorizedException('Employee profile not found');
+    }
+    return this.service.completeBooking(id, emp.id);
+  }
+
   @Put(':id')
   async updateResource(
     @Req() req: express.Request,

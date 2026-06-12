@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../shared/widgets/hive_fab.dart';
+import '../../../shared/widgets/hive_app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/l10n/l10n.dart';
@@ -36,19 +38,21 @@ class _DocumentsScreenState extends ConsumerState<DocumentsScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.primaryNavy,
-      appBar: AppBar(
+      appBar: HiveAppBar(
         title: Text(context.l10n.documentsTitle, style: AppTextStyle.h1),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.upload_file_rounded),
-            onPressed: state.valueOrNull == null
-                ? null
-                : () => showDocumentUploadSheet(
-                      context,
-                      folders: state.value!.folders,
-                    ),
-          ),
-        ],
+      ),
+      floatingActionButton: HiveFab.wrap(
+        context,
+        HiveFab(
+          icon: Icons.upload_file_rounded,
+          tooltip: context.l10n.documentUploadTitle,
+          onPressed: state.valueOrNull == null
+              ? null
+              : () => showDocumentUploadSheet(
+                    context,
+                    folders: state.value!.folders,
+                  ),
+        ),
       ),
       body: RefreshIndicator(
         color: AppColors.amberAccent,

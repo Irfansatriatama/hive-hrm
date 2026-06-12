@@ -22,8 +22,9 @@ class Onboarding extends _$Onboarding {
   Future<OnboardingAssignmentModel?> _fetchAssignment() async {
     final response = await ApiClient.instance.get(ApiEndpoints.onboardingMy);
     final data = response.data;
-    if (data == null) return null;
-    return OnboardingAssignmentModel.fromJson(data as Map<String, dynamic>);
+    if (data == null || data == '') return null;
+    if (data is! Map<String, dynamic>) return null;
+    return OnboardingAssignmentModel.fromJson(data);
   }
 
   Future<String?> markTaskDone({
@@ -33,7 +34,7 @@ class Onboarding extends _$Onboarding {
     ref.read(onboardingUpdatingProvider.notifier).setUpdating(taskId);
     try {
       await ApiClient.instance.put(
-        '/onboarding/assignments/$assignmentId/tasks/$taskId',
+        ApiEndpoints.onboardingTask(assignmentId, taskId),
         data: {'status': 'done'},
       );
       ref.invalidateSelf();

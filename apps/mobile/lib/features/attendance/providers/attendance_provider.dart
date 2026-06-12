@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../../core/api/api_client.dart';
@@ -30,13 +29,52 @@ class AttendanceLoadingGps extends _$AttendanceLoadingGps {
 
 @riverpod
 class Attendance extends _$Attendance {
-  @override
-  Future<AttendanceData> build() async => _fetchAttendance();
+  int? _month;
+  int? _year;
+  bool _yearlyView = false;
 
-  Future<AttendanceData> _fetchAttendance() async {
+  @override
+  Future<AttendanceData> build() async {
+    final now = DateTime.now();
+    return _fetchAttendance(
+      _month ?? now.month,
+      _year ?? now.year,
+      yearly: _yearlyView,
+    );
+  }
+
+  void setPeriod({
+    required int month,
+    required int year,
+    bool yearly = false,
+  }) {
+    _month = month;
+    _year = year;
+    _yearlyView = yearly;
+    ref.invalidateSelf();
+  }
+
+  Future<AttendanceData> _fetchAttendance(
+    int month,
+    int year, {
+    required bool yearly,
+  }) async {
+    final summaryParams = yearly
+        ? {'year': year.toString()}
+        : {'month': month.toString(), 'year': year.toString()};
+
+    final historyParams = {'month': month.toString(), 'year': year.toString()};
+
     final responses = await Future.wait([
       ApiClient.instance.get(ApiEndpoints.attendanceToday),
-      ApiClient.instance.get(ApiEndpoints.attendanceHistory),
+      ApiClient.instance.get(
+        ApiEndpoints.attendanceHistory,
+        queryParameters: historyParams,
+      ),
+      ApiClient.instance.get(
+        ApiEndpoints.attendanceSummary,
+        queryParameters: summaryParams,
+      ),
     ]);
 
     final AttendanceModel? today =
@@ -49,7 +87,25 @@ class Attendance extends _$Attendance {
             .toList()
         : <AttendanceModel>[];
 
-    return AttendanceData(today: today, history: history);
+    AttendanceSummaryModel? summary;
+    if (responses[2].data is Map<String, dynamic>) {
+      summary = AttendanceSummaryModel.fromJson(
+        responses[2].data as Map<String, dynamic>,
+      );
+    }
+
+    return AttendanceData(
+      today: today,
+      history: history,
+      summary: summary,
+    );
+  }
+
+  Future<AttendanceModel?> fetchRecordDetail(String id) async {
+    final response = await ApiClient.instance.get(
+      '${ApiEndpoints.attendanceRecord}/$id',
+    );
+    return AttendanceModel.fromJson(response.data as Map<String, dynamic>);
   }
 
   Future<String?> checkIn(BuildContext context) async {
@@ -88,7 +144,7 @@ class Attendance extends _$Attendance {
       await future;
       return null;
     } catch (e) {
-      return _extractError(e);
+      return ApiClient.friendlyMessage(e);
     } finally {
       ref.read(attendanceSubmittingProvider.notifier).setSubmitting(false);
     }
@@ -116,7 +172,7 @@ class Attendance extends _$Attendance {
       await future;
       return null;
     } catch (e) {
-      return _extractError(e);
+      return ApiClient.friendlyMessage(e);
     } finally {
       ref.read(attendanceSubmittingProvider.notifier).setSubmitting(false);
     }
@@ -129,20 +185,5 @@ class Attendance extends _$Attendance {
       GpsFailure.serviceDisabled => l10n.gpsServiceDisabled,
       GpsFailure.unavailable => l10n.gpsUnavailable,
     };
-  }
-
-  String _extractError(Object error) {
-    if (error is DioException) {
-      final data = error.response?.data;
-      if (data is Map && data['message'] != null) {
-        final message = data['message'];
-        if (message is String) return message;
-        if (message is List && message.isNotEmpty) {
-          return message.first.toString();
-        }
-      }
-      return error.message ?? error.toString();
-    }
-    return error.toString();
   }
 }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../shared/widgets/hive_fab.dart';
+import '../../../shared/widgets/hive_app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_colors.dart';
@@ -43,7 +45,7 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen>
 
     return Scaffold(
       backgroundColor: AppColors.primaryNavy,
-      appBar: AppBar(
+      appBar: HiveAppBar(
         title: Text(context.l10n.assetsTitle, style: AppTextStyle.h1),
         bottom: TabBar(
           controller: _tabController,
@@ -55,12 +57,13 @@ class _AssetsScreenState extends ConsumerState<AssetsScreen>
             Tab(text: context.l10n.assetsTabRequests),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add_rounded),
-            onPressed: () => showAssetRequestSheet(context),
-          ),
-        ],
+      ),
+      floatingActionButton: HiveFab.wrap(
+        context,
+        HiveFab(
+          tooltip: context.l10n.assetsRequestCreate,
+          onPressed: () => showAssetRequestSheet(context),
+        ),
       ),
       body: RefreshIndicator(
         color: AppColors.amberAccent,
@@ -113,10 +116,6 @@ class _AssetsList extends StatelessWidget {
           EmptyView(
             icon: Icons.laptop_mac_rounded,
             title: context.l10n.emptyAssets,
-            action: ElevatedButton(
-              onPressed: () => showAssetRequestSheet(context),
-              child: Text(context.l10n.assetsRequestCreate),
-            ),
           ),
         ],
       );

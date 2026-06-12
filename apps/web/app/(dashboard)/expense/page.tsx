@@ -125,7 +125,7 @@ export default function ExpensePage() {
   };
 
   const totalItemsAmount = items.reduce((sum, item) => {
-    const amt = parseInt(item.amount, 10);
+    const amt = parseInt(String(item.amount), 10);
     return sum + (isNaN(amt) ? 0 : amt);
   }, 0);
 
@@ -156,7 +156,7 @@ export default function ExpensePage() {
           body: JSON.stringify({
             categoryId: item.categoryId || null,
             description: item.description,
-            amount: parseInt(item.amount, 10),
+            amount: parseInt(String(item.amount), 10),
             expenseDate: item.expenseDate,
             notes: item.notes || null,
             receiptUrl: item.receiptUrl || null,
@@ -482,7 +482,7 @@ export default function ExpensePage() {
                       <td className="p-3">{item.description}</td>
                       <td className="p-3">{formatDate(item.expenseDate)}</td>
                       <td className="p-3 text-right font-medium">
-                        {formatRupiah(parseInt(item.amount, 10) || 0)}
+                        {formatRupiah(parseInt(String(item.amount), 10) || 0)}
                       </td>
                     </tr>
                   ))}

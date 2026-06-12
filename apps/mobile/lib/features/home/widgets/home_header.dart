@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/navigation/app_navigation.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_style.dart';
 import '../../../core/theme/app_theme.dart';
@@ -118,7 +119,7 @@ class _HomeHeaderState extends State<HomeHeader> {
               ),
             ),
             GestureDetector(
-              onTap: () => context.go('/profile'),
+              onTap: () => context.openFeature('/profile'),
               child: CircleAvatar(
                 radius: 22,
                 backgroundColor: AppColors.cardElevated,
@@ -139,7 +140,7 @@ class _HomeHeaderState extends State<HomeHeader> {
         const SizedBox(height: AppTheme.md),
         HiveCard(
           accentLeft: true,
-          onTap: () => context.go('/attendance'),
+          onTap: () => context.openFeature('/attendance'),
           child: Row(
             children: [
               Expanded(

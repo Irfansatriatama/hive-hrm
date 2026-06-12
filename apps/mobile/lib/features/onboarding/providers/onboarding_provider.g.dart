@@ -23,7 +23,7 @@ final onboardingUpdatingProvider =
 );
 
 typedef _$OnboardingUpdating = AutoDisposeNotifier<String?>;
-String _$onboardingHash() => r'1cbc13af3995ca759f7b3c7ff46ba7790c1ad759';
+String _$onboardingHash() => r'5e73737c5ba87a88fca63eb81df48d68497a373d';
 
 /// See also [Onboarding].
 @ProviderFor(Onboarding)

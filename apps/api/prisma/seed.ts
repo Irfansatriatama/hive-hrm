@@ -193,7 +193,7 @@ async function main() {
   }
 
   console.log('Seeding onboarding template...');
-  await prisma.onboardingTemplate.create({
+  const onboardingTemplate = await prisma.onboardingTemplate.create({
     data: {
       name: 'Standard Onboarding Karyawan Baru',
       description: 'Template onboarding standar untuk semua karyawan baru',
@@ -209,7 +209,26 @@ async function main() {
         ],
       },
     },
+    include: { tasks: true },
   });
+
+  console.log('Seeding onboarding assignments...');
+  for (const employeeId of ['EMP000', 'EMP004']) {
+    await prisma.onboardingAssignment.create({
+      data: {
+        templateId: onboardingTemplate.id,
+        employeeId,
+        startDate: new Date(),
+        status: 'in_progress',
+        taskProgress: {
+          create: onboardingTemplate.tasks.map((task) => ({
+            taskId: task.id,
+            status: 'pending',
+          })),
+        },
+      },
+    });
+  }
 
   console.log('Seeding payroll components...');
   await prisma.payrollComponent.createMany({
@@ -316,10 +335,31 @@ async function main() {
   console.log('Seeding public holidays...');
   await prisma.publicHoliday.createMany({
     data: [
+      // Libur nasional 2026
       { name: 'Tahun Baru Masehi', date: new Date('2026-01-01'), type: 'national' },
+      { name: 'Tahun Baru Imlek 2577', date: new Date('2026-02-16'), type: 'national' },
+      { name: 'Hari Suci Nyepi', date: new Date('2026-03-19'), type: 'national' },
+      { name: 'Hari Raya Idul Fitri 1447 H', date: new Date('2026-03-21'), type: 'national' },
+      { name: 'Wafat Isa Almasih', date: new Date('2026-04-03'), type: 'national' },
       { name: 'Hari Buruh Internasional', date: new Date('2026-05-01'), type: 'national' },
+      { name: 'Kenaikan Isa Almasih', date: new Date('2026-05-14'), type: 'national' },
+      { name: 'Hari Raya Idul Adha 1447 H', date: new Date('2026-05-27'), type: 'national' },
+      { name: 'Tahun Baru Islam 1448 H', date: new Date('2026-05-31'), type: 'national' },
+      { name: 'Hari Lahir Pancasila', date: new Date('2026-06-01'), type: 'national' },
       { name: 'Hari Kemerdekaan RI', date: new Date('2026-08-17'), type: 'national' },
+      { name: 'Maulid Nabi Muhammad SAW', date: new Date('2026-08-25'), type: 'national' },
       { name: 'Hari Natal', date: new Date('2026-12-25'), type: 'national' },
+      // Cuti bersama pemerintah 2026
+      { name: 'Cuti Bersama Idul Fitri', date: new Date('2026-03-17'), type: 'collective' },
+      { name: 'Cuti Bersama Idul Fitri', date: new Date('2026-03-18'), type: 'collective' },
+      { name: 'Cuti Bersama Idul Fitri', date: new Date('2026-03-19'), type: 'collective' },
+      { name: 'Cuti Bersama Idul Fitri', date: new Date('2026-03-20'), type: 'collective' },
+      { name: 'Cuti Bersama Idul Adha', date: new Date('2026-05-28'), type: 'collective' },
+      { name: 'Cuti Bersama Natal', date: new Date('2026-12-24'), type: 'collective' },
+      // Libur kantor perusahaan
+      { name: 'Libur Kantor Annual Gathering', date: new Date('2026-06-20'), type: 'company' },
+      { name: 'Libur Kantor Team Building', date: new Date('2026-09-05'), type: 'company' },
+      { name: 'Libur Kantor Akhir Tahun', date: new Date('2026-12-31'), type: 'company' },
     ],
   });
 

@@ -7,21 +7,52 @@ part 'leave_calendar_provider.g.dart';
 
 @riverpod
 class LeaveCalendar extends _$LeaveCalendar {
+  int? _year;
+  int? _month;
+
   @override
-  Future<LeaveCalendarData> build() async => _fetchCalendar();
+  Future<LeaveCalendarData> build() async {
+    final now = DateTime.now();
+    return _fetchCalendar(_year ?? now.year, _month ?? now.month);
+  }
 
-  Future<LeaveCalendarData> _fetchCalendar() async {
-    final responses = await Future.wait([
-      ApiClient.instance.get(ApiEndpoints.leaveCalendar),
-      ApiClient.instance.get(ApiEndpoints.departments),
-      ApiClient.instance.get(
-        ApiEndpoints.employees,
-        queryParameters: {'limit': '1000'},
-      ),
-    ]);
+  Future<void> loadMonth(int year, int month) async {
+    _year = year;
+    _month = month;
+    ref.invalidateSelf();
+    await future;
+  }
 
-    final eventsRaw = responses[0].data as List<dynamic>;
-    final departments = (responses[1].data as List<dynamic>)
+  Future<LeaveCalendarData> _fetchCalendar(int year, int month) async {
+    final response = await ApiClient.instance.get(
+      ApiEndpoints.leaveCalendar,
+      queryParameters: {
+        'year': year.toString(),
+        'month': month.toString(),
+      },
+    );
+
+    final calendarRaw = response.data as Map<String, dynamic>;
+    final eventsRaw = calendarRaw['events'] as List<dynamic>? ?? [];
+    final holidaysRaw = calendarRaw['holidays'] as List<dynamic>? ?? [];
+    final departmentsRaw = calendarRaw['departments'] as List<dynamic>? ?? [];
+    final currentEmployeeId = calendarRaw['currentEmployeeId'] as String?;
+
+    final events = eventsRaw
+        .map(
+          (e) => LeaveCalendarEventModel.fromJson(e as Map<String, dynamic>),
+        )
+        .toList();
+
+    final holidays = holidaysRaw
+        .map(
+          (e) => LeaveCalendarHolidayModel.fromJson(
+            e as Map<String, dynamic>,
+          ),
+        )
+        .toList();
+
+    final departments = departmentsRaw
         .map(
           (e) => LeaveCalendarDepartmentModel.fromJson(
             e as Map<String, dynamic>,
@@ -29,32 +60,11 @@ class LeaveCalendar extends _$LeaveCalendar {
         )
         .toList();
 
-    final employeesRaw = responses[2].data;
-    final employeesList = employeesRaw is Map && employeesRaw['employees'] is List
-        ? employeesRaw['employees'] as List<dynamic>
-        : employeesRaw is List
-            ? employeesRaw
-            : <dynamic>[];
-
-    final deptByEmployee = <String, String>{};
-    for (final emp in employeesList) {
-      final map = emp as Map<String, dynamic>;
-      final id = map['id'] as String?;
-      final deptId = map['departmentId'] as String?;
-      if (id != null && deptId != null) {
-        deptByEmployee[id] = deptId;
-      }
-    }
-
-    final events = eventsRaw
-        .map((e) {
-          final event = LeaveCalendarEventModel.fromJson(
-            e as Map<String, dynamic>,
-          );
-          return event.copyWithDepartment(deptByEmployee[event.employeeId]);
-        })
-        .toList();
-
-    return LeaveCalendarData(events: events, departments: departments);
+    return LeaveCalendarData(
+      events: events,
+      departments: departments,
+      holidays: holidays,
+      currentEmployeeId: currentEmployeeId,
+    );
   }
 }

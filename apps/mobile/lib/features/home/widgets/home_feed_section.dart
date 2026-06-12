@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/navigation/app_navigation.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_style.dart';
 import '../../../core/theme/app_theme.dart';
@@ -28,7 +29,7 @@ class HomeFeedSection extends ConsumerWidget {
               (item) => Padding(
                 padding: const EdgeInsets.only(bottom: AppTheme.sm),
                 child: HiveCard(
-                  onTap: () => context.go(item.route),
+                  onTap: () => context.openFeature(item.route),
                   child: Row(
                     children: [
                       Icon(item.icon, color: AppColors.amberAccent, size: 22),

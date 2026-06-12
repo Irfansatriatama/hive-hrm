@@ -123,15 +123,24 @@ export class OnboardingService {
   }
 
   async findMyAssignment(employeeId: string) {
-    return this.prisma.onboardingAssignment.findFirst({
-      where: { employeeId, status: 'in_progress' },
-      include: {
-        template: { select: { id: true, name: true, description: true } },
-        taskProgress: {
-          include: { task: true },
-          orderBy: { task: { sortOrder: 'asc' } },
-        },
+    const include = {
+      template: { select: { id: true, name: true, description: true } },
+      taskProgress: {
+        include: { task: true },
+        orderBy: { task: { sortOrder: 'asc' as const } },
       },
+    };
+
+    const active = await this.prisma.onboardingAssignment.findFirst({
+      where: { employeeId, status: 'in_progress' },
+      include,
+      orderBy: { createdAt: 'desc' },
+    });
+    if (active) return active;
+
+    return this.prisma.onboardingAssignment.findFirst({
+      where: { employeeId },
+      include,
       orderBy: { createdAt: 'desc' },
     });
   }

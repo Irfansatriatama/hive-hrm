@@ -70,6 +70,7 @@ interface EmployeeProfile {
     name: string;
     size: string;
     folder: string;
+    fileUrl?: string | null;
   }[];
 }
 

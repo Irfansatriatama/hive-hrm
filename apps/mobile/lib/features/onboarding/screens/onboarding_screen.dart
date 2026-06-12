@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../shared/widgets/hive_app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_colors.dart';
@@ -24,7 +25,7 @@ class OnboardingScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.primaryNavy,
-      appBar: AppBar(
+      appBar: HiveAppBar(
         title: Text(context.l10n.onboardingTitle, style: AppTextStyle.h1),
       ),
       body: RefreshIndicator(
@@ -233,60 +234,80 @@ class _TaskTile extends StatelessWidget {
     final iconColor = switch (progress.status) {
       'done' => AppColors.successGreen,
       'skipped' => AppColors.textSubtle,
+      _ when canMark => AppColors.amberAccent,
       _ => AppColors.textSubtle,
     };
 
+    Widget statusIcon;
+    if (isUpdating) {
+      statusIcon = const SizedBox(
+        width: 22,
+        height: 22,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          color: AppColors.amberAccent,
+        ),
+      );
+    } else {
+      statusIcon = Icon(icon, color: iconColor, size: 22);
+    }
+
+    final content = Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        statusIcon,
+        const SizedBox(width: AppTheme.sm),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                task.title,
+                style: AppTextStyle.body1.copyWith(
+                  decoration: progress.isDone
+                      ? TextDecoration.lineThrough
+                      : null,
+                  color: progress.status == 'done'
+                      ? AppColors.successGreen
+                      : isUpdating
+                          ? AppColors.textSubtle
+                          : AppColors.textPrimary,
+                ),
+              ),
+              if (task.description != null) ...[
+                const SizedBox(height: 2),
+                Text(task.description!, style: AppTextStyle.caption),
+              ],
+              const SizedBox(height: 4),
+              Text(
+                isUpdating
+                    ? context.l10n.onboardingUpdating
+                    : '${task.category} · H+${task.dueAfterDays}'
+                        '${!isEmployeeTask ? ' · ${task.assignedTo}' : ''}',
+                style: AppTextStyle.caption.copyWith(
+                  color: isUpdating ? AppColors.amberAccent : null,
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (canMark && !isUpdating)
+          Icon(
+            Icons.touch_app_outlined,
+            size: 16,
+            color: AppColors.textSubtle.withValues(alpha: 0.6),
+          ),
+      ],
+    );
+
     return Padding(
       padding: const EdgeInsets.only(bottom: AppTheme.sm),
-      child: HiveCard(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, color: iconColor, size: 22),
-            const SizedBox(width: AppTheme.sm),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    task.title,
-                    style: AppTextStyle.body1.copyWith(
-                      decoration: progress.isDone
-                          ? TextDecoration.lineThrough
-                          : null,
-                      color: progress.status == 'done'
-                          ? AppColors.successGreen
-                          : AppColors.textPrimary,
-                    ),
-                  ),
-                  if (task.description != null) ...[
-                    const SizedBox(height: 2),
-                    Text(task.description!, style: AppTextStyle.caption),
-                  ],
-                  const SizedBox(height: 4),
-                  Text(
-                    '${task.category} · H+${task.dueAfterDays}'
-                    '${!isEmployeeTask ? ' · ${task.assignedTo}' : ''}',
-                    style: AppTextStyle.caption,
-                  ),
-                ],
-              ),
-            ),
-            if (canMark)
-              TextButton(
-                onPressed: isUpdating ? null : onMarkDone,
-                child: isUpdating
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : Text(
-                        context.l10n.onboardingMarkDone,
-                        style: AppTextStyle.overline,
-                      ),
-              ),
-          ],
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 200),
+        opacity: isUpdating ? 0.75 : 1,
+        child: HiveCard(
+          onTap: canMark && !isUpdating ? onMarkDone : null,
+          child: content,
         ),
       ),
     );

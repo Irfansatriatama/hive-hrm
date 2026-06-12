@@ -3,7 +3,7 @@ class ApiEndpoints {
 
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://localhost:4000',
+    defaultValue: 'https://api-hrm.tehlink.my.id',
   );
 
   // Auth
@@ -19,6 +19,8 @@ class ApiEndpoints {
   static const String checkIn = '/attendance/check-in';
   static const String checkOut = '/attendance/check-out';
   static const String attendanceHistory = '/attendance/history';
+  static const String attendanceSummary = '/attendance/summary';
+  static const String attendanceRecord = '/attendance/records';
   static const String selfieUpload = '/attendance/selfie-upload';
 
   // Leave
@@ -59,6 +61,8 @@ class ApiEndpoints {
 
   // Onboarding
   static const String onboardingMy = '/onboarding/my';
+  static String onboardingTask(String assignmentId, String taskId) =>
+      '/onboarding/assignments/$assignmentId/tasks/$taskId';
 
   // Shift
   static const String shiftTypes = '/shift/types';
@@ -68,6 +72,11 @@ class ApiEndpoints {
   // Resources
   static const String resources = '/resources';
   static const String resourceBookings = '/resources/bookings';
+  static const String resourceBookingsCalendar = '/resources/bookings/calendar';
+  static String resourceBookingConfirm(String id) =>
+      '/resources/bookings/$id/confirm';
+  static String resourceBookingComplete(String id) =>
+      '/resources/bookings/$id/complete';
 
   // Documents & Assets & Visitors (core)
   static const String documents = '/core/documents';

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../shared/widgets/hive_app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_colors.dart';
@@ -22,7 +23,7 @@ class DashboardScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.primaryNavy,
-      appBar: AppBar(
+      appBar: HiveAppBar(
         automaticallyImplyLeading: false,
         toolbarHeight: 0,
         elevation: 0,

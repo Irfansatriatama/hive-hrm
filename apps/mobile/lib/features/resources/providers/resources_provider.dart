@@ -37,6 +37,21 @@ class Resources extends _$Resources {
     return ResourcesData(resources: resources, bookings: bookings);
   }
 
+  Future<List<ResourceBookingModel>> fetchCalendarBookings(DateTime date) async {
+    final start = DateTime(date.year, date.month, date.day);
+    final end = start.add(const Duration(days: 1));
+    final response = await ApiClient.instance.get(
+      ApiEndpoints.resourceBookingsCalendar,
+      queryParameters: {
+        'start': start.toUtc().toIso8601String(),
+        'end': end.toUtc().toIso8601String(),
+      },
+    );
+    return (response.data as List<dynamic>)
+        .map((e) => ResourceBookingModel.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
   Future<String?> createBooking({
     required String resourceId,
     required String title,
@@ -98,6 +113,28 @@ class Resources extends _$Resources {
         '${ApiEndpoints.resourceBookings}/$id/reject',
         data: {if (reason != null && reason.isNotEmpty) 'reason': reason},
       );
+      ref.invalidateSelf();
+      await future;
+      return null;
+    } catch (e) {
+      return _extractError(e);
+    }
+  }
+
+  Future<String?> confirmBooking(String id) async {
+    try {
+      await ApiClient.instance.post(ApiEndpoints.resourceBookingConfirm(id));
+      ref.invalidateSelf();
+      await future;
+      return null;
+    } catch (e) {
+      return _extractError(e);
+    }
+  }
+
+  Future<String?> completeBooking(String id) async {
+    try {
+      await ApiClient.instance.post(ApiEndpoints.resourceBookingComplete(id));
       ref.invalidateSelf();
       await future;
       return null;

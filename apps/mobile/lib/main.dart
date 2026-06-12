@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'core/api/api_client.dart';
+import 'core/auth/auth_provider.dart';
 import 'core/l10n/l10n.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
@@ -19,11 +21,25 @@ void main() {
   runApp(const ProviderScope(child: HiveHrmApp()));
 }
 
-class HiveHrmApp extends ConsumerWidget {
+class HiveHrmApp extends ConsumerStatefulWidget {
   const HiveHrmApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HiveHrmApp> createState() => _HiveHrmAppState();
+}
+
+class _HiveHrmAppState extends ConsumerState<HiveHrmApp> {
+  @override
+  void initState() {
+    super.initState();
+    ApiClient.onUnauthorized = () async {
+      if (!mounted) return;
+      await ref.read(authProvider.notifier).signOut();
+    };
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final router = ref.watch(appRouterProvider);
 
     return MaterialApp.router(

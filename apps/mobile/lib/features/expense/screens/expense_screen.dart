@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../shared/widgets/hive_fab.dart';
+import '../../../shared/widgets/hive_app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_colors.dart';
@@ -21,21 +23,15 @@ class ExpenseScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.primaryNavy,
-      appBar: AppBar(
+      appBar: HiveAppBar(
         title: Text(context.l10n.expenseTitle, style: AppTextStyle.h1),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: AppTheme.sm),
-            child: ElevatedButton(
-              onPressed: () => showExpenseCreateSheet(context),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: AppTheme.md),
-                minimumSize: const Size(0, AppTheme.tapMin),
-              ),
-              child: Text(context.l10n.expenseCreate),
-            ),
-          ),
-        ],
+      ),
+      floatingActionButton: HiveFab.wrap(
+        context,
+        HiveFab(
+          tooltip: context.l10n.expenseCreate,
+          onPressed: () => showExpenseCreateSheet(context),
+        ),
       ),
       body: RefreshIndicator(
         color: AppColors.amberAccent,

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import '../../../shared/widgets/hive_app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/auth/user_role_provider.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/navigation/app_navigation.dart';
 import '../../../core/navigation/app_menu_config.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_style.dart';
@@ -41,7 +43,7 @@ class MoreScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.primaryNavy,
-      appBar: AppBar(
+      appBar: HiveAppBar(
         title: Text(context.l10n.menuMore, style: AppTextStyle.h1),
       ),
       body: ListView(
@@ -55,7 +57,7 @@ class MoreScreen extends ConsumerWidget {
                 icon: item.icon,
                 label: menuLabel(context, item.id),
                 badgeCount: item.id == AppMenuId.approval ? approvalCount : null,
-                onTap: () => context.go(item.route),
+                onTap: () => context.openFeature(item.route),
               ),
             ),
             const SizedBox(height: AppTheme.md),

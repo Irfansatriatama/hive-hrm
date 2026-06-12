@@ -17,6 +17,7 @@ import '../../features/onboarding/screens/onboarding_screen.dart';
 import '../../features/org_chart/screens/org_chart_screen.dart';
 import '../../features/shift/screens/shift_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
+import '../../features/resources/screens/resource_room_schedule_screen.dart';
 import '../../features/resources/screens/resources_screen.dart';
 import '../../features/documents/screens/documents_screen.dart';
 import '../../features/assets/screens/assets_screen.dart';
@@ -182,6 +183,18 @@ GoRouter appRouter(AppRouterRef ref) {
               state: state,
               child: const ResourcesScreen(),
             ),
+            routes: [
+              GoRoute(
+                path: 'room/:id',
+                pageBuilder: (context, state) => _fadeTransitionPage(
+                  state: state,
+                  child: ResourceRoomScheduleScreen(
+                    resourceId: state.pathParameters['id']!,
+                    initialDate: state.uri.queryParameters['date'],
+                  ),
+                ),
+              ),
+            ],
           ),
           GoRoute(
             path: '/documents',

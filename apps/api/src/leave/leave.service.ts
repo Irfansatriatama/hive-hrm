@@ -191,23 +191,71 @@ export class LeaveService {
     return deleted;
   }
 
-  async getLeaveCalendar() {
+  async getLeaveCalendar(employeeId?: string, month?: number, year?: number) {
+    const now = new Date();
+    const y = year ?? now.getFullYear();
+    const m = month ?? now.getMonth() + 1;
+    const rangeStart = new Date(y, m - 1, 1);
+    const rangeEnd = new Date(y, m, 0, 23, 59, 59, 999);
+
     const approvedLeaves = await this.prisma.leaveRequest.findMany({
-      where: { status: ApprovalStatus.APPROVED },
+      where: {
+        status: ApprovalStatus.APPROVED,
+        AND: [
+          { startDate: { lte: rangeEnd } },
+          { endDate: { gte: rangeStart } },
+        ],
+      },
       include: {
-        employee: true,
+        employee: { include: { department: true } },
         leaveType: true,
       },
     });
 
-    return approvedLeaves.map(al => ({
-      id: al.id,
-      title: `${al.employee.fullName} (${al.leaveType.name})`,
-      start: al.startDate.toISOString().split('T')[0],
-      end: al.endDate.toISOString().split('T')[0],
-      allDay: true,
-      employeeId: al.employeeId,
-      employeeName: al.employee.fullName,
-    }));
+    const holidays = await this.prisma.publicHoliday.findMany({
+      where: {
+        date: {
+          gte: rangeStart,
+          lte: rangeEnd,
+        },
+      },
+      orderBy: { date: 'asc' },
+    });
+
+    const departments = await this.prisma.department.findMany({
+      orderBy: { name: 'asc' },
+      select: { id: true, name: true },
+    });
+
+    return {
+      currentEmployeeId: employeeId ?? null,
+      departments,
+      events: approvedLeaves.map(al => ({
+        id: al.id,
+        title: `${al.employee.fullName} (${al.leaveType.name})`,
+        start: this.toLocalDateStr(al.startDate),
+        end: this.toLocalDateStr(al.endDate),
+        allDay: true,
+        employeeId: al.employeeId,
+        employeeName: al.employee.fullName,
+        departmentId: al.employee.departmentId,
+        leaveTypeName: al.leaveType.name,
+        isOwn: employeeId ? al.employeeId === employeeId : false,
+      })),
+      holidays: holidays.map(h => ({
+        id: h.id,
+        name: h.name,
+        date: this.toLocalDateStr(h.date),
+        type: h.type,
+        description: h.description,
+      })),
+    };
+  }
+
+  private toLocalDateStr(d: Date) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
   }
 }

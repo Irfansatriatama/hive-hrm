@@ -1,10 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../../../shared/widgets/hive_app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../core/auth/user_role_provider.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/navigation/app_navigation.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_style.dart';
 import '../../../core/theme/app_theme.dart';
@@ -72,7 +74,7 @@ class ProfileScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.primaryNavy,
-      appBar: AppBar(
+      appBar: HiveAppBar(
         title: Text(context.l10n.profileTitle, style: AppTextStyle.h1),
       ),
       body: RefreshIndicator(
@@ -189,7 +191,7 @@ class _ProfileContent extends StatelessWidget {
             _ProfileActionTile(
               label: context.l10n.profileApprovals,
               icon: Icons.task_alt_rounded,
-              onTap: () => context.go('/approval'),
+              onTap: () => context.openFeature('/approval'),
             ),
           ],
           const SizedBox(height: AppTheme.sm),

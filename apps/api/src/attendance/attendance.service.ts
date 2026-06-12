@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { Attendance } from '@prisma/client';
 
 export const DEFAULT_ATTENDANCE_SETTINGS = {
   check_in_limit: '08:00',
@@ -12,11 +13,13 @@ export const DEFAULT_ATTENDANCE_SETTINGS = {
   fingerprint_integration: false,
 };
 
+type AttendanceSettings = typeof DEFAULT_ATTENDANCE_SETTINGS;
+
 @Injectable()
 export class AttendanceService {
   constructor(private prisma: PrismaService) {}
 
-  private async loadSettings() {
+  private async loadSettings(): Promise<AttendanceSettings> {
     const setting = await this.prisma.appSetting.findUnique({
       where: { key: 'attendance_settings' },
     });
@@ -24,6 +27,65 @@ export class AttendanceService {
       return { ...DEFAULT_ATTENDANCE_SETTINGS, ...(setting.value as object) };
     }
     return { ...DEFAULT_ATTENDANCE_SETTINGS };
+  }
+
+  private timeOnDate(base: Date, timeStr: string): Date {
+    const [h, m] = timeStr.split(':').map(Number);
+    const d = new Date(base);
+    d.setHours(h, m, 0, 0);
+    return d;
+  }
+
+  calculateLateMinutes(checkIn: Date, settings: AttendanceSettings): number {
+    const baseline = this.timeOnDate(checkIn, settings.check_in_limit);
+    baseline.setMinutes(baseline.getMinutes() + settings.late_tolerance);
+    if (checkIn <= baseline) return 0;
+    return Math.round((checkIn.getTime() - baseline.getTime()) / (1000 * 60));
+  }
+
+  calculateOvertimeMinutes(checkOut: Date, settings: AttendanceSettings): number {
+    const baseline = this.timeOnDate(checkOut, settings.check_out_limit);
+    baseline.setMinutes(baseline.getMinutes() + settings.overtime_start_delay);
+    if (checkOut <= baseline) return 0;
+
+    let diffMinutes = Math.round(
+      (checkOut.getTime() - baseline.getTime()) / (1000 * 60),
+    );
+
+    if (settings.overtime_calculation_method === 'half_hourly') {
+      diffMinutes = Math.floor(diffMinutes / 30) * 30;
+    } else {
+      diffMinutes = Math.floor(diffMinutes / 60) * 60;
+    }
+
+    return diffMinutes;
+  }
+
+  calculateEarlyLeaveMinutes(checkOut: Date, settings: AttendanceSettings): number {
+    const earliest = this.timeOnDate(checkOut, settings.check_out_limit);
+    earliest.setMinutes(earliest.getMinutes() - settings.early_checkout_tolerance);
+    if (checkOut >= earliest) return 0;
+    return Math.round((earliest.getTime() - checkOut.getTime()) / (1000 * 60));
+  }
+
+  async enrichRecord(record: Attendance, settings?: AttendanceSettings) {
+    const s = settings ?? (await this.loadSettings());
+    const overtimeMinutes =
+      record.overtimeMinutes ??
+      (record.checkOut ? this.calculateOvertimeMinutes(record.checkOut, s) : 0);
+    const earlyLeaveMinutes =
+      record.earlyLeaveMinutes ??
+      (record.checkOut ? this.calculateEarlyLeaveMinutes(record.checkOut, s) : 0);
+
+    return {
+      ...record,
+      overtimeMinutes,
+      earlyLeaveMinutes,
+      checkInLatitude: record.latitude,
+      checkInLongitude: record.longitude,
+      checkOutLatitude: record.checkOutLatitude,
+      checkOutLongitude: record.checkOutLongitude,
+    };
   }
 
   async getTodayStatus(employeeId: string) {
@@ -39,7 +101,8 @@ export class AttendanceService {
       },
     });
 
-    return record || null;
+    if (!record) return null;
+    return this.enrichRecord(record);
   }
 
   async checkIn(
@@ -60,20 +123,10 @@ export class AttendanceService {
 
     const settings = await this.loadSettings();
     const now = new Date();
+    const lateMinutes = this.calculateLateMinutes(now, settings);
+    const status = lateMinutes > 0 ? 'Late' : 'On Time';
 
-    const [limitH, limitM] = settings.check_in_limit.split(':').map(Number);
-    const baseline = new Date();
-    baseline.setHours(limitH, limitM + settings.late_tolerance, 0, 0);
-
-    let status = 'On Time';
-    let lateMinutes = 0;
-
-    if (now > baseline) {
-      status = 'Late';
-      lateMinutes = Math.round((now.getTime() - baseline.getTime()) / (1000 * 60));
-    }
-
-    return this.prisma.attendance.create({
+    const created = await this.prisma.attendance.create({
       data: {
         employeeId,
         date: new Date(),
@@ -92,13 +145,24 @@ export class AttendanceService {
         selfieUrl: data.selfieUrl ?? null,
       },
     });
+
+    return this.enrichRecord(created, settings);
   }
 
   async checkOut(
     employeeId: string,
     data?: { latitude?: number; longitude?: number; checkOutNote?: string },
   ) {
-    const record = await this.getTodayStatus(employeeId);
+    const record = await this.prisma.attendance.findFirst({
+      where: {
+        employeeId,
+        date: {
+          gte: new Date(new Date().setHours(0, 0, 0, 0)),
+          lte: new Date(new Date().setHours(23, 59, 59, 999)),
+        },
+      },
+    });
+
     if (!record) {
       throw new NotFoundException('Karyawan belum melakukan check-in hari ini');
     }
@@ -106,6 +170,7 @@ export class AttendanceService {
       throw new Error('Karyawan sudah melakukan check-out hari ini');
     }
 
+    const settings = await this.loadSettings();
     const now = new Date();
     let workHours = 0;
     if (record.checkIn) {
@@ -113,20 +178,29 @@ export class AttendanceService {
       workHours = Math.round(workHours * 10) / 10;
     }
 
-    return this.prisma.attendance.update({
+    const overtimeMinutes = this.calculateOvertimeMinutes(now, settings);
+    const earlyLeaveMinutes = this.calculateEarlyLeaveMinutes(now, settings);
+
+    const updated = await this.prisma.attendance.update({
       where: { id: record.id },
       data: {
         checkOut: now,
         workHours,
-        latitude: data?.latitude ?? record.latitude,
-        longitude: data?.longitude ?? record.longitude,
+        overtimeMinutes,
+        earlyLeaveMinutes,
+        checkOutLatitude: data?.latitude ?? null,
+        checkOutLongitude: data?.longitude ?? null,
         checkOutNote: data?.checkOutNote ?? null,
       },
     });
+
+    return this.enrichRecord(updated, settings);
   }
 
   async getMyHistory(employeeId: string, month?: number, year?: number) {
-    const where: { employeeId: string; date?: { gte: Date; lte: Date } } = { employeeId };
+    const where: { employeeId: string; date?: { gte: Date; lte: Date } } = {
+      employeeId,
+    };
 
     if (month && year) {
       const start = new Date(year, month - 1, 1);
@@ -134,15 +208,109 @@ export class AttendanceService {
       where.date = { gte: start, lte: end };
     }
 
-    return this.prisma.attendance.findMany({
+    const settings = await this.loadSettings();
+    const records = await this.prisma.attendance.findMany({
       where,
       orderBy: { date: 'desc' },
       ...(month && year ? {} : { take: 30 }),
     });
+
+    return Promise.all(records.map((r) => this.enrichRecord(r, settings)));
+  }
+
+  async getMySummary(employeeId: string, month?: number, year?: number) {
+    const now = new Date();
+    const y = year ?? now.getFullYear();
+    const settings = await this.loadSettings();
+
+    let start: Date;
+    let end: Date;
+    let periodLabel: string;
+
+    if (month && month >= 1 && month <= 12) {
+      start = new Date(y, month - 1, 1);
+      end = new Date(y, month, 0, 23, 59, 59, 999);
+      periodLabel = `${month}/${y}`;
+    } else {
+      start = new Date(y, 0, 1);
+      end = new Date(y, 11, 31, 23, 59, 59, 999);
+      periodLabel = `${y}`;
+    }
+
+    const records = await this.prisma.attendance.findMany({
+      where: {
+        employeeId,
+        date: { gte: start, lte: end },
+      },
+      orderBy: { date: 'asc' },
+    });
+
+    let present = 0;
+    let late = 0;
+    let absent = 0;
+    let totalWorkHours = 0;
+    let totalOvertimeMinutes = 0;
+    let totalLateMinutes = 0;
+    let workDayCount = 0;
+
+    for (const row of records) {
+      const enriched = await this.enrichRecord(row, settings);
+      const status = (row.status || '').toLowerCase();
+
+      if (status.includes('absent') || status.includes('alpha')) {
+        absent += 1;
+      } else if (row.lateMinutes && row.lateMinutes > 0) {
+        late += 1;
+        present += 1;
+      } else if (row.checkIn) {
+        present += 1;
+      }
+
+      if (row.workHours) {
+        totalWorkHours += row.workHours;
+        workDayCount += 1;
+      }
+      totalOvertimeMinutes += enriched.overtimeMinutes ?? 0;
+      totalLateMinutes += row.lateMinutes ?? 0;
+    }
+
+    return {
+      period: periodLabel,
+      month: month ?? null,
+      year: y,
+      totalRecords: records.length,
+      present,
+      late,
+      absent,
+      totalWorkHours: Math.round(totalWorkHours * 10) / 10,
+      avgWorkHours:
+        workDayCount > 0
+          ? Math.round((totalWorkHours / workDayCount) * 10) / 10
+          : 0,
+      totalOvertimeMinutes,
+      totalOvertimeHours: Math.round((totalOvertimeMinutes / 60) * 10) / 10,
+      totalLateMinutes,
+      settings: {
+        check_in_limit: settings.check_in_limit,
+        check_out_limit: settings.check_out_limit,
+        overtime_start_delay: settings.overtime_start_delay,
+      },
+    };
+  }
+
+  async getRecordById(employeeId: string, id: string) {
+    const record = await this.prisma.attendance.findFirst({
+      where: { id, employeeId },
+    });
+    if (!record) {
+      throw new NotFoundException('Data absensi tidak ditemukan');
+    }
+    return this.enrichRecord(record);
   }
 
   async getReport() {
-    return this.prisma.attendance.findMany({
+    const settings = await this.loadSettings();
+    const records = await this.prisma.attendance.findMany({
       include: {
         employee: {
           include: { department: true },
@@ -150,6 +318,13 @@ export class AttendanceService {
       },
       orderBy: { date: 'desc' },
     });
+
+    return Promise.all(
+      records.map(async (r) => ({
+        ...(await this.enrichRecord(r, settings)),
+        employee: r.employee,
+      })),
+    );
   }
 
   async bulkUpdateStatus(ids: string[], newStatus: string, userId?: string) {
@@ -168,18 +343,20 @@ export class AttendanceService {
         updateData.checkOut = null;
         updateData.workHours = null;
         updateData.lateMinutes = null;
+        updateData.overtimeMinutes = null;
+        updateData.earlyLeaveMinutes = null;
       } else if (newStatus === 'On Time' && !record.checkIn) {
         const date = new Date(record.date);
-        const [h, m] = settings.check_in_limit.split(':').map(Number);
-        const checkIn = new Date(date);
-        checkIn.setHours(h, m, 0, 0);
-        const [oh, om] = settings.check_out_limit.split(':').map(Number);
-        const checkOut = new Date(date);
-        checkOut.setHours(oh, om, 0, 0);
+        const checkIn = this.timeOnDate(date, settings.check_in_limit);
+        const checkOut = this.timeOnDate(date, settings.check_out_limit);
         updateData.checkIn = checkIn;
         updateData.checkOut = checkOut;
         updateData.workHours =
-          Math.round(((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60)) * 10) / 10;
+          Math.round(
+            ((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60)) * 10,
+          ) / 10;
+        updateData.overtimeMinutes = 0;
+        updateData.earlyLeaveMinutes = 0;
       }
 
       await this.prisma.attendance.update({

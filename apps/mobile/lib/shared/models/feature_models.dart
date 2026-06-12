@@ -135,6 +135,7 @@ class LeaveCalendarEventModel {
   final String employeeId;
   final String employeeName;
   final String? departmentId;
+  final bool isOwn;
 
   const LeaveCalendarEventModel({
     required this.id,
@@ -144,6 +145,7 @@ class LeaveCalendarEventModel {
     required this.employeeId,
     required this.employeeName,
     this.departmentId,
+    this.isOwn = false,
   });
 
   factory LeaveCalendarEventModel.fromJson(Map<String, dynamic> json) {
@@ -154,6 +156,8 @@ class LeaveCalendarEventModel {
       end: json['end'] as String,
       employeeId: json['employeeId'] as String,
       employeeName: json['employeeName'] as String? ?? '',
+      isOwn: json['isOwn'] as bool? ?? false,
+      departmentId: json['departmentId'] as String?,
     );
   }
 
@@ -166,6 +170,30 @@ class LeaveCalendarEventModel {
       employeeId: employeeId,
       employeeName: employeeName,
       departmentId: departmentId,
+      isOwn: isOwn,
+    );
+  }
+}
+
+class LeaveCalendarHolidayModel {
+  final String id;
+  final String name;
+  final String date;
+  final String type;
+
+  const LeaveCalendarHolidayModel({
+    required this.id,
+    required this.name,
+    required this.date,
+    required this.type,
+  });
+
+  factory LeaveCalendarHolidayModel.fromJson(Map<String, dynamic> json) {
+    return LeaveCalendarHolidayModel(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      date: json['date'] as String,
+      type: json['type'] as String? ?? 'national',
     );
   }
 }
@@ -187,10 +215,14 @@ class LeaveCalendarDepartmentModel {
 class LeaveCalendarData {
   final List<LeaveCalendarEventModel> events;
   final List<LeaveCalendarDepartmentModel> departments;
+  final List<LeaveCalendarHolidayModel> holidays;
+  final String? currentEmployeeId;
 
   const LeaveCalendarData({
     required this.events,
     required this.departments,
+    this.holidays = const [],
+    this.currentEmployeeId,
   });
 }
 
@@ -295,6 +327,8 @@ class ResourceBookingModel {
   final DateTime startTime;
   final DateTime endTime;
   final String status;
+  final DateTime? confirmedAt;
+  final DateTime? completedAt;
   final BookableResourceModel? resource;
 
   const ResourceBookingModel({
@@ -307,6 +341,8 @@ class ResourceBookingModel {
     required this.startTime,
     required this.endTime,
     required this.status,
+    this.confirmedAt,
+    this.completedAt,
     this.resource,
   });
 
@@ -322,6 +358,12 @@ class ResourceBookingModel {
       startTime: DateTime.parse(json['startTime'] as String),
       endTime: DateTime.parse(json['endTime'] as String),
       status: json['status'] as String? ?? 'pending',
+      confirmedAt: json['confirmedAt'] != null
+          ? DateTime.parse(json['confirmedAt'] as String)
+          : null,
+      completedAt: json['completedAt'] != null
+          ? DateTime.parse(json['completedAt'] as String)
+          : null,
       resource: json['resource'] != null
           ? BookableResourceModel.fromJson(
               json['resource'] as Map<String, dynamic>,

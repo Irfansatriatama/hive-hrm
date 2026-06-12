@@ -142,6 +142,39 @@
       "minutes": { "type": "int" }
     }
   },
+  "durationMinutes": "{minutes} min",
+  "@durationMinutes": {
+    "placeholders": { "minutes": { "type": "int" } }
+  },
+  "attendanceOvertimeLabel": "Overtime",
+  "attendanceSelfieLabel": "Check-in selfie photo",
+  "attendanceCheckInLocation": "Check-in location",
+  "attendanceCheckOutLocation": "Check-out location",
+  "attendanceCheckInNote": "Check-in note",
+  "attendanceCheckOutNote": "Check-out note",
+  "attendanceLateMinutes": "Late by",
+  "attendanceEarlyLeave": "Early leave",
+  "attendanceTapForDetail": "Tap for details",
+  "attendancePeriodFilter": "Period filter",
+  "attendanceMonthLabel": "Month",
+  "attendanceYearLabel": "Year",
+  "attendanceYearlyView": "Yearly recap",
+  "attendanceTotalHours": "Total hours",
+  "attendanceAvgHours": "Average {hours} hrs/day",
+  "@attendanceAvgHours": {
+    "placeholders": { "hours": { "type": "double" } }
+  },
+  "attendanceMonthlyRecap": "Recap {month}/{year}",
+  "@attendanceMonthlyRecap": {
+    "placeholders": {
+      "month": { "type": "int" },
+      "year": { "type": "int" }
+    }
+  },
+  "attendanceYearlyRecap": "Recap year {year}",
+  "@attendanceYearlyRecap": {
+    "placeholders": { "year": { "type": "int" } }
+  },
   "leaveTypeLabel": "Leave Type",
   "reasonLabel": "Reason",
   "dateRangeLabel": "Leave Dates",
@@ -264,6 +297,7 @@
   },
   "onboardingTasks": "TASK CHECKLIST",
   "onboardingMarkDone": "Done",
+  "onboardingUpdating": "Saving...",
   "onboardingTaskDone": "Task marked as done",
   "emptyOnboarding": "No active onboarding process",
   "leaveCalendarTitle": "Leave Calendar",
@@ -300,8 +334,54 @@
   "menuSectionManager": "MANAGER",
   "menuSectionGeneral": "GENERAL",
   "resourcesTitle": "Room Booking",
+  "resourcesTabAvailability": "Availability",
   "resourcesTabRooms": "Rooms",
   "resourcesTabBookings": "My Bookings",
+  "resourcesSlotFree": "Free",
+  "resourcesSlotBooked": "Booked",
+  "resourcesBookingDetail": "Booking Detail",
+  "resourcesEmployeeLabel": "Employee",
+  "resourcesAvailabilityHint": "Tap green slots to book. Tap red slots to view details.",
+  "resourcesCancelSuccess": "Booking cancelled successfully",
+  "resourcesConfirmMeeting": "Confirm",
+  "resourcesCompleteMeeting": "Complete Meeting",
+  "resourcesConfirmSuccess": "Meeting confirmed",
+  "resourcesCompleteSuccess": "Meeting completed",
+  "resourcesPhasePendingApproval": "Pending Approval",
+  "resourcesPhaseWaiting": "Waiting",
+  "resourcesPhaseAwaitingConfirm": "Awaiting Confirmation",
+  "resourcesPhaseInProgress": "In Progress",
+  "resourcesPhaseReadyComplete": "Ready to Complete",
+  "resourcesPhaseCompleted": "Completed",
+  "resourcesPhaseExpired": "Expired",
+  "resourcesPhaseCancelled": "Cancelled",
+  "resourcesBookedBy": "Booked by {name}",
+  "@resourcesBookedBy": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "resourcesFreeSlotsCount": "{count} free slots today",
+  "@resourcesFreeSlotsCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "resourcesRoomScheduleHint": "Tap free slots to book. Occupied slots show the booker.",
+  "leaveCalendarLegendTitle": "This Month's Legend",
+  "leaveCalendarLegendNational": "National holiday / Sunday",
+  "leaveCalendarLegendCollective": "Government collective leave",
+  "leaveCalendarLegendCompany": "Company holiday",
+  "leaveCalendarLegendOwnLeave": "My leave",
+  "leaveCalendarLegendOtherLeave": "Other employees' leave",
+  "leaveCalendarLegendToday": "Today (active day)",
+  "leaveCalendarTodayDesc": "The current date is highlighted with a green border.",
+  "leaveCalendarSundayTitle": "Sunday",
+  "leaveCalendarSundayDesc": "Weekly rest day.",
+  "leaveCalendarMultiHint": "Days with multiple categories show colored dots at the bottom.",
+  "leaveCalendarMonthSummary": "{month} {year} summary",
+  "@leaveCalendarMonthSummary": {
+    "placeholders": {
+      "month": { "type": "String" },
+      "year": { "type": "int" }
+    }
+  },
   "resourcesCapacity": "Capacity {count}",
   "@resourcesCapacity": {
     "placeholders": { "count": { "type": "int" } }

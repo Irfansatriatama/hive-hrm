@@ -1,4 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:dio/dio.dart';
+import '../api/api_client.dart';
+import '../api/api_endpoints.dart';
 import 'auth_storage.dart';
 import 'user_role_provider.dart';
 
@@ -8,7 +11,20 @@ part 'auth_provider.g.dart';
 class Auth extends _$Auth {
   @override
   Future<String?> build() async {
-    return AuthStorage.getToken();
+    final token = await AuthStorage.getToken();
+    if (token == null) return null;
+
+    try {
+      await ApiClient.instance.get(ApiEndpoints.me);
+      return token;
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) {
+        await AuthStorage.clear();
+        return null;
+      }
+      // Network/server unreachable — keep stored token for offline retry
+      return token;
+    }
   }
 
   Future<void> setToken(String token) async {

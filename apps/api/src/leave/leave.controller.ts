@@ -115,8 +115,15 @@ export class LeaveController {
   }
 
   @Get('calendar')
-  async getLeaveCalendar(@Req() req: express.Request) {
-    await this.getSessionUser(req);
-    return this.service.getLeaveCalendar();
+  async getLeaveCalendar(
+    @Req() req: express.Request,
+    @Query('month') month?: string,
+    @Query('year') year?: string,
+  ) {
+    const user = await this.getSessionUser(req);
+    const emp = await this.prisma.employee.findUnique({ where: { userId: user.id } });
+    const monthNum = month ? parseInt(month, 10) : undefined;
+    const yearNum = year ? parseInt(year, 10) : undefined;
+    return this.service.getLeaveCalendar(emp?.id, monthNum, yearNum);
   }
 }

@@ -6,7 +6,7 @@ part of 'leave_calendar_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$leaveCalendarHash() => r'7f74029f41e891f446d160e506e3d9ae35d686a4';
+String _$leaveCalendarHash() => r'4929c00632940dd6d6d1ef69d0901d7e3ebf8972';
 
 /// See also [LeaveCalendar].
 @ProviderFor(LeaveCalendar)

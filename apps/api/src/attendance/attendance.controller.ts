@@ -7,6 +7,7 @@ import {
   Req,
   Res,
   Query,
+  Param,
   UnauthorizedException,
   NotFoundException,
   BadRequestException,
@@ -134,6 +135,29 @@ export class AttendanceController {
     const m = month ? parseInt(month, 10) : undefined;
     const y = year ? parseInt(year, 10) : undefined;
     return this.service.getMyHistory(emp.id, m, y);
+  }
+
+  @Get('summary')
+  async getMySummary(
+    @Req() req: express.Request,
+    @Query('month') month?: string,
+    @Query('year') year?: string,
+  ) {
+    const user = await this.getSessionUser(req);
+    const emp = await this.getEmployeeByUserId(user.id);
+    const m = month ? parseInt(month, 10) : undefined;
+    const y = year ? parseInt(year, 10) : undefined;
+    return this.service.getMySummary(emp.id, m, y);
+  }
+
+  @Get('records/:id')
+  async getRecord(
+    @Req() req: express.Request,
+    @Param('id') id: string,
+  ) {
+    const user = await this.getSessionUser(req);
+    const emp = await this.getEmployeeByUserId(user.id);
+    return this.service.getRecordById(emp.id, id);
   }
 
   @Get('report')

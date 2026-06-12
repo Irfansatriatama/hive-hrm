@@ -90,11 +90,25 @@ class OnboardingAssignmentModel {
   });
 
   factory OnboardingAssignmentModel.fromJson(Map<String, dynamic> json) {
+    final rawStart = json['startDate'];
+    final startDate = rawStart is String
+        ? rawStart
+        : rawStart != null
+            ? DateTime.parse(rawStart.toString()).toIso8601String()
+            : DateTime.now().toIso8601String();
+
+    final rawCompleted = json['completedAt'];
+    final completedAt = rawCompleted == null
+        ? null
+        : rawCompleted is String
+            ? rawCompleted
+            : DateTime.parse(rawCompleted.toString()).toIso8601String();
+
     return OnboardingAssignmentModel(
       id: json['id'] as String,
       status: json['status'] as String? ?? 'in_progress',
-      startDate: json['startDate'] as String,
-      completedAt: json['completedAt'] as String?,
+      startDate: startDate,
+      completedAt: completedAt,
       template: OnboardingTemplateModel.fromJson(
         json['template'] as Map<String, dynamic>,
       ),

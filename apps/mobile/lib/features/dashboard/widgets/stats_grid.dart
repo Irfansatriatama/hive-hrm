@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../core/l10n/l10n.dart';
+import '../../../core/navigation/app_navigation.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_style.dart';
 import '../../../core/theme/app_theme.dart';
@@ -83,7 +84,7 @@ class StatsGrid extends StatelessWidget {
           value: rewardValue,
           label: context.l10n.statRewardPoints,
           sub: context.l10n.statRewardToday(data.rewardPointsToday),
-          onTap: () => context.go('/reward'),
+          onTap: () => context.openFeature('/reward'),
         ),
       ],
     );

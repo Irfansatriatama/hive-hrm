@@ -142,6 +142,39 @@
       "minutes": { "type": "int" }
     }
   },
+  "durationMinutes": "{minutes} menit",
+  "@durationMinutes": {
+    "placeholders": { "minutes": { "type": "int" } }
+  },
+  "attendanceOvertimeLabel": "Lembur",
+  "attendanceSelfieLabel": "Foto selfie saat check-in",
+  "attendanceCheckInLocation": "Lokasi check-in",
+  "attendanceCheckOutLocation": "Lokasi check-out",
+  "attendanceCheckInNote": "Catatan check-in",
+  "attendanceCheckOutNote": "Catatan check-out",
+  "attendanceLateMinutes": "Keterlambatan",
+  "attendanceEarlyLeave": "Pulang lebih awal",
+  "attendanceTapForDetail": "Ketuk untuk lihat detail",
+  "attendancePeriodFilter": "Filter periode",
+  "attendanceMonthLabel": "Bulan",
+  "attendanceYearLabel": "Tahun",
+  "attendanceYearlyView": "Rekap tahunan",
+  "attendanceTotalHours": "Total jam",
+  "attendanceAvgHours": "Rata-rata {hours} jam/hari",
+  "@attendanceAvgHours": {
+    "placeholders": { "hours": { "type": "double" } }
+  },
+  "attendanceMonthlyRecap": "Rekap {month}/{year}",
+  "@attendanceMonthlyRecap": {
+    "placeholders": {
+      "month": { "type": "int" },
+      "year": { "type": "int" }
+    }
+  },
+  "attendanceYearlyRecap": "Rekap tahun {year}",
+  "@attendanceYearlyRecap": {
+    "placeholders": { "year": { "type": "int" } }
+  },
   "leaveTypeLabel": "Tipe Cuti",
   "reasonLabel": "Alasan / Keterangan",
   "dateRangeLabel": "Tanggal Cuti",
@@ -264,6 +297,7 @@
   },
   "onboardingTasks": "CHECKLIST TUGAS",
   "onboardingMarkDone": "Selesai",
+  "onboardingUpdating": "Menyimpan...",
   "onboardingTaskDone": "Task ditandai selesai",
   "emptyOnboarding": "Tidak ada proses onboarding aktif",
   "leaveCalendarTitle": "Kalender Cuti",
@@ -300,8 +334,54 @@
   "menuSectionManager": "MANAGER",
   "menuSectionGeneral": "UMUM",
   "resourcesTitle": "Booking Ruangan",
+  "resourcesTabAvailability": "Ketersediaan",
   "resourcesTabRooms": "Ruangan",
   "resourcesTabBookings": "Booking Saya",
+  "resourcesSlotFree": "Kosong",
+  "resourcesSlotBooked": "Terisi",
+  "resourcesBookingDetail": "Detail Booking",
+  "resourcesEmployeeLabel": "Karyawan",
+  "resourcesAvailabilityHint": "Tap slot hijau untuk booking. Tap slot merah untuk lihat detail.",
+  "resourcesCancelSuccess": "Booking berhasil dibatalkan",
+  "resourcesConfirmMeeting": "Konfirmasi",
+  "resourcesCompleteMeeting": "Selesaikan Meeting",
+  "resourcesConfirmSuccess": "Meeting dikonfirmasi",
+  "resourcesCompleteSuccess": "Meeting selesai",
+  "resourcesPhasePendingApproval": "Menunggu Persetujuan",
+  "resourcesPhaseWaiting": "Menunggu",
+  "resourcesPhaseAwaitingConfirm": "Menunggu Konfirmasi",
+  "resourcesPhaseInProgress": "Sedang Berlangsung",
+  "resourcesPhaseReadyComplete": "Siap Diselesaikan",
+  "resourcesPhaseCompleted": "Selesai",
+  "resourcesPhaseExpired": "Kadaluarsa",
+  "resourcesPhaseCancelled": "Dibatalkan",
+  "resourcesBookedBy": "Terisi oleh {name}",
+  "@resourcesBookedBy": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "resourcesFreeSlotsCount": "{count} slot kosong hari ini",
+  "@resourcesFreeSlotsCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "resourcesRoomScheduleHint": "Tap slot kosong untuk booking. Slot terisi menampilkan pembooking.",
+  "leaveCalendarLegendTitle": "Keterangan Bulan Ini",
+  "leaveCalendarLegendNational": "Libur nasional / Minggu",
+  "leaveCalendarLegendCollective": "Cuti bersama pemerintah",
+  "leaveCalendarLegendCompany": "Libur kantor",
+  "leaveCalendarLegendOwnLeave": "Cuti saya",
+  "leaveCalendarLegendOtherLeave": "Cuti karyawan lain",
+  "leaveCalendarLegendToday": "Hari ini (aktif)",
+  "leaveCalendarTodayDesc": "Tanggal hari ini ditandai dengan border hijau.",
+  "leaveCalendarSundayTitle": "Hari Minggu",
+  "leaveCalendarSundayDesc": "Hari libur mingguan.",
+  "leaveCalendarMultiHint": "Hari dengan lebih dari satu kategori menampilkan titik warna di bawah.",
+  "leaveCalendarMonthSummary": "Ringkasan {month} {year}",
+  "@leaveCalendarMonthSummary": {
+    "placeholders": {
+      "month": { "type": "String" },
+      "year": { "type": "int" }
+    }
+  },
   "resourcesCapacity": "Kapasitas {count} orang",
   "@resourcesCapacity": {
     "placeholders": { "count": { "type": "int" } }

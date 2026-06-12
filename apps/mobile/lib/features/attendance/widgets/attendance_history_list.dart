@@ -8,6 +8,7 @@ import '../../../shared/utils/datetime_formatter.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/hive_card.dart';
 import '../../../shared/widgets/status_badge.dart';
+import 'attendance_detail_sheet.dart';
 import 'attendance_location_row.dart';
 
 class AttendanceHistoryList extends StatelessWidget {
@@ -63,10 +64,16 @@ class AttendanceHistoryTile extends StatelessWidget {
     return '—';
   }
 
+  String _formatOvertime(BuildContext context) {
+    final mins = record.overtimeMinutes ?? 0;
+    if (mins <= 0) return '—';
+    return context.l10n.durationHoursMinutes(mins ~/ 60, mins % 60);
+  }
+
   StatusType _resolveStatus() {
     if (record.checkIn == null) return StatusType.absent;
     final status = record.status?.toLowerCase() ?? '';
-    if (status.contains('late') || status.contains('terlambat')) {
+    if (status.contains('late') || (record.lateMinutes ?? 0) > 0) {
       return StatusType.late;
     }
     if (status.contains('on time') || status.contains('ontime')) {
@@ -90,6 +97,7 @@ class AttendanceHistoryTile extends StatelessWidget {
     final recordDate = record.date ?? record.checkIn ?? DateTime.now();
 
     return HiveCard(
+      onTap: () => showAttendanceDetailSheet(context, record),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -131,10 +139,28 @@ class AttendanceHistoryTile extends StatelessWidget {
               ),
             ],
           ),
+          if (record.hasOvertime) ...[
+            const SizedBox(height: AppTheme.sm),
+            Row(
+              children: [
+                Icon(Icons.more_time_rounded, size: 14, color: AppColors.amberAccent),
+                const SizedBox(width: 4),
+                Text(
+                  '${context.l10n.attendanceOvertimeLabel}: ${_formatOvertime(context)}',
+                  style: AppTextStyle.caption.copyWith(color: AppColors.amberAccent),
+                ),
+              ],
+            ),
+          ],
           if (record.displayLocation != null) ...[
             const SizedBox(height: AppTheme.sm),
             AttendanceLocationRow(record: record),
           ],
+          const SizedBox(height: AppTheme.xs),
+          Text(
+            context.l10n.attendanceTapForDetail,
+            style: AppTextStyle.overline,
+          ),
         ],
       ),
     );

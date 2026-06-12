@@ -22,54 +22,57 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.primaryNavy,
-      body: RefreshIndicator(
-        color: AppColors.amberAccent,
-        backgroundColor: AppColors.surfaceBlue,
-        onRefresh: () => ref.refresh(dashboardProvider.future),
-        child: switch (homeState) {
-          AsyncLoading() => const SingleChildScrollView(
-              physics: AlwaysScrollableScrollPhysics(),
-              child: DashboardSkeleton(),
-            ),
-          AsyncError(:final error) => SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: SizedBox(
-                height: MediaQuery.sizeOf(context).height * 0.7,
-                child: ErrorView(
-                  message: error.toString(),
-                  onRetry: () => ref.invalidate(dashboardProvider),
+      body: SafeArea(
+        bottom: false,
+        child: RefreshIndicator(
+          color: AppColors.amberAccent,
+          backgroundColor: AppColors.surfaceBlue,
+          onRefresh: () => ref.refresh(dashboardProvider.future),
+          child: switch (homeState) {
+            AsyncLoading() => const SingleChildScrollView(
+                physics: AlwaysScrollableScrollPhysics(),
+                child: DashboardSkeleton(),
+              ),
+            AsyncError(:final error) => SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: SizedBox(
+                  height: MediaQuery.sizeOf(context).height * 0.7,
+                  child: ErrorView(
+                    message: error.toString(),
+                    onRetry: () => ref.invalidate(dashboardProvider),
+                  ),
                 ),
               ),
-            ),
-          AsyncData(:final value) => SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(AppTheme.md),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  HomeHeader(
-                    name: value.employee.name,
-                    photoUrl: value.employee.photoUrl,
-                    attendance: value.todayAttendance,
-                  ),
-                  const SizedBox(height: AppTheme.md),
-                  SectionLabel(context.l10n.recentAnnouncements),
-                  const SizedBox(height: AppTheme.sm),
-                  AnnouncementCarousel(announcements: value.announcements),
-                  const SizedBox(height: AppTheme.md),
-                  const HomeMenuGrid(),
-                  const SizedBox(height: AppTheme.md),
-                  const HomeFeedSection(),
-                  const SizedBox(height: AppTheme.md),
-                  SectionLabel(context.l10n.homeSummaryTitle),
-                  const SizedBox(height: AppTheme.sm),
-                  StatsGrid(data: value),
-                  const SizedBox(height: AppTheme.lg),
-                ],
+            AsyncData(:final value) => SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.all(AppTheme.md),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    HomeHeader(
+                      name: value.employee.name,
+                      photoUrl: value.employee.photoUrl,
+                      attendance: value.todayAttendance,
+                    ),
+                    const SizedBox(height: AppTheme.md),
+                    SectionLabel(context.l10n.recentAnnouncements),
+                    const SizedBox(height: AppTheme.sm),
+                    AnnouncementCarousel(announcements: value.announcements),
+                    const SizedBox(height: AppTheme.md),
+                    SectionLabel(context.l10n.homeSummaryTitle),
+                    const SizedBox(height: AppTheme.sm),
+                    StatsGrid(data: value),
+                    const SizedBox(height: AppTheme.md),
+                    const HomeMenuGrid(),
+                    const SizedBox(height: AppTheme.md),
+                    const HomeFeedSection(),
+                    const SizedBox(height: AppTheme.lg),
+                  ],
+                ),
               ),
-            ),
-          _ => const SizedBox.shrink(),
-        },
+            _ => const SizedBox.shrink(),
+          },
+        ),
       ),
     );
   }

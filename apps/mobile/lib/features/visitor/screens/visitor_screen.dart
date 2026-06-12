@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../shared/widgets/hive_fab.dart';
+import '../../../shared/widgets/hive_app_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/auth/user_role_provider.dart';
 import '../../../core/l10n/l10n.dart';
@@ -55,7 +57,7 @@ class _VisitorScreenState extends ConsumerState<VisitorScreen>
 
     return Scaffold(
       backgroundColor: AppColors.primaryNavy,
-      appBar: AppBar(
+      appBar: HiveAppBar(
         title: Text(context.l10n.visitorTitle, style: AppTextStyle.h1),
         bottom: canViewAll
             ? TabBar(
@@ -69,12 +71,14 @@ class _VisitorScreenState extends ConsumerState<VisitorScreen>
                 ],
               )
             : null,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person_add_rounded),
-            onPressed: () => showVisitorCheckInSheet(context),
-          ),
-        ],
+      ),
+      floatingActionButton: HiveFab.wrap(
+        context,
+        HiveFab(
+          icon: Icons.person_add_rounded,
+          tooltip: context.l10n.visitorCheckIn,
+          onPressed: () => showVisitorCheckInSheet(context),
+        ),
       ),
       body: RefreshIndicator(
         color: AppColors.amberAccent,
@@ -171,10 +175,6 @@ class _VisitorListBody extends StatelessWidget {
             child: EmptyView(
               icon: Icons.person_pin_rounded,
               title: context.l10n.emptyVisitors,
-              action: ElevatedButton(
-                onPressed: () => showVisitorCheckInSheet(context),
-                child: Text(context.l10n.visitorCheckIn),
-              ),
             ),
           )
         else

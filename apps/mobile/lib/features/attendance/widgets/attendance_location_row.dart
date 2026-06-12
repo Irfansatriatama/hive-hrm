@@ -13,9 +13,9 @@ class AttendanceLocationRow extends StatelessWidget {
 
   Future<void> _openMaps(BuildContext context) async {
     if (!record.hasGps) return;
-    final uri = Uri.parse(
-      'https://maps.google.com/?q=${record.latitude},${record.longitude}',
-    );
+    final lat = record.effectiveCheckInLat!;
+    final lng = record.effectiveCheckInLng!;
+    final uri = Uri.parse('https://maps.google.com/?q=$lat,$lng');
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     }

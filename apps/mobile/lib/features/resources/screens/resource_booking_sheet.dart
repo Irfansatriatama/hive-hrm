@@ -10,6 +10,10 @@ import '../providers/resources_provider.dart';
 Future<void> showResourceBookingSheet(
   BuildContext context, {
   required List<BookableResourceModel> resources,
+  String? initialResourceId,
+  DateTime? initialDate,
+  TimeOfDay? initialStartTime,
+  TimeOfDay? initialEndTime,
 }) {
   return showModalBottomSheet<void>(
     context: context,
@@ -18,14 +22,30 @@ Future<void> showResourceBookingSheet(
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(AppTheme.lg)),
     ),
-    builder: (ctx) => _ResourceBookingSheet(resources: resources),
+    builder: (ctx) => _ResourceBookingSheet(
+      resources: resources,
+      initialResourceId: initialResourceId,
+      initialDate: initialDate,
+      initialStartTime: initialStartTime,
+      initialEndTime: initialEndTime,
+    ),
   );
 }
 
 class _ResourceBookingSheet extends ConsumerStatefulWidget {
   final List<BookableResourceModel> resources;
+  final String? initialResourceId;
+  final DateTime? initialDate;
+  final TimeOfDay? initialStartTime;
+  final TimeOfDay? initialEndTime;
 
-  const _ResourceBookingSheet({required this.resources});
+  const _ResourceBookingSheet({
+    required this.resources,
+    this.initialResourceId,
+    this.initialDate,
+    this.initialStartTime,
+    this.initialEndTime,
+  });
 
   @override
   ConsumerState<_ResourceBookingSheet> createState() =>
@@ -39,6 +59,15 @@ class _ResourceBookingSheetState extends ConsumerState<_ResourceBookingSheet> {
   TimeOfDay? _endTime;
   final _titleController = TextEditingController();
   final _purposeController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _resourceId = widget.initialResourceId;
+    _date = widget.initialDate;
+    _startTime = widget.initialStartTime;
+    _endTime = widget.initialEndTime;
+  }
 
   @override
   void dispose() {

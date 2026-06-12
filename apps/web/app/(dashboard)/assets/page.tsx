@@ -602,7 +602,7 @@ export default function AssetsPage() {
         title="Konfirmasi Pengembalian Aset"
         message="Apakah Anda yakin barang inventori telah diterima kembali di gudang dalam kondisi layak?"
         confirmText="Diterima"
-        type="primary"
+        type="success"
       />
     </div>
   );

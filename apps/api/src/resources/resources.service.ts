@@ -5,6 +5,22 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ResourcesService {
   constructor(private prisma: PrismaService) {}
 
+  async expireStaleBookings() {
+    const now = new Date();
+    await this.prisma.resourceBooking.updateMany({
+      where: {
+        status: 'approved',
+        endTime: { lt: now },
+        confirmedAt: null,
+      },
+      data: { status: 'expired' },
+    });
+  }
+
+  private activeBookingStatuses() {
+    return ['pending', 'approved', 'in_progress'] as const;
+  }
+
   private async getResourceOrThrow(id: string) {
     const resource = await this.prisma.bookableResource.findUnique({ where: { id } });
     if (!resource) throw new NotFoundException('Resource not found');
@@ -37,7 +53,7 @@ export class ResourcesService {
       where: {
         resourceId,
         ...(excludeBookingId && { id: { not: excludeBookingId } }),
-        status: { in: ['pending', 'approved'] },
+        status: { in: [...this.activeBookingStatuses()] },
         AND: [{ startTime: { lt: endTime } }, { endTime: { gt: startTime } }],
       },
     });
@@ -101,7 +117,7 @@ export class ResourcesService {
     const bookingCount = await this.prisma.resourceBooking.count({
       where: {
         resourceId: id,
-        status: { in: ['pending', 'approved'] },
+        status: { in: [...this.activeBookingStatuses()] },
       },
     });
 
@@ -113,6 +129,7 @@ export class ResourcesService {
   }
 
   async findBookings(employeeId?: string) {
+    await this.expireStaleBookings();
     const where = employeeId ? { employeeId } : {};
     return this.prisma.resourceBooking.findMany({
       where,
@@ -125,6 +142,7 @@ export class ResourcesService {
   }
 
   async findCalendarBookings(start: Date, end: Date) {
+    await this.expireStaleBookings();
     return this.prisma.resourceBooking.findMany({
       where: {
         AND: [{ startTime: { lt: end } }, { endTime: { gt: start } }],
@@ -260,10 +278,80 @@ export class ResourcesService {
     if (booking.status === 'rejected') {
       throw new BadRequestException('Rejected bookings cannot be cancelled');
     }
+    if (booking.status === 'completed') {
+      throw new BadRequestException('Completed bookings cannot be cancelled');
+    }
+    if (booking.status === 'expired') {
+      throw new BadRequestException('Expired bookings cannot be cancelled');
+    }
+    if (booking.status === 'in_progress') {
+      throw new BadRequestException('Meetings in progress cannot be cancelled');
+    }
+    if (booking.status === 'approved' && new Date() >= booking.startTime) {
+      throw new BadRequestException('Approved bookings can only be cancelled before start time');
+    }
 
     return this.prisma.resourceBooking.update({
       where: { id },
       data: { status: 'cancelled' },
+      include: {
+        resource: true,
+        employee: { include: { department: true } },
+      },
+    });
+  }
+
+  async confirmBooking(id: string, employeeId: string) {
+    const booking = await this.getBookingOrThrow(id);
+    if (booking.employeeId !== employeeId) {
+      throw new BadRequestException('Only the booking owner can confirm this meeting');
+    }
+    if (booking.status !== 'approved') {
+      throw new BadRequestException('Only approved bookings can be confirmed');
+    }
+    const now = new Date();
+    if (now < booking.startTime) {
+      throw new BadRequestException('Meeting has not started yet');
+    }
+    if (now >= booking.endTime) {
+      throw new BadRequestException('Meeting time has ended');
+    }
+
+    return this.prisma.resourceBooking.update({
+      where: { id },
+      data: {
+        status: 'in_progress',
+        confirmedAt: now,
+      },
+      include: {
+        resource: true,
+        employee: { include: { department: true } },
+      },
+    });
+  }
+
+  async completeBooking(id: string, employeeId: string) {
+    const booking = await this.getBookingOrThrow(id);
+    if (booking.employeeId !== employeeId) {
+      throw new BadRequestException('Only the booking owner can complete this meeting');
+    }
+    if (booking.status !== 'in_progress') {
+      throw new BadRequestException('Only in-progress meetings can be completed');
+    }
+    if (!booking.confirmedAt) {
+      throw new BadRequestException('Meeting was not confirmed');
+    }
+    const now = new Date();
+    if (now < booking.endTime) {
+      throw new BadRequestException('Meeting has not ended yet');
+    }
+
+    return this.prisma.resourceBooking.update({
+      where: { id },
+      data: {
+        status: 'completed',
+        completedAt: now,
+      },
       include: {
         resource: true,
         employee: { include: { department: true } },
