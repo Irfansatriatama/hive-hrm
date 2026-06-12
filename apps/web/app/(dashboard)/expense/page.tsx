@@ -292,7 +292,7 @@ export default function ExpensePage() {
           onRowClick={row => openDetail(row)}
           columns={[
             row => row.claimNumber,
-            ...(isAdmin ? [row => row.employee.fullName] : []),
+            ...(isAdmin ? [(row: ExpenseClaim) => row.employee.fullName] : []),
             row => row.title,
             row => formatRupiah(row.totalAmount),
             row => formatDate(row.submittedAt || row.createdAt),
