@@ -120,7 +120,7 @@ export class AttendanceController {
     if (!file) {
       throw new BadRequestException('No file uploaded');
     }
-    const baseUrl = process.env.API_PUBLIC_URL || `http://localhost:${process.env.PORT || 4000}`;
+    const baseUrl = process.env.API_PUBLIC_URL || `http://localhost:${process.env.PORT || 4003}`;
     return { url: `${baseUrl}/uploads/selfies/${file.filename}` };
   }
 

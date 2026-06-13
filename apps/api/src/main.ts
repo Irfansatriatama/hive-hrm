@@ -11,9 +11,9 @@ async function bootstrap() {
   // Enable CORS — allow local network for mobile/web testing
   app.enableCors({
     origin: [
-      process.env.FRONTEND_URL || 'http://localhost:3000',
-      'http://localhost:3000',
-      'http://127.0.0.1:3000',
+      process.env.FRONTEND_URL || 'http://localhost:4000',
+      'http://localhost:4000',
+      'http://127.0.0.1:4000',
       /^http:\/\/192\.168\.\d+\.\d+(:\d+)?$/,
     ],
     credentials: true,
@@ -21,7 +21,7 @@ async function bootstrap() {
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   });
 
-  const port = process.env.PORT || 4000;
+  const port = process.env.PORT || 4003;
   await app.listen(port);
   console.log(`Application is running on: http://localhost:${port}`);
 }

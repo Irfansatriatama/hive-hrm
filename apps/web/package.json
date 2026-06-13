@@ -3,10 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 4000",
     "build": "next build",
-    "start": "next start",
-    "start:prod": "node server.js",
+    "start": "next start -p 4000",
     "pm2:start": "pm2 start ecosystem.config.cjs",
     "pm2:stop": "pm2 stop hive-hrm-web",
     "pm2:restart": "pm2 restart hive-hrm-web",

@@ -1,10 +1,10 @@
 /**
  * Core API Client Wrapper for HIVE HRM.
- * Communicates with the NestJS backend on http://localhost:4000 (or NEXT_PUBLIC_API_URL).
+ * Communicates with the NestJS backend on http://localhost:4003 (or NEXT_PUBLIC_API_URL).
  * Passes credentials (cookies) automatically for session validation.
  */
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4003';
 
 export async function fetchAPI<T = any>(path: string, options: RequestInit = {}): Promise<T> {
   const url = `${API_URL}${path.startsWith('/') ? path : '/' + path}`;

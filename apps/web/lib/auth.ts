@@ -1,6 +1,6 @@
 import { createAuthClient } from 'better-auth/react';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4003';
 
 export const authClient = createAuthClient({
   baseURL: API_URL,
@@ -14,7 +14,7 @@ export const { signIn, signOut, useSession } = authClient;
  */
 export async function getSession(requestHeaders?: Headers) {
   try {
-    const apiURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+    const apiURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4003';
     const headers = new Headers();
     if (requestHeaders) {
       requestHeaders.forEach((value, key) => {
