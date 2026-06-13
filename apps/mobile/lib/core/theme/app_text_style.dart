@@ -53,6 +53,7 @@ class AppTextStyle {
   );
 
   static TextStyle h2Accent = h2.copyWith(color: AppColors.amberAccent);
+  static TextStyle h2Coral = h2.copyWith(color: AppColors.accentRose);
   static TextStyle captionSuccess = caption.copyWith(color: AppColors.successGreen);
   static TextStyle captionWarning = caption.copyWith(color: AppColors.warningAmber);
   static TextStyle captionError = caption.copyWith(color: AppColors.errorRed);

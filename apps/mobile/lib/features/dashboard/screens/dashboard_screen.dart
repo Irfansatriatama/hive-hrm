@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../shared/widgets/hive_app_bar.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/l10n/l10n.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_style.dart';
 import '../../../core/theme/app_theme.dart';
@@ -22,13 +20,9 @@ class DashboardScreen extends ConsumerWidget {
     final dashboardState = ref.watch(dashboardProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.primaryNavy,
-      appBar: HiveAppBar(
-        automaticallyImplyLeading: false,
-        toolbarHeight: 0,
-        elevation: 0,
-      ),
-      body: RefreshIndicator(
+      body: DecoratedBox(
+        decoration: const BoxDecoration(gradient: AppColors.scaffoldGradient),
+        child: RefreshIndicator(
         color: AppColors.amberAccent,
         backgroundColor: AppColors.surfaceBlue,
         onRefresh: () => ref.refresh(dashboardProvider.future),
@@ -77,6 +71,7 @@ class DashboardScreen extends ConsumerWidget {
             ),
           _ => const SizedBox.shrink(),
         },
+        ),
       ),
     );
   }

@@ -21,8 +21,9 @@ class HomeScreen extends ConsumerWidget {
     final homeState = ref.watch(dashboardProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.primaryNavy,
-      body: SafeArea(
+      body: DecoratedBox(
+        decoration: const BoxDecoration(gradient: AppColors.scaffoldGradient),
+        child: SafeArea(
         bottom: false,
         child: RefreshIndicator(
           color: AppColors.amberAccent,
@@ -72,6 +73,7 @@ class HomeScreen extends ConsumerWidget {
               ),
             _ => const SizedBox.shrink(),
           },
+        ),
         ),
       ),
     );

@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../core/l10n/l10n.dart';
 import '../../../core/navigation/app_navigation.dart';
@@ -111,9 +110,14 @@ class _HomeHeaderState extends State<HomeHeader> {
                 children: [
                   Text(dateLabel, style: AppTextStyle.caption),
                   const SizedBox(height: 2),
-                  Text(
-                    '$timeLabel WIB',
-                    style: AppTextStyle.h1.copyWith(color: AppColors.amberAccent),
+                  ShaderMask(
+                    shaderCallback: (bounds) => AppColors.honeyGradient.createShader(
+                      Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+                    ),
+                    child: Text(
+                      '$timeLabel WIB',
+                      style: AppTextStyle.h1.copyWith(color: Colors.white),
+                    ),
                   ),
                 ],
               ),
@@ -123,6 +127,7 @@ class _HomeHeaderState extends State<HomeHeader> {
               child: CircleAvatar(
                 radius: 22,
                 backgroundColor: AppColors.cardElevated,
+                foregroundColor: AppColors.amberAccent,
                 backgroundImage: widget.photoUrl != null &&
                         widget.photoUrl!.isNotEmpty
                     ? CachedNetworkImageProvider(widget.photoUrl!)

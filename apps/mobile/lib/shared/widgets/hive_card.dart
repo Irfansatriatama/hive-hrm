@@ -5,6 +5,7 @@ import '../../core/theme/app_theme.dart';
 class HiveCard extends StatelessWidget {
   final Widget child;
   final bool accentLeft;
+  final Color? accentColor;
   final EdgeInsets? padding;
   final VoidCallback? onTap;
 
@@ -12,28 +13,50 @@ class HiveCard extends StatelessWidget {
     super.key,
     required this.child,
     this.accentLeft = false,
+    this.accentColor,
     this.padding,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final stripe = accentColor ?? AppColors.amberAccent;
+
     return Material(
-      color: AppColors.surfaceBlue,
+      color: Colors.transparent,
       borderRadius: BorderRadius.circular(AppTheme.radiusCard),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppTheme.radiusCard),
-        splashColor: AppColors.amberAccent.withOpacity(0.08),
-        child: Container(
+        splashColor: stripe.withOpacity(0.1),
+        highlightColor: stripe.withOpacity(0.05),
+        child: Ink(
           decoration: BoxDecoration(
+            gradient: AppColors.cardSheen,
             borderRadius: BorderRadius.circular(AppTheme.radiusCard),
-            border: accentLeft
-                ? const Border(left: BorderSide(color: AppColors.amberAccent, width: 3))
+            border: Border.all(
+              color: AppColors.dividerLine.withOpacity(0.55),
+            ),
+            boxShadow: accentLeft
+                ? [
+                    BoxShadow(
+                      color: stripe.withOpacity(0.12),
+                      blurRadius: 16,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
                 : null,
           ),
-          padding: padding ?? const EdgeInsets.all(AppTheme.md),
-          child: child,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppTheme.radiusCard),
+              border: accentLeft
+                  ? Border(left: BorderSide(color: stripe, width: 3))
+                  : null,
+            ),
+            padding: padding ?? const EdgeInsets.all(AppTheme.md),
+            child: child,
+          ),
         ),
       ),
     );

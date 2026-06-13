@@ -68,8 +68,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final isLoading = loginState.isLoading;
 
     return Scaffold(
-      backgroundColor: AppColors.primaryNavy,
-      body: OfflineBanner(
+      body: DecoratedBox(
+        decoration: const BoxDecoration(gradient: AppColors.scaffoldGradient),
+        child: OfflineBanner(
         child: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(AppTheme.md),
@@ -189,6 +190,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         ),
       ),
       ),
+      ),
     );
   }
 }
@@ -207,16 +209,26 @@ class _LogoArea extends StatelessWidget {
     return Column(
       children: [
         Container(
-          width: AppTheme.tapMin,
-          height: AppTheme.tapMin,
+          width: AppTheme.tapMin + AppTheme.sm,
+          height: AppTheme.tapMin + AppTheme.sm,
           decoration: BoxDecoration(
-            border: Border.all(color: AppColors.amberAccent),
-            borderRadius: BorderRadius.circular(AppTheme.radiusCard),
+            gradient: AppColors.honeyGradient,
+            borderRadius: BorderRadius.circular(AppTheme.radiusCard + 2),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.amberAccent.withOpacity(0.35),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
           alignment: Alignment.center,
           child: Text(
             'H',
-            style: AppTextStyle.display.copyWith(color: AppColors.amberAccent),
+            style: AppTextStyle.display.copyWith(
+              color: AppColors.primaryNavy,
+              fontWeight: FontWeight.w800,
+            ),
           ),
         ),
         SizedBox(height: AppTheme.sm),

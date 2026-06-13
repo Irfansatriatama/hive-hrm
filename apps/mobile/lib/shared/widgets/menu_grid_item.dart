@@ -19,15 +19,43 @@ class MenuGridItem extends StatelessWidget {
     this.primary = false,
   });
 
+  Color get _iconColor {
+    if (primary) return AppColors.primaryNavy;
+    final index = item.id.index % AppColors.menuIconAccents.length;
+    return AppColors.menuIconAccents[index];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: primary ? AppColors.amberAccent : AppColors.surfaceBlue,
+      color: Colors.transparent,
       borderRadius: BorderRadius.circular(AppTheme.radiusCard),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppTheme.radiusCard),
-        child: ConstrainedBox(
+        splashColor: _iconColor.withOpacity(0.12),
+        child: Ink(
+          decoration: BoxDecoration(
+            gradient: primary
+                ? AppColors.honeyGradient
+                : AppColors.cardSheen,
+            borderRadius: BorderRadius.circular(AppTheme.radiusCard),
+            border: Border.all(
+              color: primary
+                  ? AppColors.amberAccent.withOpacity(0.5)
+                  : AppColors.dividerLine.withOpacity(0.55),
+            ),
+            boxShadow: primary
+                ? [
+                    BoxShadow(
+                      color: AppColors.amberAccent.withOpacity(0.2),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ]
+                : null,
+          ),
+          child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 88),
           child: Padding(
             padding: const EdgeInsets.symmetric(
@@ -39,7 +67,7 @@ class MenuGridItem extends StatelessWidget {
               children: [
                 Icon(
                   item.icon,
-                  color: primary ? AppColors.primaryNavy : AppColors.tealSecondary,
+                  color: _iconColor,
                   size: 26,
                 ),
                 const SizedBox(height: AppTheme.xs),
@@ -58,6 +86,7 @@ class MenuGridItem extends StatelessWidget {
             ),
           ),
         ),
+        ),
       ),
     );
   }
@@ -71,12 +100,19 @@ class MoreMenuGridItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColors.surfaceBlue,
+      color: Colors.transparent,
       borderRadius: BorderRadius.circular(AppTheme.radiusCard),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppTheme.radiusCard),
-        child: ConstrainedBox(
+        splashColor: AppColors.accentViolet.withOpacity(0.12),
+        child: Ink(
+          decoration: BoxDecoration(
+            gradient: AppColors.cardSheen,
+            borderRadius: BorderRadius.circular(AppTheme.radiusCard),
+            border: Border.all(color: AppColors.accentViolet.withOpacity(0.35)),
+          ),
+          child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 88),
           child: Padding(
             padding: const EdgeInsets.symmetric(
@@ -88,7 +124,7 @@ class MoreMenuGridItem extends StatelessWidget {
               children: [
                 Icon(
                   Icons.apps_rounded,
-                  color: AppColors.amberAccent,
+                  color: AppColors.accentViolet,
                   size: 26,
                 ),
                 const SizedBox(height: AppTheme.xs),
@@ -105,6 +141,7 @@ class MoreMenuGridItem extends StatelessWidget {
               ],
             ),
           ),
+        ),
         ),
       ),
     );
